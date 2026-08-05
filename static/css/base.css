@@ -8,7 +8,10 @@
 
 :root {
     --brand-color: #206172;
+    --brand-color-hover: #1a5261;
     --brand-color-soft: #e4eef0;
+    --danger-color: #b91c1c;
+    --danger-color-hover: #9d1818;
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --color-bg: #f6f8fa;
     --color-surface: #ffffff;
@@ -16,10 +19,42 @@
     --color-text: #1a1f36;
     --color-text-secondary: #697386;
     --color-text-tertiary: #8792a2;
+    --transition-fast: 120ms ease;
+    --transition-base: 160ms ease;
+    --focus-ring: 0 0 0 3px rgba(32, 97, 114, 0.35);
 }
 
 * {
     box-sizing: border-box;
+}
+
+/* Interaction: shared transitions + keyboard focus rings. Form fields use
+   :focus (feedback on any focus method); links/buttons use :focus-visible
+   so a mouse click doesn't show a ring meant for keyboard navigation. */
+
+a, button, input, textarea, select, summary {
+    transition: background-color var(--transition-base), border-color var(--transition-base),
+        color var(--transition-base), box-shadow var(--transition-base), opacity var(--transition-base);
+}
+
+.kanban-card, .stat-tile {
+    transition: box-shadow var(--transition-base), transform var(--transition-base),
+        border-color var(--transition-base);
+}
+
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
 }
 
 body {
@@ -199,6 +234,10 @@ h2 {
     cursor: pointer;
 }
 
+.auth-form button:hover {
+    background: var(--brand-color-hover);
+}
+
 .form-error {
     color: #b91c1c;
     font-size: 0.85rem;
@@ -223,6 +262,11 @@ h2 {
     box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
     text-decoration: none;
     color: inherit;
+}
+
+.stat-tile:hover {
+    box-shadow: 0 4px 10px rgba(16, 24, 40, 0.08);
+    transform: translateY(-1px);
 }
 
 .stat-tile-alert {
@@ -335,8 +379,14 @@ h2 {
     cursor: grab;
 }
 
+.kanban-card:hover {
+    box-shadow: 0 4px 10px rgba(16, 24, 40, 0.08);
+    transform: translateY(-1px);
+}
+
 .kanban-card:active {
     cursor: grabbing;
+    transform: none;
 }
 
 .kanban-card-name {
@@ -517,6 +567,10 @@ h2 {
     font-family: inherit;
     cursor: pointer;
     white-space: nowrap;
+}
+
+.secondary-button:hover {
+    background: var(--brand-color-hover);
 }
 
 .activity-timeline {
@@ -720,7 +774,11 @@ h2 {
 }
 
 .danger-button {
-    background: #b91c1c;
+    background: var(--danger-color);
+}
+
+.danger-button:hover {
+    background: var(--danger-color-hover);
 }
 
 /* Dashboard charts */
@@ -1009,6 +1067,11 @@ a.agenda-event-title:hover {
     padding: 0.15rem 0.6rem;
 }
 
+.label-picker-add summary:hover {
+    border-color: var(--brand-color);
+    color: var(--brand-color);
+}
+
 .label-picker-add summary::-webkit-details-marker {
     display: none;
 }
@@ -1139,7 +1202,15 @@ a.agenda-event-title:hover {
     cursor: pointer;
 }
 
+.label-filter-chip:hover {
+    background: #e3e3e3;
+}
+
 .label-filter-chip.active {
     background: var(--brand-color);
     color: #ffffff;
+}
+
+.label-filter-chip.active:hover {
+    background: var(--brand-color-hover);
 }
