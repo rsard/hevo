@@ -23,6 +23,11 @@
                     </span>
                 </div>
                 <div class="item-actions">
+                    {% if venue.whatsapp_phone_number_id %}
+                    <span class="badge-status">WhatsApp conectado</span>
+                    {% else %}
+                    <span class="badge-status badge-status-warning">WhatsApp não conectado</span>
+                    {% endif %}
                     {% if venue.subscription %}
                     <span class="badge-status">{{ venue.subscription.plan_name }} · R$ {{ venue.subscription.monthly_price }} · {{ venue.subscription.get_status_display }}</span>
                     {% else %}

@@ -656,6 +656,12 @@ h2 {
     color: var(--color-text-secondary);
 }
 
+.settings-form-card form .helptext {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    margin-top: -0.2rem;
+}
+
 .settings-form-card form input[type="text"],
 .settings-form-card form input[type="number"],
 .settings-form-card form input[type="time"],
@@ -1006,6 +1012,11 @@ a.agenda-event-title:hover {
     padding: 0.2rem 0.6rem;
     border-radius: 999px;
     white-space: nowrap;
+}
+
+.badge-status-warning {
+    background: #fef3c7;
+    color: #b45309;
 }
 
 /* Labels */
