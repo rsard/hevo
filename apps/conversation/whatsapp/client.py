@@ -23,3 +23,21 @@ class WhatsAppClient:
         response = requests.post(self._url, headers=self._headers, json=payload, timeout=10)
         response.raise_for_status()
         return response.json()
+
+    def send_template(self, *, to, template_name, language_code, body_params=None):
+        """Outside the 24h customer-service window, WhatsApp only allows
+        pre-approved template messages, not free-form text."""
+        template = {'name': template_name, 'language': {'code': language_code}}
+        if body_params:
+            template['components'] = [
+                {'type': 'body', 'parameters': [{'type': 'text', 'text': p} for p in body_params]},
+            ]
+        payload = {
+            'messaging_product': 'whatsapp',
+            'to': to,
+            'type': 'template',
+            'template': template,
+        }
+        response = requests.post(self._url, headers=self._headers, json=payload, timeout=10)
+        response.raise_for_status()
+        return response.json()

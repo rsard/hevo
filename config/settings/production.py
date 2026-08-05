@@ -12,6 +12,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+
 MIDDLEWARE = list(MIDDLEWARE)
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 

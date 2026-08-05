@@ -93,6 +93,17 @@ class QualificationService:
                 activity_type=LeadActivity.ActivityType.ESCALATION,
                 description='Cliente solicitou falar com uma pessoa da equipe.',
             )
+            try:
+                # Local import: apps.crm.tasks imports apps.crm.services, which
+                # would otherwise be a circular import at module load time.
+                from apps.crm.tasks import send_escalation_notification
+                send_escalation_notification.delay(lead.id)
+            except Exception:
+                CRMService.log_activity(
+                    lead=lead,
+                    activity_type=LeadActivity.ActivityType.AI_ACTION,
+                    description='Falha ao enfileirar notificação de escalonamento.',
+                )
 
         if lead.stage == Lead.Stage.NEW:
             score = data.get('qualification_score') or 0

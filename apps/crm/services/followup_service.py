@@ -1,14 +1,13 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.utils import timezone
 
-from apps.ai.services import get_provider, log_usage
 from apps.conversation.models import Conversation, Message
 from apps.conversation.services import ConversationService
 from apps.conversation.whatsapp.client import WhatsAppClient
 from apps.crm.models import Lead, LeadActivity
 from apps.crm.services.crm_service import CRMService
-from apps.venue.services import KnowledgeBaseService
 
 INACTIVITY_THRESHOLD = timedelta(hours=24)
 STALE_STAGES = [Lead.Stage.NEW, Lead.Stage.CONTACTED, Lead.Stage.QUALIFIED]
@@ -24,12 +23,6 @@ STALE_STAGES_FOR_LOST = [
     Lead.Stage.NEGOTIATION,
 ]
 
-FOLLOWUP_PROMPT = (
-    "The customer hasn't replied in a while. Write a short, friendly WhatsApp "
-    'follow-up message in Portuguese to re-engage them, referencing their event '
-    "if it's known from the conversation, without being pushy."
-)
-
 
 class FollowUpService:
     @staticmethod
@@ -43,32 +36,27 @@ class FollowUpService:
 
     @staticmethod
     def send_followup(lead):
+        """Leads eligible here have had no interaction for 24h+, which is always
+        past WhatsApp's free-form customer-service window. Outside that window
+        only a pre-approved template message is allowed, so this sends the
+        configured template rather than AI-generated free text."""
         conversation = lead.conversation
-        context = KnowledgeBaseService.build_context(lead.venue)
-        history = ConversationService.get_history(conversation)
-
-        provider = get_provider()
-        response = provider.generate(
-            system_prompt=f'{context}\n\n{FOLLOWUP_PROMPT}',
-            messages=history,
-            temperature=0.5,
-        )
-        log_usage(venue=lead.venue, response=response, conversation=conversation)
-
         message = ConversationService.record_message(
             conversation=conversation,
             direction=Message.Direction.OUTBOUND,
             sender_type=Message.SenderType.AI,
-            content=response.content,
+            content=settings.WHATSAPP_FOLLOWUP_TEMPLATE_TEXT,
         )
         if conversation.channel == Conversation.Channel.WHATSAPP:
-            WhatsAppClient(lead.venue.whatsapp_phone_number_id).send_text(
-                to=conversation.external_contact_id, body=response.content,
+            WhatsAppClient(lead.venue.whatsapp_phone_number_id).send_template(
+                to=conversation.external_contact_id,
+                template_name=settings.WHATSAPP_FOLLOWUP_TEMPLATE_NAME,
+                language_code=settings.WHATSAPP_FOLLOWUP_TEMPLATE_LANGUAGE,
             )
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.AI_ACTION,
-            description='Sent automated follow-up message.',
+            description='Sent automated WhatsApp template follow-up.',
         )
         CRMService.touch_interaction(lead)
         return message

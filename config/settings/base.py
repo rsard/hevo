@@ -147,6 +147,32 @@ WHATSAPP_ACCESS_TOKEN = env('WHATSAPP_ACCESS_TOKEN', default='')
 WHATSAPP_APP_SECRET = env('WHATSAPP_APP_SECRET', default='')
 WHATSAPP_VERIFY_TOKEN = env('WHATSAPP_VERIFY_TOKEN', default='')
 
+# Name/language of the Meta-approved template used for inactivity follow-ups
+# (must exist in the venue's WhatsApp Business Account). TEMPLATE_TEXT is only
+# used locally for the conversation history/UI, not sent to the API.
+WHATSAPP_FOLLOWUP_TEMPLATE_NAME = env('WHATSAPP_FOLLOWUP_TEMPLATE_NAME', default='lead_followup')
+WHATSAPP_FOLLOWUP_TEMPLATE_LANGUAGE = env('WHATSAPP_FOLLOWUP_TEMPLATE_LANGUAGE', default='pt_BR')
+WHATSAPP_FOLLOWUP_TEMPLATE_TEXT = env(
+    'WHATSAPP_FOLLOWUP_TEMPLATE_TEXT',
+    default=(
+        'Notamos que você não respondeu recentemente. Ainda tem interesse em seu '
+        'evento? Estamos à disposição para ajudar!'
+    ),
+)
+
+
+# Email
+
+EMAIL_HOST = env('EMAIL_HOST', default='localhost')
+EMAIL_PORT = env.int('EMAIL_PORT', default=25)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='no-reply@hevo.app')
+
+# Base URL used to build absolute links in emails (no request context in Celery).
+SITE_URL = env('SITE_URL', default='http://localhost:8000')
+
 
 # Celery
 
