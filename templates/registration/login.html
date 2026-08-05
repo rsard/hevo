@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Entrar - Hevo{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+        {% if form.errors %}
+        <p class="form-error">Usuário ou senha inválidos.</p>
+        {% endif %}
+        <label>
+            Usuário
+            {{ form.username }}
+        </label>
+        <label>
+            Senha
+            {{ form.password }}
+        </label>
+        <button type="submit">Entrar</button>
+    </form>
+</div>
+{% endblock %}

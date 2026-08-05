@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Pacotes - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <h1>Configurações</h1>
+    {% include 'venue/_settings_nav.html' %}
+    <div class="detail-card">
+        <div class="settings-list-header">
+            <h2>Pacotes</h2>
+            <a href="{% url 'venue:package-create' %}" class="secondary-button">Adicionar</a>
+        </div>
+        <ul class="settings-item-list">
+            {% for item in items %}
+            <li>
+                <div>
+                    <strong>{{ item.name }}</strong>
+                    <span class="muted">R$ {{ item.base_price }}{% if item.event_type %} · {{ item.event_type.name }}{% endif %}</span>
+                </div>
+                <div class="item-actions">
+                    <a href="{% url 'venue:package-update' item.pk %}">Editar</a>
+                    <a href="{% url 'venue:package-delete' item.pk %}">Excluir</a>
+                </div>
+            </li>
+            {% empty %}
+            <li class="muted">Nenhum pacote cadastrado.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

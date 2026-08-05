@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Fotos - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <h1>Configurações</h1>
+    {% include 'venue/_settings_nav.html' %}
+    <div class="detail-card">
+        <div class="settings-list-header">
+            <h2>Fotos</h2>
+            <a href="{% url 'venue:image-create' %}" class="secondary-button">Adicionar</a>
+        </div>
+        <div class="image-grid">
+            {% for item in items %}
+            <div class="image-tile">
+                <img src="{{ item.image.url }}" alt="{{ item.caption }}">
+                <div class="image-tile-caption">{{ item.caption|default:'—' }}</div>
+                <div class="item-actions">
+                    <a href="{% url 'venue:image-update' item.pk %}">Editar</a>
+                    <a href="{% url 'venue:image-delete' item.pk %}">Excluir</a>
+                </div>
+            </div>
+            {% empty %}
+            <p class="muted">Nenhuma foto cadastrada.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

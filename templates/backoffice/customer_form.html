@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Novo cliente - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <a href="{% url 'backoffice:customer-list' %}" class="back-link">← Clientes</a>
+    <h1>Novo cliente</h1>
+
+    <div class="detail-card settings-form-card">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <h2>Venue</h2>
+            <p>{{ form.venue_name.as_field_group }}</p>
+            <p>{{ form.venue_whatsapp_number.as_field_group }}</p>
+
+            <h2>Login do responsável</h2>
+            <p>{{ form.owner_username.as_field_group }}</p>
+            <p>{{ form.owner_email.as_field_group }}</p>
+            <p>{{ form.owner_password.as_field_group }}</p>
+
+            <h2>Assinatura</h2>
+            <p>{{ form.plan_name.as_field_group }}</p>
+            <p>{{ form.monthly_price.as_field_group }}</p>
+            <p>{{ form.status.as_field_group }}</p>
+            <p>{{ form.started_at.as_field_group }}</p>
+            <p>{{ form.notes.as_field_group }}</p>
+
+            <button type="submit" class="secondary-button">Criar cliente</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

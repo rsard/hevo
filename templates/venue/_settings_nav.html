@@ -1,0 +1,13 @@
+<nav class="settings-nav">
+    <a href="{% url 'venue:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Perfil</a>
+    <a href="{% url 'venue:opening-hours' %}" class="{% if request.resolver_match.url_name == 'opening-hours' %}active{% endif %}">Horários</a>
+    <a href="{% url 'venue:event-type-list' %}" class="{% if 'event-type' in request.resolver_match.url_name %}active{% endif %}">Tipos de evento</a>
+    <a href="{% url 'venue:package-list' %}" class="{% if 'package' in request.resolver_match.url_name %}active{% endif %}">Pacotes</a>
+    <a href="{% url 'venue:menu-list' %}" class="{% if 'menu' in request.resolver_match.url_name %}active{% endif %}">Cardápios</a>
+    <a href="{% url 'venue:decoration-list' %}" class="{% if 'decoration' in request.resolver_match.url_name %}active{% endif %}">Decoração</a>
+    <a href="{% url 'venue:faq-list' %}" class="{% if 'faq' in request.resolver_match.url_name %}active{% endif %}">FAQs</a>
+    <a href="{% url 'venue:image-list' %}" class="{% if 'image' in request.resolver_match.url_name %}active{% endif %}">Fotos</a>
+    <a href="{% url 'venue:document-list' %}" class="{% if 'document' in request.resolver_match.url_name %}active{% endif %}">Documentos</a>
+    <a href="{% url 'crm:label-list' %}" class="{% if 'label' in request.resolver_match.url_name %}active{% endif %}">Labels</a>
+    <a href="{% url 'crm:calendar-settings' %}" class="{% if 'calendar' in request.resolver_match.url_name %}active{% endif %}">Integrações</a>
+</nav>

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQs - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <h1>Configurações</h1>
+    {% include 'venue/_settings_nav.html' %}
+    <div class="detail-card">
+        <div class="settings-list-header">
+            <h2>Perguntas frequentes</h2>
+            <a href="{% url 'venue:faq-create' %}" class="secondary-button">Adicionar</a>
+        </div>
+        <ul class="settings-item-list">
+            {% for item in items %}
+            <li>
+                <div>
+                    <strong>{{ item.question }}</strong>
+                    <span class="muted">{{ item.answer|truncatechars:80 }}</span>
+                </div>
+                <div class="item-actions">
+                    <a href="{% url 'venue:faq-update' item.pk %}">Editar</a>
+                    <a href="{% url 'venue:faq-delete' item.pk %}">Excluir</a>
+                </div>
+            </li>
+            {% empty %}
+            <li class="muted">Nenhuma FAQ cadastrada.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

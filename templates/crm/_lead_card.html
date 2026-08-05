@@ -1,0 +1,41 @@
+<div
+    class="kanban-card"
+    id="lead-card-{{ lead.pk }}"
+    data-lead-id="{{ lead.pk }}"
+    data-stage-url="{% url 'crm:lead-stage-update' lead.pk %}"
+    data-href="{% url 'crm:lead-detail' lead.pk %}"
+>
+    {% if lead.escalated_at or lead.is_stale %}
+    <div class="kanban-card-alerts">
+        {% if lead.escalated_at %}
+        <span class="kanban-alert kanban-alert-escalation" title="Atendimento humano solicitado">Atendimento humano</span>
+        {% endif %}
+        {% if lead.is_stale %}
+        <span class="kanban-alert kanban-alert-stale" title="Sem resposta do cliente há mais de 24h">Sem resposta</span>
+        {% endif %}
+    </div>
+    {% endif %}
+    <div class="kanban-card-name">{{ lead.customer_name|default:'Sem nome' }}</div>
+    <div class="kanban-card-phone">{{ lead.customer_phone }}</div>
+    {% if lead.event_type or lead.event_date %}
+    <div class="kanban-card-event">
+        {% if lead.event_type %}{{ lead.event_type.name }}{% endif %}
+        {% if lead.event_date %}· {{ lead.event_date }}{% endif %}
+    </div>
+    {% endif %}
+    {% if lead.labels.all %}
+    <div class="kanban-card-labels">
+        {% for label in lead.labels.all %}
+        <span class="label-chip label-chip-{{ label.color }}">{{ label.name }}</span>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="kanban-card-footer">
+        {% if lead.qualification_score is not None %}
+        <span class="kanban-score">{{ lead.qualification_score }}</span>
+        {% else %}
+        <span></span>
+        {% endif %}
+        <span class="muted">{% if lead.last_interaction_at %}{{ lead.last_interaction_at|timesince }}{% endif %}</span>
+    </div>
+</div>

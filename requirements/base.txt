@@ -1,0 +1,12 @@
+Django==6.0.8
+psycopg2-binary==2.9.12
+celery==5.6.3
+redis==8.1.0
+openai==2.53.0
+django-htmx==1.28.0
+django-environ==0.14.0
+Pillow==12.3.0
+google-api-python-client==2.198.0
+google-auth==2.56.2
+requests==2.34.2
+cryptography==50.0.0

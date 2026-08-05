@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Cardápios - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <h1>Configurações</h1>
+    {% include 'venue/_settings_nav.html' %}
+    <div class="detail-card">
+        <div class="settings-list-header">
+            <h2>Cardápios</h2>
+            <a href="{% url 'venue:menu-create' %}" class="secondary-button">Adicionar</a>
+        </div>
+        <ul class="settings-item-list">
+            {% for menu in menus %}
+            <li>
+                <div>
+                    <strong>{{ menu.name }}</strong>
+                    <span class="muted">{{ menu.items.count }} itens</span>
+                </div>
+                <div class="item-actions">
+                    <a href="{% url 'venue:menu-update' menu.pk %}">Editar</a>
+                    <a href="{% url 'venue:menu-delete' menu.pk %}">Excluir</a>
+                </div>
+            </li>
+            {% empty %}
+            <li class="muted">Nenhum cardápio cadastrado.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

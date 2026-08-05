@@ -1,0 +1,25 @@
+<div class="detail-card" id="visits-section">
+    <h2>Visitas</h2>
+    <ul class="visit-list">
+        {% for visit in lead.visits.all %}
+        <li>
+            <span>{{ visit.scheduled_at|date:'d/m/Y H:i' }}</span>
+            <span class="muted">{{ visit.get_status_display }}</span>
+        </li>
+        {% empty %}
+        <li class="muted">Nenhuma visita agendada.</li>
+        {% endfor %}
+    </ul>
+    {% if visit_error %}
+    <p class="form-error">{{ visit_error }}</p>
+    {% endif %}
+    <form
+        class="visit-form"
+        hx-post="{% url 'crm:lead-schedule-visit' lead.pk %}"
+        hx-target="#visits-section"
+        hx-swap="outerHTML"
+    >
+        <input type="datetime-local" name="scheduled_at" class="search-input" required>
+        <button type="submit" class="secondary-button">Agendar visita</button>
+    </form>
+</div>

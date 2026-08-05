@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Horários - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <h1>Configurações</h1>
+    {% include 'venue/_settings_nav.html' %}
+    <div class="detail-card settings-form-card">
+        <h2>Horário de funcionamento</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ formset.management_form }}
+            <table class="hours-table">
+                <thead>
+                    <tr>
+                        <th>Dia</th>
+                        <th>Fechado</th>
+                        <th>Abre</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hours_form in formset %}
+                    <tr>
+                        <td>{{ hours_form.instance.get_weekday_display }}</td>
+                        <td>{{ hours_form.is_closed }}{{ hours_form.id }}</td>
+                        <td>{{ hours_form.opens_at }}</td>
+                        <td>{{ hours_form.closes_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="secondary-button">Salvar</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

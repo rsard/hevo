@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leads - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1>Leads</h1>
+        <input
+            type="search"
+            name="q"
+            class="search-input"
+            placeholder="Buscar por nome ou telefone"
+            value="{{ query }}"
+            hx-get="{% url 'crm:lead-list' %}"
+            hx-trigger="keyup changed delay:300ms, search"
+            hx-target="#kanban-board"
+            hx-swap="outerHTML"
+        >
+    </div>
+
+    {% if all_labels %}
+    <div class="label-filter-row">
+        <a
+            class="label-filter-chip {% if not active_label %}active{% endif %}"
+            hx-get="{% url 'crm:lead-list' %}"
+            hx-target="#kanban-board"
+            hx-push-url="true"
+            href="{% url 'crm:lead-list' %}"
+        >Todas as labels</a>
+        {% for label in all_labels %}
+        <a
+            class="label-filter-chip {% if active_label == label.id|stringformat:'s' %}active{% endif %}"
+            hx-get="{% url 'crm:lead-list' %}?label={{ label.id }}"
+            hx-target="#kanban-board"
+            hx-push-url="true"
+            href="{% url 'crm:lead-list' %}?label={{ label.id }}"
+        >{{ label.name }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% include 'crm/_kanban_board.html' %}
+</div>
+
+<script src="{% static 'vendor/sortable.min.js' %}"></script>
+<script src="{% static 'js/kanban.js' %}"></script>
+{% endblock %}

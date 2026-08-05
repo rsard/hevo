@@ -1,0 +1,10 @@
+<ul class="activity-timeline" id="activity-list">
+    {% for activity in activities %}
+    <li>
+        <div>{{ activity.description }}</div>
+        <span class="muted">{{ activity.get_activity_type_display }} · {{ activity.created_at|timesince }}</span>
+    </li>
+    {% empty %}
+    <li class="muted">Nenhuma atividade registrada.</li>
+    {% endfor %}
+</ul>

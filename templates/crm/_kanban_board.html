@@ -1,0 +1,16 @@
+{% load static %}
+<div class="kanban-board" id="kanban-board">
+    {% for column in columns %}
+    <div class="kanban-column">
+        <div class="kanban-column-header">
+            <span>{{ column.label }}</span>
+            <span class="kanban-count">{{ column.leads|length }}</span>
+        </div>
+        <div class="kanban-column-cards" data-stage="{{ column.value }}">
+            {% for lead in column.leads %}
+            {% include 'crm/_lead_card.html' %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>

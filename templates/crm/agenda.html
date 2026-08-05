@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Agenda - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1>Agenda</h1>
+    </div>
+
+    {% if not connection %}
+    <div class="detail-card">
+        <p class="muted">Conecte o Google Calendar para ver sua agenda aqui.</p>
+        <a href="{% url 'crm:calendar-connect' %}" class="secondary-button">Conectar Google Calendar</a>
+    </div>
+    {% elif error %}
+    <div class="detail-card">
+        <p class="form-error">{{ error }}</p>
+    </div>
+    {% else %}
+    <div class="agenda-list">
+        {% for day in events_by_day %}
+        <div class="agenda-day">
+            <h2 class="agenda-day-header">{{ day.header }}</h2>
+            <ul class="agenda-events">
+                {% for event in day.events %}
+                <li class="agenda-event">
+                    <span class="agenda-event-time">
+                        {% if event.is_all_day %}Dia todo{% else %}{{ event.start|time:'H:i' }}{% endif %}
+                    </span>
+                    <div class="agenda-event-body">
+                        {% if event.html_link %}
+                        <a href="{{ event.html_link }}" target="_blank" rel="noopener" class="agenda-event-title">{{ event.title }}</a>
+                        {% else %}
+                        <span class="agenda-event-title">{{ event.title }}</span>
+                        {% endif %}
+                        {% if event.location %}<span class="muted">{{ event.location }}</span>{% endif %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% empty %}
+        <div class="detail-card">
+            <p class="muted">Nenhum evento nos próximos 30 dias.</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

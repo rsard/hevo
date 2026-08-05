@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Tipos de evento - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <h1>Configurações</h1>
+    {% include 'venue/_settings_nav.html' %}
+    <div class="detail-card">
+        <div class="settings-list-header">
+            <h2>Tipos de evento</h2>
+            <a href="{% url 'venue:event-type-create' %}" class="secondary-button">Adicionar</a>
+        </div>
+        <ul class="settings-item-list">
+            {% for item in items %}
+            <li>
+                <div>
+                    <strong>{{ item.name }}</strong>
+                    <span class="muted">{{ item.min_guests|default:'—' }}–{{ item.max_guests|default:'—' }} convidados</span>
+                </div>
+                <div class="item-actions">
+                    <a href="{% url 'venue:event-type-update' item.pk %}">Editar</a>
+                    <a href="{% url 'venue:event-type-delete' item.pk %}">Excluir</a>
+                </div>
+            </li>
+            {% empty %}
+            <li class="muted">Nenhum tipo de evento cadastrado.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

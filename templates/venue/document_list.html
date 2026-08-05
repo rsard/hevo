@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Documentos - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <h1>Configurações</h1>
+    {% include 'venue/_settings_nav.html' %}
+    <div class="detail-card">
+        <div class="settings-list-header">
+            <h2>Documentos</h2>
+            <a href="{% url 'venue:document-create' %}" class="secondary-button">Adicionar</a>
+        </div>
+        <ul class="settings-item-list">
+            {% for item in items %}
+            <li>
+                <div>
+                    <strong><a href="{{ item.file.url }}" target="_blank" rel="noopener">{{ item.title }}</a></strong>
+                </div>
+                <div class="item-actions">
+                    <a href="{% url 'venue:document-update' item.pk %}">Editar</a>
+                    <a href="{% url 'venue:document-delete' item.pk %}">Excluir</a>
+                </div>
+            </li>
+            {% empty %}
+            <li class="muted">Nenhum documento cadastrado.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

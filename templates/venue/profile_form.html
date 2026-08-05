@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Configurações - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <h1>Configurações</h1>
+    {% include 'venue/_settings_nav.html' %}
+    <div class="detail-card settings-form-card">
+        <h2>Perfil da venue</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="secondary-button">Salvar</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

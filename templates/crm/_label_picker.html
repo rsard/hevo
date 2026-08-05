@@ -1,0 +1,32 @@
+<div class="label-picker" id="label-picker">
+    {% for label in lead.labels.all %}
+    <span class="label-chip label-chip-{{ label.color }}">
+        {{ label.name }}
+        <button
+            type="button"
+            class="label-chip-remove"
+            hx-post="{% url 'crm:lead-toggle-label' lead.pk label.pk %}"
+            hx-target="#label-picker"
+            hx-swap="outerHTML"
+            title="Remover label"
+        >×</button>
+    </span>
+    {% endfor %}
+    <details class="label-picker-add">
+        <summary>+ Label</summary>
+        <div class="label-picker-menu">
+            {% for label in unassigned_labels %}
+            <button
+                type="button"
+                hx-post="{% url 'crm:lead-toggle-label' lead.pk label.pk %}"
+                hx-target="#label-picker"
+                hx-swap="outerHTML"
+            >
+                <span class="label-chip label-chip-{{ label.color }}">{{ label.name }}</span>
+            </button>
+            {% empty %}
+            <span class="muted">Nenhuma label disponível.</span>
+            {% endfor %}
+        </div>
+    </details>
+</div>

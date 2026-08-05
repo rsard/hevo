@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <h1>Dashboard</h1>
+
+    <div class="stat-grid">
+        <a href="{% url 'crm:lead-list' %}" class="stat-tile {% if escalated_count %}stat-tile-alert{% endif %}">
+            <span class="stat-value">{{ escalated_count }}</span>
+            <span class="stat-label">Aguardando atendimento humano</span>
+        </a>
+        <div class="stat-tile">
+            <span class="stat-value">{{ total_leads }}</span>
+            <span class="stat-label">Total de leads</span>
+        </div>
+        <div class="stat-tile">
+            <span class="stat-value">{{ new_today }}</span>
+            <span class="stat-label">Novos hoje</span>
+        </div>
+        <div class="stat-tile">
+            <span class="stat-value">{{ upcoming_visits }}</span>
+            <span class="stat-label">Visitas agendadas</span>
+        </div>
+        <div class="stat-tile">
+            <span class="stat-label">Taxa de conversão</span>
+            {% if conversion_rate is not None %}
+            <div class="meter">
+                <div class="meter-track">
+                    <div class="meter-fill" style="width: {{ conversion_rate }}%"></div>
+                </div>
+                <span class="meter-value">{{ conversion_rate }}%</span>
+            </div>
+            {% else %}
+            <span class="stat-value">—</span>
+            {% endif %}
+        </div>
+        <div class="stat-tile">
+            <span class="stat-value">{{ avg_score|default:'—' }}</span>
+            <span class="stat-label">Score médio</span>
+        </div>
+        <div class="stat-tile">
+            <span class="stat-value">{{ lost_count }}</span>
+            <span class="stat-label">Leads perdidos</span>
+        </div>
+    </div>
+
+    <h2>Relatório semanal</h2>
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h2>Novos leads por semana</h2>
+            <div class="bar-chart">
+                {% for week in weekly_leads %}
+                <div class="bar-chart-col">
+                    <div class="bar-chart-bar-wrap">
+                        <div>
+                            <span class="bar-chart-value">{{ week.count }}</span>
+                            <div class="bar-chart-bar" style="height: {% widthratio week.pct 100 120 %}px" title="Semana de {{ week.label }}: {{ week.count }} leads"></div>
+                        </div>
+                    </div>
+                    <span class="bar-chart-axis-label">{{ week.label }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="chart-card">
+            <h2>Visitas agendadas por semana</h2>
+            <div class="bar-chart">
+                {% for week in weekly_visits %}
+                <div class="bar-chart-col">
+                    <div class="bar-chart-bar-wrap">
+                        <div>
+                            <span class="bar-chart-value">{{ week.count }}</span>
+                            <div class="bar-chart-bar" style="height: {% widthratio week.pct 100 120 %}px" title="Semana de {{ week.label }}: {{ week.count }} visitas agendadas"></div>
+                        </div>
+                    </div>
+                    <span class="bar-chart-axis-label">{{ week.label }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h2>Funil de conversão</h2>
+        <p class="muted">Quantos leads já alcançaram cada etapa em algum momento, não apenas o estágio atual.</p>
+        <div class="funnel-chart">
+            {% for tier in funnel_data %}
+            <div class="funnel-row">
+                <span class="funnel-label">{{ tier.label }}</span>
+                <div class="funnel-track">
+                    <div
+                        class="funnel-bar"
+                        style="width: {{ tier.pct_of_total }}%; background: {{ tier.color }}"
+                        title="{{ tier.label }}: {{ tier.count }} leads ({{ tier.pct_of_total }}% do total)"
+                    ></div>
+                </div>
+                <div class="funnel-meta">
+                    <span class="funnel-count">{{ tier.count }}</span>
+                    {% if tier.pct_of_previous is not None %}
+                    <span class="funnel-drop">{{ tier.pct_of_previous }}% da etapa anterior</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <h2>Pipeline atual</h2>
+    <table class="pipeline-table">
+        <tbody>
+            {% for label, count in pipeline_rows %}
+            <tr>
+                <td>{{ label }}</td>
+                <td class="pipeline-count">{{ count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <h1>Configurações</h1>
+    <div class="detail-card settings-form-card">
+        <h2>Excluir "{{ object }}"?</h2>
+        <p class="muted">Esta ação não pode ser desfeita.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="secondary-button danger-button">Confirmar exclusão</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

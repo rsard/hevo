@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ lead.customer_name|default:lead.customer_phone }} - Hevo{% endblock %}
+
+{% block content %}
+<div class="page">
+    <a href="{% url 'crm:lead-list' %}" class="back-link">← Leads</a>
+
+    {% include 'crm/_escalation_banner.html' %}
+
+    <div class="page-header">
+        <div>
+            <h1>{{ lead.customer_name|default:'Sem nome' }}</h1>
+            <div class="muted">{{ lead.customer_phone }}</div>
+        </div>
+        {% include 'crm/_lead_stage_field.html' %}
+    </div>
+
+    <div class="lead-detail-grid">
+        <div class="lead-detail-main">
+            <div class="detail-card">
+                <h2>Conversa</h2>
+                <div class="message-thread">
+                    {% for message in conversation_messages %}
+                    <div class="message-bubble {{ message.direction }}">
+                        <div class="message-content">{{ message.content }}</div>
+                        <div class="message-meta">{{ message.get_sender_type_display }} · {{ message.created_at|date:'d/m H:i' }}</div>
+                    </div>
+                    {% empty %}
+                    <p class="muted">Nenhuma mensagem ainda.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="lead-detail-side">
+            <div class="detail-card">
+                <h2>Labels</h2>
+                {% include 'crm/_label_picker.html' %}
+
+                <h2>Detalhes</h2>
+                <dl class="detail-list">
+                    <dt>Evento</dt>
+                    <dd>{{ lead.event_type|default:'—' }}</dd>
+                    <dt>Data</dt>
+                    <dd>{{ lead.event_date|default:'—' }}</dd>
+                    <dt>Convidados</dt>
+                    <dd>{{ lead.guest_count|default:'—' }}</dd>
+                    <dt>Orçamento estimado</dt>
+                    <dd>{% if lead.estimated_budget %}R$ {{ lead.estimated_budget }}{% else %}—{% endif %}</dd>
+                    <dt>Score</dt>
+                    <dd>{{ lead.qualification_score|default:'—' }}</dd>
+                    <dt>Sentimento</dt>
+                    <dd>{{ lead.get_sentiment_display|default:'—' }}</dd>
+                    <dt>Responsável</dt>
+                    <dd>{{ lead.assigned_to|default:'—' }}</dd>
+                </dl>
+                {% if lead.conversation_summary %}
+                <h2>Resumo</h2>
+                <p class="muted">{{ lead.conversation_summary }}</p>
+                {% endif %}
+            </div>
+
+            {% include 'crm/_visits_section.html' %}
+
+            <div class="detail-card">
+                <h2>Atividades</h2>
+                <form
+                    class="note-form"
+                    hx-post="{% url 'crm:lead-add-note' lead.pk %}"
+                    hx-target="#activity-list"
+                    hx-swap="outerHTML"
+                >
+                    {% csrf_token %}
+                    <textarea name="content" placeholder="Adicionar nota interna..." rows="1" required></textarea>
+                    <button type="submit" class="secondary-button">Adicionar</button>
+                </form>
+                {% include 'crm/_activity_list.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/notes.js' %}"></script>
+{% endblock %}
