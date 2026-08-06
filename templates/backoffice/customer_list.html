@@ -12,28 +12,30 @@
     <div class="detail-card">
         <ul class="settings-item-list">
             {% for venue in venues %}
-            <li>
-                <div>
-                    <strong>{{ venue.name }}</strong>
-                    <span class="muted">
-                        {{ venue.whatsapp_number }}
-                        {% with owner=venue.memberships.all|first %}
-                        {% if owner %}· {{ owner.user.get_username }}{% endif %}
-                        {% endwith %}
-                    </span>
-                </div>
-                <div class="item-actions">
-                    {% if venue.whatsapp_phone_number_id %}
-                    <span class="badge-status">WhatsApp conectado</span>
-                    {% else %}
-                    <span class="badge-status badge-status-warning">WhatsApp não conectado</span>
-                    {% endif %}
-                    {% if venue.subscription %}
-                    <span class="badge-status">{{ venue.subscription.plan_name }} · R$ {{ venue.subscription.monthly_price }} · {{ venue.subscription.get_status_display }}</span>
-                    {% else %}
-                    <span class="muted">Sem assinatura</span>
-                    {% endif %}
-                </div>
+            <li class="linked-item">
+                <a href="{% url 'backoffice:customer-detail' venue.pk %}" class="settings-item-list-link">
+                    <div>
+                        <strong>{{ venue.name }}</strong>
+                        <span class="muted">
+                            {{ venue.whatsapp_number }}
+                            {% with owner=venue.memberships.all|first %}
+                            {% if owner %}· {{ owner.user.get_username }}{% endif %}
+                            {% endwith %}
+                        </span>
+                    </div>
+                    <div class="item-actions">
+                        {% if venue.whatsapp_phone_number_id %}
+                        <span class="badge-status">WhatsApp conectado</span>
+                        {% else %}
+                        <span class="badge-status badge-status-warning">WhatsApp não conectado</span>
+                        {% endif %}
+                        {% if venue.subscription %}
+                        <span class="badge-status">{{ venue.subscription.plan_name }} · R$ {{ venue.subscription.monthly_price }} · {{ venue.subscription.get_status_display }}</span>
+                        {% else %}
+                        <span class="muted">Sem assinatura</span>
+                        {% endif %}
+                    </div>
+                </a>
             </li>
             {% empty %}
             <li class="muted">Nenhum cliente cadastrado ainda.</li>

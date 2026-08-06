@@ -6,8 +6,7 @@
         hx-trigger="change"
         hx-target="#lead-stage-field"
         hx-swap="outerHTML"
-        hx-vals='{"render": "field"}'
-    >
+        hx-vals='{"render": "field"}'>
         {% for value, label in stages %}
         <option value="{{ value }}" {% if lead.stage == value %}selected{% endif %}>{{ label }}</option>
         {% endfor %}

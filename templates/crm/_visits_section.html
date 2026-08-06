@@ -17,8 +17,7 @@
         class="visit-form"
         hx-post="{% url 'crm:lead-schedule-visit' lead.pk %}"
         hx-target="#visits-section"
-        hx-swap="outerHTML"
-    >
+        hx-swap="outerHTML">
         <input type="datetime-local" name="scheduled_at" class="search-input" required>
         <button type="submit" class="secondary-button">Agendar visita</button>
     </form>

@@ -12,7 +12,7 @@ from apps.user.services import get_active_venue
 def calendar_settings(request):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
     connection = getattr(venue, 'calendar_connection', None)
     return render(request, 'crm/calendar_settings.html', {'venue': venue, 'connection': connection})
 
@@ -21,7 +21,7 @@ def calendar_settings(request):
 def calendar_connect(request):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
     state = generate_state()
     request.session['google_oauth_state'] = state
     return redirect(build_authorization_url(request, state))
@@ -31,7 +31,7 @@ def calendar_connect(request):
 def calendar_callback(request):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
 
     if request.GET.get('error'):
         messages.error(request, 'Conexão com o Google Calendar cancelada ou negada.')
@@ -65,7 +65,7 @@ def calendar_callback(request):
 def calendar_disconnect(request):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
     if request.method == 'POST':
         CalendarConnection.objects.filter(venue=venue).delete()
         messages.success(request, 'Google Calendar desconectado.')

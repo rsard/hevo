@@ -70,8 +70,7 @@
                     class="note-form"
                     hx-post="{% url 'crm:lead-add-note' lead.pk %}"
                     hx-target="#activity-list"
-                    hx-swap="outerHTML"
-                >
+                    hx-swap="outerHTML">
                     {% csrf_token %}
                     <textarea name="content" placeholder="Adicionar nota interna..." rows="1" required></textarea>
                     <button type="submit" class="secondary-button">Adicionar</button>

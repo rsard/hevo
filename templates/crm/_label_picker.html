@@ -8,8 +8,7 @@
             hx-post="{% url 'crm:lead-toggle-label' lead.pk label.pk %}"
             hx-target="#label-picker"
             hx-swap="outerHTML"
-            title="Remover label"
-        >×</button>
+            title="Remover label">×</button>
     </span>
     {% endfor %}
     <details class="label-picker-add">
@@ -20,8 +19,7 @@
                 type="button"
                 hx-post="{% url 'crm:lead-toggle-label' lead.pk label.pk %}"
                 hx-target="#label-picker"
-                hx-swap="outerHTML"
-            >
+                hx-swap="outerHTML">
                 <span class="label-chip label-chip-{{ label.color }}">{{ label.name }}</span>
             </button>
             {% empty %}

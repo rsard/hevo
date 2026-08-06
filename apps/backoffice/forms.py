@@ -9,7 +9,7 @@ from apps.venue.models import Venue
 
 
 class NewCustomerForm(forms.Form):
-    venue_name = forms.CharField(label='Nome da venue', max_length=255)
+    venue_name = forms.CharField(label='Nome do espaço', max_length=255)
     venue_whatsapp_number = forms.CharField(label='Número do WhatsApp', max_length=20)
     venue_whatsapp_phone_number_id = forms.CharField(
         label='ID do número de telefone (WhatsApp)',
@@ -40,13 +40,13 @@ class NewCustomerForm(forms.Form):
     def clean_venue_whatsapp_number(self):
         number = self.cleaned_data['venue_whatsapp_number']
         if Venue.objects.filter(whatsapp_number=number).exists():
-            raise forms.ValidationError('Já existe uma venue com este número de WhatsApp.')
+            raise forms.ValidationError('Já existe um espaço com este número de WhatsApp.')
         return number
 
     def clean_venue_whatsapp_phone_number_id(self):
         phone_number_id = self.cleaned_data['venue_whatsapp_phone_number_id']
         if phone_number_id and Venue.objects.filter(whatsapp_phone_number_id=phone_number_id).exists():
-            raise forms.ValidationError('Já existe uma venue com este ID de número de telefone.')
+            raise forms.ValidationError('Já existe um espaço com este ID de número de telefone.')
         return phone_number_id
 
     def clean_owner_username(self):

@@ -96,7 +96,7 @@ def dashboard_home(request):
         # their own -- send them to the area they actually manage instead of 404ing.
         if request.user.is_staff:
             return redirect('backoffice:customer-list')
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
 
     leads = Lead.objects.filter(venue=venue)
     today = timezone.localdate()

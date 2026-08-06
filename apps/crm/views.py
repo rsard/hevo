@@ -26,7 +26,7 @@ STALE_THRESHOLD = timedelta(hours=24)
 def lead_board(request):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
 
     leads = Lead.objects.filter(venue=venue).select_related('event_type', 'assigned_to').prefetch_related('labels')
     leads = leads.order_by('-last_interaction_at')
@@ -86,7 +86,7 @@ def _annotate_staleness(leads):
 def lead_detail(request, pk):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
 
     lead = get_object_or_404(
         Lead.objects.filter(venue=venue)
@@ -111,7 +111,7 @@ def lead_detail(request, pk):
 def lead_stage_update(request, pk):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
 
     lead = get_object_or_404(Lead.objects.filter(venue=venue), pk=pk)
     stage = request.POST.get('stage')
@@ -130,7 +130,7 @@ def lead_stage_update(request, pk):
 def lead_schedule_visit(request, pk):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
 
     lead = get_object_or_404(Lead.objects.filter(venue=venue), pk=pk)
 
@@ -155,7 +155,7 @@ def lead_schedule_visit(request, pk):
 def lead_resolve_escalation(request, pk):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
 
     lead = get_object_or_404(Lead.objects.filter(venue=venue), pk=pk)
     if lead.escalated_at:
@@ -175,7 +175,7 @@ def lead_resolve_escalation(request, pk):
 def lead_add_note(request, pk):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
 
     lead = get_object_or_404(Lead.objects.filter(venue=venue), pk=pk)
     content = request.POST.get('content', '').strip()
@@ -194,7 +194,7 @@ def lead_add_note(request, pk):
 def lead_toggle_label(request, pk, label_id):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
 
     lead = get_object_or_404(Lead.objects.filter(venue=venue).prefetch_related('labels'), pk=pk)
     label = get_object_or_404(Label.objects.filter(venue=venue), pk=label_id)

@@ -37,13 +37,13 @@ def profile_edit(request):
     if venue is None:
         if request.user.is_staff:
             return redirect('backoffice:customer-list')
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
 
     if request.method == 'POST':
         form = VenueProfileForm(request.POST, instance=venue)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Perfil da venue atualizado.')
+            messages.success(request, 'Perfil do espaço atualizado.')
             return redirect('venue:profile')
     else:
         form = VenueProfileForm(instance=venue)
@@ -55,7 +55,7 @@ def profile_edit(request):
 def opening_hours_edit(request):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
 
     for weekday, _ in OpeningHours.Weekday.choices:
         OpeningHours.objects.get_or_create(venue=venue, weekday=weekday)
@@ -243,7 +243,7 @@ class DocumentDeleteView(VenueScopedViewMixin, DeleteView):
 def menu_list(request):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
     menus = Menu.objects.filter(venue=venue).prefetch_related('items')
     return render(request, 'venue/menu_list.html', {'venue': venue, 'menus': menus})
 
@@ -252,7 +252,7 @@ def menu_list(request):
 def menu_edit(request, pk=None):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
 
     menu = get_object_or_404(Menu, pk=pk, venue=venue) if pk else Menu(venue=venue)
 
@@ -280,7 +280,7 @@ def menu_edit(request, pk=None):
 def menu_delete(request, pk):
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhuma venue associada a este usuário.')
+        raise Http404('Nenhum espaço associado a este usuário.')
     menu = get_object_or_404(Menu, pk=pk, venue=venue)
     if request.method == 'POST':
         menu.delete()

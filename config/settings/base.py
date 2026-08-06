@@ -34,6 +34,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Required for FORM_RENDERER = TemplatesSetting to find Django's own
+    # default widget templates (django/forms/widgets/*.html).
+    'django.forms',
     'django_htmx',
     'apps.core',
     'apps.venue',
@@ -77,6 +80,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+
+# Lets form field templates be overridden from the project templates/ dir
+# (the default renderer only looks at each app's own templates/ directory).
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 
 # Database

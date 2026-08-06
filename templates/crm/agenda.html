@@ -6,6 +6,15 @@
 <div class="page">
     <div class="page-header">
         <h1>Agenda</h1>
+        {% if connection and not error %}
+        <div class="agenda-nav">
+            <a href="?offset={{ prev_offset }}" class="secondary-button">← Anterior</a>
+            {% if offset != 0 %}
+            <a href="?offset=0" class="secondary-button">Hoje</a>
+            {% endif %}
+            <a href="?offset={{ next_offset }}" class="secondary-button">Próximo →</a>
+        </div>
+        {% endif %}
     </div>
 
     {% if not connection %}
@@ -18,31 +27,32 @@
         <p class="form-error">{{ error }}</p>
     </div>
     {% else %}
-    <div class="agenda-list">
-        {% for day in events_by_day %}
-        <div class="agenda-day">
-            <h2 class="agenda-day-header">{{ day.header }}</h2>
-            <ul class="agenda-events">
-                {% for event in day.events %}
-                <li class="agenda-event">
-                    <span class="agenda-event-time">
-                        {% if event.is_all_day %}Dia todo{% else %}{{ event.start|time:'H:i' }}{% endif %}
-                    </span>
-                    <div class="agenda-event-body">
-                        {% if event.html_link %}
-                        <a href="{{ event.html_link }}" target="_blank" rel="noopener" class="agenda-event-title">{{ event.title }}</a>
-                        {% else %}
-                        <span class="agenda-event-title">{{ event.title }}</span>
-                        {% endif %}
-                        {% if event.location %}<span class="muted">{{ event.location }}</span>{% endif %}
-                    </div>
-                </li>
+    <div class="agenda-weeks">
+        {% for week in weeks %}
+        <div class="detail-card agenda-week">
+            <h2>{{ week.label }}</h2>
+            <div class="agenda-week-grid">
+                {% for name in weekday_names %}
+                <div class="agenda-weekday-label">{{ name }}</div>
                 {% endfor %}
-            </ul>
-        </div>
-        {% empty %}
-        <div class="detail-card">
-            <p class="muted">Nenhum evento nos próximos 30 dias.</p>
+                {% for day in week.days %}
+                <div class="agenda-day-cell {% if day.is_today %}agenda-day-cell-today{% endif %}">
+                    <div class="agenda-day-number">{{ day.number }}</div>
+                    {% for event in day.events %}
+                    <div class="agenda-day-event">
+                        <span class="agenda-day-event-time">
+                            {% if event.is_all_day %}Dia todo{% else %}{{ event.start|time:'H:i' }}{% endif %}
+                        </span>
+                        {% if event.html_link %}
+                        <a href="{{ event.html_link }}" target="_blank" rel="noopener" class="agenda-day-event-title" title="{{ event.title }}">{{ event.title }}</a>
+                        {% else %}
+                        <span class="agenda-day-event-title" title="{{ event.title }}">{{ event.title }}</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
         </div>
         {% endfor %}
     </div>

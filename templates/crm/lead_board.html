@@ -16,8 +16,7 @@
             hx-get="{% url 'crm:lead-list' %}"
             hx-trigger="keyup changed delay:300ms, search"
             hx-target="#kanban-board"
-            hx-swap="outerHTML"
-        >
+            hx-swap="outerHTML">
     </div>
 
     {% if all_labels %}
@@ -27,16 +26,14 @@
             hx-get="{% url 'crm:lead-list' %}"
             hx-target="#kanban-board"
             hx-push-url="true"
-            href="{% url 'crm:lead-list' %}"
-        >Todas as labels</a>
+            href="{% url 'crm:lead-list' %}">Todas as labels</a>
         {% for label in all_labels %}
         <a
             class="label-filter-chip {% if active_label == label.id|stringformat:'s' %}active{% endif %}"
             hx-get="{% url 'crm:lead-list' %}?label={{ label.id }}"
             hx-target="#kanban-board"
             hx-push-url="true"
-            href="{% url 'crm:lead-list' %}?label={{ label.id }}"
-        >{{ label.name }}</a>
+            href="{% url 'crm:lead-list' %}?label={{ label.id }}">{{ label.name }}</a>
         {% endfor %}
     </div>
     {% endif %}
@@ -48,7 +45,6 @@
     src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"
     integrity="sha512-TelkP3PCMJv+viMWynjKcvLsQzx6dJHvIGhfqzFtZKgAjKM1YPqcwzzDEoTc/BHjf43PcPzTQOjuTr4YdE8lNQ=="
     crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-></script>
+    referrerpolicy="no-referrer"></script>
 <script src="{% static 'js/kanban.js' %}"></script>
 {% endblock %}

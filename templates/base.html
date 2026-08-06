@@ -14,14 +14,12 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.0/css/all.min.css"
         integrity="sha512-ApSLB1Pd3/bZN8fWB/RG9YhN/7bd9Hkf3AGaE2mPfebjrxagjuBtx2GcgdqIlJkUzwylBo61r9Xa9NmgBI0swA=="
         crossorigin="anonymous"
-        referrerpolicy="no-referrer"
-    >
+        referrerpolicy="no-referrer">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <script
         src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"
         integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
-        crossorigin="anonymous"
-    ></script>
+        crossorigin="anonymous"></script>
     <script src="{% static 'js/csrf.js' %}"></script>
 </head>
 <body>
@@ -29,36 +27,31 @@
         {% if user.is_authenticated %}
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <img src="{% static 'branding/hevo_logo.png' %}" alt="Hevo">
-                <span>Hevo</span>
+                <img src="{% static 'branding/white_hevo_logo.png' %}" alt="Hevo">
             </div>
             <nav class="sidebar-nav">
+                {% if active_venue %}
                 <a
                     href="{% url 'dashboard:home' %}"
-                    class="sidebar-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}"
-                >
+                    class="sidebar-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
                     <i class="fa-solid fa-gauge fa-fw"></i>
                     Dashboard
                 </a>
-                {% if active_venue %}
                 <a
                     href="{% url 'crm:lead-list' %}"
-                    class="sidebar-link {% if 'lead' in request.resolver_match.url_name %}active{% endif %}"
-                >
+                    class="sidebar-link {% if 'lead' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="fa-solid fa-table-columns fa-fw"></i>
                     Leads
                 </a>
                 <a
                     href="{% url 'crm:agenda' %}"
-                    class="sidebar-link {% if request.resolver_match.url_name == 'agenda' %}active{% endif %}"
-                >
+                    class="sidebar-link {% if request.resolver_match.url_name == 'agenda' %}active{% endif %}">
                     <i class="fa-solid fa-calendar-days fa-fw"></i>
                     Agenda
                 </a>
                 <a
                     href="{% url 'venue:profile' %}"
-                    class="sidebar-link {% if request.resolver_match.app_name == 'venue' %}active{% endif %}"
-                >
+                    class="sidebar-link {% if request.resolver_match.app_name == 'venue' %}active{% endif %}">
                     <i class="fa-solid fa-gear fa-fw"></i>
                     Configurações
                 </a>
@@ -66,8 +59,7 @@
                 {% if user.is_staff %}
                 <a
                     href="{% url 'backoffice:customer-list' %}"
-                    class="sidebar-link {% if request.resolver_match.app_name == 'backoffice' %}active{% endif %}"
-                >
+                    class="sidebar-link {% if request.resolver_match.app_name == 'backoffice' %}active{% endif %}">
                     <i class="fa-solid fa-users fa-fw"></i>
                     Administração
                 </a>

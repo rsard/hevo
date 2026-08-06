@@ -6,8 +6,7 @@
         action="{% url 'crm:lead-resolve-escalation' lead.pk %}"
         hx-post="{% url 'crm:lead-resolve-escalation' lead.pk %}"
         hx-target="#escalation-banner"
-        hx-swap="outerHTML"
-    >
+        hx-swap="outerHTML">
         {% csrf_token %}
         <button type="submit" class="secondary-button">Marcar como atendido</button>
     </form>

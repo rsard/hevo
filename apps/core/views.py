@@ -14,7 +14,7 @@ class VenueScopedViewMixin(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         self.venue = get_active_venue(request.user)
         if self.venue is None:
-            raise Http404('Nenhuma venue associada a este usuário.')
+            raise Http404('Nenhum espaço associado a este usuário.')
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):

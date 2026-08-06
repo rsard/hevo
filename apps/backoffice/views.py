@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import Http404
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.backoffice.forms import NewCustomerForm
 from apps.backoffice.models import Subscription
@@ -30,6 +30,15 @@ def customer_list(request):
         .order_by('-created_at')
     )
     return render(request, 'backoffice/customer_list.html', {'venues': venues})
+
+
+@staff_required
+def customer_detail(request, pk):
+    venue = get_object_or_404(
+        Venue.objects.select_related('subscription').prefetch_related('memberships__user'),
+        pk=pk,
+    )
+    return render(request, 'backoffice/customer_detail.html', {'venue': venue})
 
 
 @staff_required
