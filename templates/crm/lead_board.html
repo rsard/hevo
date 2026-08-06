@@ -44,6 +44,11 @@
     {% include 'crm/_kanban_board.html' %}
 </div>
 
-<script src="{% static 'vendor/sortable.min.js' %}"></script>
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"
+    integrity="sha512-TelkP3PCMJv+viMWynjKcvLsQzx6dJHvIGhfqzFtZKgAjKM1YPqcwzzDEoTc/BHjf43PcPzTQOjuTr4YdE8lNQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+></script>
 <script src="{% static 'js/kanban.js' %}"></script>
 {% endblock %}

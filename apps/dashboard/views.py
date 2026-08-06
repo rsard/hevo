@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.utils import timezone
 
 from apps.crm.models import Lead, LeadActivity, Visit
@@ -92,6 +92,10 @@ def _conversion_funnel(leads):
 def dashboard_home(request):
     venue = get_active_venue(request.user)
     if venue is None:
+        # Staff accounts (e.g. system admins) may legitimately have no venue of
+        # their own -- send them to the area they actually manage instead of 404ing.
+        if request.user.is_staff:
+            return redirect('backoffice:customer-list')
         raise Http404('Nenhuma venue associada a este usuário.')
 
     leads = Lead.objects.filter(venue=venue)

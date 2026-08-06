@@ -35,6 +35,8 @@ from apps.venue.models import (
 def profile_edit(request):
     venue = get_active_venue(request.user)
     if venue is None:
+        if request.user.is_staff:
+            return redirect('backoffice:customer-list')
         raise Http404('Nenhuma venue associada a este usuário.')
 
     if request.method == 'POST':
