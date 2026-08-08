@@ -1,0 +1,10 @@
+<div class="text-center text-muted py-5">
+    <div
+        class="rounded-circle bg-hevo-subtle text-hevo d-inline-flex align-items-center
+               justify-content-center mb-2"
+        style="width: 52px; height: 52px; font-size: 1.35rem;">
+        <i class="fa-solid {{ icon|default:'fa-inbox' }}"></i>
+    </div>
+    <div class="fw-semibold text-body">{{ title }}</div>
+    {% if subtitle %}<div class="small">{{ subtitle }}</div>{% endif %}
+</div>

@@ -3,33 +3,37 @@
 {% block title %}Novo cliente - Hevo{% endblock %}
 
 {% block content %}
-<div class="page">
-    <a href="{% url 'backoffice:customer-list' %}" class="back-link">← Clientes</a>
+<div class="container-fluid p-4">
+    <a
+        href="{% url 'backoffice:customer-list' %}"
+        class="d-inline-block text-muted text-decoration-none small mb-3">← Clientes</a>
     <h1>Novo cliente</h1>
 
-    <div class="detail-card settings-form-card">
-        <form method="post">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            <h2>Espaço</h2>
-            <p>{{ form.venue_name.as_field_group }}</p>
-            <p>{{ form.venue_whatsapp_number.as_field_group }}</p>
-            <p>{{ form.venue_whatsapp_phone_number_id.as_field_group }}</p>
+    <div class="card settings-form-card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <h2>Espaço</h2>
+                <p>{{ form.venue_name.as_field_group }}</p>
+                <p>{{ form.venue_whatsapp_number.as_field_group }}</p>
+                <p>{{ form.venue_whatsapp_phone_number_id.as_field_group }}</p>
 
-            <h2>Login do responsável</h2>
-            <p>{{ form.owner_username.as_field_group }}</p>
-            <p>{{ form.owner_email.as_field_group }}</p>
-            <p>{{ form.owner_password.as_field_group }}</p>
+                <h2>Login do responsável</h2>
+                <p>{{ form.owner_username.as_field_group }}</p>
+                <p>{{ form.owner_email.as_field_group }}</p>
+                <p>{{ form.owner_password.as_field_group }}</p>
 
-            <h2>Assinatura</h2>
-            <p>{{ form.plan_name.as_field_group }}</p>
-            <p>{{ form.monthly_price.as_field_group }}</p>
-            <p>{{ form.status.as_field_group }}</p>
-            <p>{{ form.started_at.as_field_group }}</p>
-            <p>{{ form.notes.as_field_group }}</p>
+                <h2>Assinatura</h2>
+                <p>{{ form.plan_name.as_field_group }}</p>
+                <p>{{ form.monthly_price.as_field_group }}</p>
+                <p>{{ form.status.as_field_group }}</p>
+                <p>{{ form.started_at.as_field_group }}</p>
+                <p>{{ form.notes.as_field_group }}</p>
 
-            <button type="submit" class="secondary-button">Criar cliente</button>
-        </form>
+                <button type="submit" class="btn btn-hevo">Criar cliente</button>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

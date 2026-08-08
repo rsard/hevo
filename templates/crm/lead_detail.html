@@ -3,83 +3,141 @@
 
 {% block title %}{{ lead.customer_name|default:lead.customer_phone }} - Hevo{% endblock %}
 
+{% block extra_head %}
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/css/datepicker-bs5.min.css"
+    crossorigin="anonymous">
+{% endblock %}
+
 {% block content %}
-<div class="page">
-    <a href="{% url 'crm:lead-list' %}" class="back-link">← Leads</a>
+<div class="container-fluid p-4">
+    <a
+        href="{% url 'crm:lead-list' %}"
+        class="d-inline-block mb-3 text-decoration-none">← Leads</a>
 
     {% include 'crm/_escalation_banner.html' %}
 
-    <div class="page-header">
+    <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
         <div>
-            <h1>{{ lead.customer_name|default:'Sem nome' }}</h1>
-            <div class="muted">{{ lead.customer_phone }}</div>
+            {% include 'crm/_lead_name_field.html' %}
+            <div class="text-muted">{{ lead.customer_phone }}</div>
         </div>
-        {% include 'crm/_lead_stage_field.html' %}
+        <div class="d-flex align-items-center gap-3">
+            {% include 'crm/_lead_urgency_field.html' %}
+            {% include 'crm/_lead_stage_field.html' %}
+        </div>
     </div>
 
-    <div class="lead-detail-grid">
-        <div class="lead-detail-main">
-            <div class="detail-card">
-                <h2>Conversa</h2>
-                <div class="message-thread">
-                    {% for message in conversation_messages %}
-                    <div class="message-bubble {{ message.direction }}">
-                        <div class="message-content">{{ message.content }}</div>
-                        <div class="message-meta">{{ message.get_sender_type_display }} · {{ message.created_at|date:'d/m H:i' }}</div>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2>Conversa</h2>
+                    <div class="d-flex flex-column gap-2">
+                        {% for message in conversation_messages %}
+                        <div
+                            class="p-2 rounded-3
+                                {% if message.direction == 'outbound' %}
+                                align-self-end bg-hevo text-white
+                                {% else %}
+                                align-self-start bg-light
+                                {% endif %}"
+                            style="max-width: 70%; white-space: pre-wrap;">
+                            <div class="small">{{ message.content }}</div>
+                            <div
+                                class="small mt-1
+                                    {% if message.direction == 'outbound' %}text-white-50
+                                    {% else %}text-muted{% endif %}">
+                                {{ message.get_sender_type_display }} ·
+                                {{ message.created_at|date:'d/m H:i' }}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">Nenhuma mensagem ainda.</p>
+                        {% endfor %}
                     </div>
-                    {% empty %}
-                    <p class="muted">Nenhuma mensagem ainda.</p>
-                    {% endfor %}
                 </div>
             </div>
         </div>
 
-        <div class="lead-detail-side">
-            <div class="detail-card">
-                <h2>Labels</h2>
-                {% include 'crm/_label_picker.html' %}
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2>Labels</h2>
+                    {% include 'crm/_label_picker.html' %}
 
-                <h2>Detalhes</h2>
-                <dl class="detail-list">
-                    <dt>Evento</dt>
-                    <dd>{{ lead.event_type|default:'—' }}</dd>
-                    <dt>Data</dt>
-                    <dd>{{ lead.event_date|default:'—' }}</dd>
-                    <dt>Convidados</dt>
-                    <dd>{{ lead.guest_count|default:'—' }}</dd>
-                    <dt>Orçamento estimado</dt>
-                    <dd>{% if lead.estimated_budget %}R$ {{ lead.estimated_budget }}{% else %}—{% endif %}</dd>
-                    <dt>Score</dt>
-                    <dd>{{ lead.qualification_score|default:'—' }}</dd>
-                    <dt>Sentimento</dt>
-                    <dd>{{ lead.get_sentiment_display|default:'—' }}</dd>
-                    <dt>Responsável</dt>
-                    <dd>{{ lead.assigned_to|default:'—' }}</dd>
-                </dl>
-                {% if lead.conversation_summary %}
-                <h2>Resumo</h2>
-                <p class="muted">{{ lead.conversation_summary }}</p>
-                {% endif %}
+                    <h2 class="mt-3">Detalhes</h2>
+                    <dl class="row mb-0">
+                        <dt class="col-6 text-muted small">Evento</dt>
+                        <dd class="col-6 text-end small">{{ lead.event_type|default:'—' }}</dd>
+                        <dt class="col-6 text-muted small">Data</dt>
+                        <dd class="col-6 text-end small">{{ lead.event_date|default:'—' }}</dd>
+                        <dt class="col-6 text-muted small">Convidados</dt>
+                        <dd class="col-6 text-end small">{{ lead.guest_count|default:'—' }}</dd>
+                        <dt class="col-6 text-muted small">Orçamento estimado</dt>
+                        <dd class="col-6 text-end small">
+                            {% if lead.estimated_budget %}R$ {{ lead.estimated_budget }}
+                            {% else %}—{% endif %}
+                        </dd>
+                        <dt class="col-6 text-muted small">Score</dt>
+                        <dd class="col-6 text-end small">
+                            {{ lead.qualification_score|default:'—' }}</dd>
+                        <dt class="col-6 text-muted small">Sentimento</dt>
+                        <dd class="col-6 text-end small">
+                            {{ lead.get_sentiment_display|default:'—' }}</dd>
+                        <dt class="col-6 text-muted small">Responsável</dt>
+                        <dd class="col-6 text-end small">
+                            {% if lead.assigned_to %}
+                            <span class="d-inline-flex align-items-center gap-2">
+                                {% include 'core/_avatar.html' with user=lead.assigned_to %}
+                            {% firstof lead.assigned_to.get_full_name lead.assigned_to.username %}
+                            </span>
+                            {% else %}
+                            —
+                            {% endif %}
+                        </dd>
+                    </dl>
+                    {% if lead.conversation_summary %}
+                    <h2 class="mt-3">Resumo</h2>
+                    <p class="text-muted">{{ lead.conversation_summary }}</p>
+                    {% endif %}
+                </div>
             </div>
 
             {% include 'crm/_visits_section.html' %}
 
-            <div class="detail-card">
-                <h2>Atividades</h2>
-                <form
-                    class="note-form"
-                    hx-post="{% url 'crm:lead-add-note' lead.pk %}"
-                    hx-target="#activity-list"
-                    hx-swap="outerHTML">
-                    {% csrf_token %}
-                    <textarea name="content" placeholder="Adicionar nota interna..." rows="1" required></textarea>
-                    <button type="submit" class="secondary-button">Adicionar</button>
-                </form>
-                {% include 'crm/_activity_list.html' %}
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h2>Atividades</h2>
+                    <form
+                        class="note-form d-flex gap-2 mb-3"
+                        hx-post="{% url 'crm:lead-add-note' lead.pk %}"
+                        hx-target="#activity-list"
+                        hx-swap="outerHTML">
+                        {% csrf_token %}
+                        <textarea
+                            name="content"
+                            class="form-control"
+                            placeholder="Adicionar nota interna..."
+                            rows="1"
+                            required></textarea>
+                        <button type="submit" class="btn btn-hevo text-nowrap">Adicionar</button>
+                    </form>
+                    {% include 'crm/_activity_list.html' %}
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script src="{% static 'js/notes.js' %}"></script>
+<script src="{% static 'js/lead-name-edit.js' %}"></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/js/datepicker-full.min.js"
+    crossorigin="anonymous"></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/js/locales/pt-BR.js"
+    crossorigin="anonymous"></script>
+<script src="{% static 'js/visit-datepicker.js' %}"></script>
 {% endblock %}

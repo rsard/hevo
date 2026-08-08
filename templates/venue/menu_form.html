@@ -3,40 +3,44 @@
 {% block title %}Cardápio - Hevo{% endblock %}
 
 {% block content %}
-<div class="page">
-    <h1>Configurações</h1>
-    {% include 'venue/_settings_nav.html' %}
-    <div class="detail-card settings-form-card">
-        <h2>{% if menu.pk %}Editar{% else %}Novo{% endif %} cardápio</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
+<div class="container-fluid p-4">
+    <h1>Base de Conhecimento</h1>
+    {% include 'venue/_knowledge_base_nav.html' %}
+    <div class="card">
+        <div class="card-body">
+            <h2>{% if menu.pk %}Editar{% else %}Novo{% endif %} cardápio</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
 
-            <h2>Itens do cardápio</h2>
-            {{ formset.management_form }}
-            <table class="hours-table">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Categoria</th>
-                        <th>Descrição</th>
-                        {% if formset.can_delete %}<th>Remover</th>{% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item_form in formset %}
-                    <tr>
-                        <td>{{ item_form.name }}{{ item_form.id }}</td>
-                        <td>{{ item_form.category }}</td>
-                        <td>{{ item_form.description }}</td>
-                        {% if formset.can_delete %}<td>{{ item_form.DELETE }}</td>{% endif %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                <h2>Itens do cardápio</h2>
+                {{ formset.management_form }}
+                <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Categoria</th>
+                            <th>Descrição</th>
+                            {% if formset.can_delete %}<th>Remover</th>{% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item_form in formset %}
+                        <tr>
+                            <td>{{ item_form.name }}{{ item_form.id }}</td>
+                            <td>{{ item_form.category }}</td>
+                            <td>{{ item_form.description }}</td>
+                            {% if formset.can_delete %}<td>{{ item_form.DELETE }}</td>{% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
 
-            <button type="submit" class="secondary-button">Salvar</button>
-        </form>
+                <button type="submit" class="btn btn-hevo">Salvar</button>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -2,8 +2,11 @@ from apps.conversation.models import Conversation, Message
 
 
 class ConversationService:
+    """Helpers for creating conversations and recording messages on them."""
+
     @staticmethod
     def get_or_create_conversation(*, venue, external_contact_id, channel=Conversation.Channel.WHATSAPP):
+        """Gets or creates the conversation for a venue and external contact on a channel."""
         conversation, _ = Conversation.objects.get_or_create(
             venue=venue, channel=channel, external_contact_id=external_contact_id,
         )
@@ -11,6 +14,7 @@ class ConversationService:
 
     @staticmethod
     def record_message(*, conversation, direction, sender_type, content, external_message_id=''):
+        """Creates a message on a conversation and updates its last-message timestamp."""
         message = Message.objects.create(
             conversation=conversation,
             direction=direction,

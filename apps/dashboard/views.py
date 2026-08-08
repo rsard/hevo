@@ -12,34 +12,44 @@ from apps.user.services import get_active_venue
 
 WEEKS_TO_SHOW = 8
 
+PERIOD_CHOICES = {
+    '7': ('7 dias', 7),
+    '30': ('30 dias', 30),
+    '90': ('90 dias', 90),
+    'all': ('Todo o período', None),
+}
+DEFAULT_PERIOD = '30'
+
 # Contacted and Qualified are parallel outcomes of the first qualification pass
 # (branching on score), not sequential — they share a funnel tier.
 FUNNEL_STAGE_ORDER = {
     Lead.Stage.NEW: 0,
     Lead.Stage.CONTACTED: 1,
     Lead.Stage.QUALIFIED: 1,
-    Lead.Stage.VISIT_SCHEDULED: 2,
-    Lead.Stage.PROPOSAL_SENT: 3,
-    Lead.Stage.NEGOTIATION: 4,
-    Lead.Stage.WON: 5,
+    # Legacy stage values, merged into Negotiation; kept here so historical
+    # LeadActivity records recorded before the merge still funnel correctly.
+    'visit_scheduled': 2,
+    'proposal_sent': 2,
+    Lead.Stage.NEGOTIATION: 2,
+    Lead.Stage.WON: 3,
 }
 FUNNEL_TIERS = [
-    ('New Lead', 0),
-    ('Contacted / Qualified', 1),
-    ('Visit Scheduled', 2),
-    ('Proposal Sent', 3),
-    ('Negotiation', 4),
-    ('Won', 5),
+    ('Novo Lead', 0),
+    ('Contatado / Qualificado', 1),
+    ('Em Negociação', 2),
+    ('Concluído', 3),
 ]
 # Validated: node scripts/validate_palette.js "<these>" --ordinal --surface "#ffffff" --mode light
-FUNNEL_COLORS = ['#8fb4bc', '#679da8', '#437f8c', '#296673', '#164c58', '#0a2e37']
+FUNNEL_COLORS = ['#8fb4bc', '#437f8c', '#164c58', '#0a2e37']
 
 
 def _week_start(a_date):
+    """Return the Monday of the week containing a_date."""
     return a_date - timedelta(days=a_date.weekday())
 
 
 def _weekly_series(datetimes, week_starts):
+    """Bucket datetimes into weekly counts, with each week's % of the peak week."""
     counts = Counter()
     for value in datetimes:
         bucket = _week_start(timezone.localtime(value).date())
@@ -57,6 +67,8 @@ def _weekly_series(datetimes, week_starts):
 
 
 def _conversion_funnel(leads):
+    """Count leads reaching each funnel tier, based on their highest stage ever
+    reached (from stage-change history), plus % of total and % of prior tier."""
     lead_ids = list(leads.values_list('id', flat=True))
     total_leads = len(lead_ids)
 
@@ -90,16 +102,26 @@ def _conversion_funnel(leads):
 
 @login_required
 def dashboard_home(request):
+    """Render the venue's lead/visit dashboard for the selected time period."""
     venue = get_active_venue(request.user)
     if venue is None:
         # Staff accounts (e.g. system admins) may legitimately have no venue of
         # their own -- send them to the area they actually manage instead of 404ing.
         if request.user.is_staff:
-            return redirect('backoffice:customer-list')
+            return redirect('backoffice:dashboard')
         raise Http404('Nenhum espaço associado a este usuário.')
 
-    leads = Lead.objects.filter(venue=venue)
+    period = request.GET.get('period', DEFAULT_PERIOD)
+    if period not in PERIOD_CHOICES:
+        period = DEFAULT_PERIOD
+    _, period_days = PERIOD_CHOICES[period]
+
+    all_leads = Lead.objects.filter(venue=venue)
     today = timezone.localdate()
+
+    leads = all_leads
+    if period_days is not None:
+        leads = leads.filter(created_at__date__gte=today - timedelta(days=period_days))
 
     won_count = leads.filter(stage=Lead.Stage.WON).count()
     lost_count = leads.filter(stage=Lead.Stage.LOST).count()
@@ -120,8 +142,13 @@ def dashboard_home(request):
         if value in open_stages
     ]
 
+    if period_days is not None:
+        weeks_to_show = max(1, -(-period_days // 7))  # ceil division
+    else:
+        weeks_to_show = WEEKS_TO_SHOW
+
     week_starts = [
-        _week_start(today) - timedelta(weeks=i) for i in range(WEEKS_TO_SHOW - 1, -1, -1)
+        _week_start(today) - timedelta(weeks=i) for i in range(weeks_to_show - 1, -1, -1)
     ]
     range_start = week_starts[0]
 
@@ -137,14 +164,16 @@ def dashboard_home(request):
 
     context = {
         'venue': venue,
+        'period': period,
+        'period_choices': PERIOD_CHOICES,
         'total_leads': leads.count(),
-        'new_today': leads.filter(created_at__date=today).count(),
+        'new_today': all_leads.filter(created_at__date=today).count(),
         'upcoming_visits': Visit.objects.filter(
             venue=venue,
             status__in=[Visit.Status.SCHEDULED, Visit.Status.CONFIRMED],
             scheduled_at__gte=timezone.now(),
         ).count(),
-        'escalated_count': leads.filter(escalated_at__isnull=False).count(),
+        'escalated_count': all_leads.filter(escalated_at__isnull=False).count(),
         'conversion_rate': conversion_rate,
         'avg_score': round(avg_score, 1) if avg_score is not None else None,
         'lost_count': lost_count,

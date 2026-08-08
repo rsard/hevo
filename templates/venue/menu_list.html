@@ -3,30 +3,36 @@
 {% block title %}Cardápios - Hevo{% endblock %}
 
 {% block content %}
-<div class="page">
-    <h1>Configurações</h1>
-    {% include 'venue/_settings_nav.html' %}
-    <div class="detail-card">
-        <div class="settings-list-header">
-            <h2>Cardápios</h2>
-            <a href="{% url 'venue:menu-create' %}" class="secondary-button">Adicionar</a>
+<div class="container-fluid p-4">
+    <h1>Base de Conhecimento</h1>
+    {% include 'venue/_knowledge_base_nav.html' %}
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Cardápios</h2>
+                <a href="{% url 'venue:menu-create' %}" class="btn btn-hevo">Adicionar</a>
+            </div>
+            <ul class="list-group">
+                {% for menu in menus %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ menu.name }}</strong>
+                        <span class="text-muted">{{ menu.items.count }} itens</span>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <a href="{% url 'venue:menu-update' menu.pk %}"
+                           class="btn btn-sm btn-outline-secondary">Editar</a>
+                        <a href="{% url 'venue:menu-delete' menu.pk %}"
+                           class="btn btn-sm btn-outline-secondary">Excluir</a>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item">
+                    {% include 'core/_empty_state.html' with icon='fa-utensils' title='Nenhum cardápio cadastrado' subtitle='Cadastre os cardápios oferecidos pelo seu espaço.' %}
+                </li>
+                {% endfor %}
+            </ul>
         </div>
-        <ul class="settings-item-list">
-            {% for menu in menus %}
-            <li>
-                <div>
-                    <strong>{{ menu.name }}</strong>
-                    <span class="muted">{{ menu.items.count }} itens</span>
-                </div>
-                <div class="item-actions">
-                    <a href="{% url 'venue:menu-update' menu.pk %}">Editar</a>
-                    <a href="{% url 'venue:menu-delete' menu.pk %}">Excluir</a>
-                </div>
-            </li>
-            {% empty %}
-            <li class="muted">Nenhum cardápio cadastrado.</li>
-            {% endfor %}
-        </ul>
     </div>
 </div>
 {% endblock %}

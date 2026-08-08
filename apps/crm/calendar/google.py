@@ -9,7 +9,10 @@ from apps.crm.calendar.base import CalendarProvider
 
 
 class GoogleCalendarProvider(CalendarProvider):
+    """Google Calendar implementation of CalendarProvider, using the Calendar API."""
+
     def _client(self, connection):
+        """Builds an authenticated Google Calendar API client from a stored connection."""
         expiry = connection.token_expires_at
         if timezone.is_aware(expiry):
             expiry = expiry.astimezone(dt.timezone.utc).replace(tzinfo=None)
@@ -34,6 +37,7 @@ class GoogleCalendarProvider(CalendarProvider):
         connection.save(update_fields=['access_token', 'token_expires_at', 'updated_at'])
 
     def create_event(self, *, connection, title, start, end, description=''):
+        """Creates an event on the connected Google Calendar and returns its event id."""
         service, credentials = self._client(connection)
         event = service.events().insert(
             calendarId=connection.calendar_id,
@@ -48,11 +52,13 @@ class GoogleCalendarProvider(CalendarProvider):
         return event['id']
 
     def delete_event(self, *, connection, event_id):
+        """Deletes an event from the connected Google Calendar."""
         service, credentials = self._client(connection)
         service.events().delete(calendarId=connection.calendar_id, eventId=event_id).execute()
         self._persist_if_refreshed(connection, credentials)
 
     def list_events(self, *, connection, time_min, time_max, max_results=50):
+        """Lists events between time_min and time_max as normalized dicts for display."""
         service, credentials = self._client(connection)
         response = service.events().list(
             calendarId=connection.calendar_id,

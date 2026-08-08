@@ -3,36 +3,40 @@
 {% block title %}Horários - Hevo{% endblock %}
 
 {% block content %}
-<div class="page">
-    <h1>Configurações</h1>
-    {% include 'venue/_settings_nav.html' %}
-    <div class="detail-card settings-form-card">
-        <h2>Horário de funcionamento</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ formset.management_form }}
-            <table class="hours-table">
-                <thead>
-                    <tr>
-                        <th>Dia</th>
-                        <th>Fechado</th>
-                        <th>Abre</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for hours_form in formset %}
-                    <tr>
-                        <td>{{ hours_form.instance.get_weekday_display }}</td>
-                        <td>{{ hours_form.is_closed }}{{ hours_form.id }}</td>
-                        <td>{{ hours_form.opens_at }}</td>
-                        <td>{{ hours_form.closes_at }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <button type="submit" class="secondary-button">Salvar</button>
-        </form>
+<div class="container-fluid p-4">
+    <h1>Base de Conhecimento</h1>
+    {% include 'venue/_knowledge_base_nav.html' %}
+    <div class="card">
+        <div class="card-body">
+            <h2>Horário de funcionamento</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Dia</th>
+                            <th>Fechado</th>
+                            <th>Abre</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hours_form in formset %}
+                        <tr>
+                            <td>{{ hours_form.instance.get_weekday_display }}</td>
+                            <td>{{ hours_form.is_closed }}{{ hours_form.id }}</td>
+                            <td>{{ hours_form.opens_at }}</td>
+                            <td>{{ hours_form.closes_at }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+                <button type="submit" class="btn btn-hevo">Salvar</button>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

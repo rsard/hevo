@@ -1,0 +1,25 @@
+<div class="lead-name-field d-flex align-items-center gap-2" id="lead-name-field">
+    <h1 class="mb-0">{{ lead.customer_name|default:'Sem nome' }}</h1>
+    <button
+        type="button"
+        class="btn btn-sm btn-link text-secondary p-1 lead-name-edit-trigger"
+        title="Editar nome"
+        aria-label="Editar nome">
+        <i class="fa-solid fa-pen"></i>
+    </button>
+    <form
+        class="lead-name-form d-none align-items-center gap-2"
+        hx-post="{% url 'crm:lead-name-update' lead.pk %}"
+        hx-target="#lead-name-field"
+        hx-swap="outerHTML">
+        {% csrf_token %}
+        <input
+            type="text"
+            name="customer_name"
+            value="{{ lead.customer_name }}"
+            class="form-control form-control-sm"
+            maxlength="255"
+            placeholder="Nome do cliente">
+        <button type="submit" class="btn btn-hevo btn-sm">Salvar</button>
+    </form>
+</div>

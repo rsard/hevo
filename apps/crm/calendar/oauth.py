@@ -13,14 +13,17 @@ SCOPE = 'https://www.googleapis.com/auth/calendar'
 
 
 def generate_state():
+    """Generates a random state token to protect the OAuth flow against CSRF."""
     return secrets.token_urlsafe(32)
 
 
 def _redirect_uri(request):
+    """Builds the absolute callback URL Google should redirect to after auth."""
     return request.build_absolute_uri(reverse('crm:calendar-callback'))
 
 
 def build_authorization_url(request, state):
+    """Builds the Google OAuth consent screen URL for connecting a calendar."""
     params = {
         'client_id': settings.GOOGLE_OAUTH_CLIENT_ID,
         'redirect_uri': _redirect_uri(request),
@@ -34,6 +37,7 @@ def build_authorization_url(request, state):
 
 
 def exchange_code(request, code):
+    """Exchanges an OAuth authorization code for access/refresh tokens and expiry."""
     response = requests.post(
         TOKEN_URL,
         data={

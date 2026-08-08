@@ -33,6 +33,11 @@ from apps.venue.models import (
 
 @login_required
 def profile_edit(request):
+    """Edit the logged-in user's active venue profile.
+
+    Staff users with no active venue are redirected to the backoffice customer list;
+    other users with no venue get a 404.
+    """
     venue = get_active_venue(request.user)
     if venue is None:
         if request.user.is_staff:
@@ -53,6 +58,10 @@ def profile_edit(request):
 
 @login_required
 def opening_hours_edit(request):
+    """Edit the active venue's weekly opening hours.
+
+    Ensures an OpeningHours row exists for every weekday before building the formset.
+    """
     venue = get_active_venue(request.user)
     if venue is None:
         raise Http404('Nenhum espaço associado a este usuário.')
@@ -100,18 +109,24 @@ class EventTypeDeleteView(VenueScopedViewMixin, DeleteView):
 
 
 class PackageFormMixin:
+    """Restricts a Package form's event type choices to the current venue's event types."""
+
     def get_form(self, form_class=None):
+        """Return the form with its event_type field scoped to the current venue."""
         form = super().get_form(form_class)
         form.fields['event_type'].queryset = EventType.objects.filter(venue=self.venue)
         return form
 
 
 class PackageListView(VenueScopedViewMixin, ListView):
+    """Lists packages for the active venue, with event type preloaded."""
+
     model = Package
     template_name = 'venue/package_list.html'
     context_object_name = 'items'
 
     def get_queryset(self):
+        """Return the venue's packages with event_type preloaded to avoid extra queries."""
         return super().get_queryset().select_related('event_type')
 
 
@@ -241,6 +256,7 @@ class DocumentDeleteView(VenueScopedViewMixin, DeleteView):
 
 @login_required
 def menu_list(request):
+    """List the active venue's menus with their items preloaded."""
     venue = get_active_venue(request.user)
     if venue is None:
         raise Http404('Nenhum espaço associado a este usuário.')
@@ -250,6 +266,7 @@ def menu_list(request):
 
 @login_required
 def menu_edit(request, pk=None):
+    """Create or update a menu (when pk is given) along with its items formset."""
     venue = get_active_venue(request.user)
     if venue is None:
         raise Http404('Nenhum espaço associado a este usuário.')
@@ -278,6 +295,7 @@ def menu_edit(request, pk=None):
 
 @login_required
 def menu_delete(request, pk):
+    """Delete a menu belonging to the active venue after POST confirmation."""
     venue = get_active_venue(request.user)
     if venue is None:
         raise Http404('Nenhum espaço associado a este usuário.')

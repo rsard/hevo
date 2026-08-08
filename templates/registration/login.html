@@ -4,23 +4,24 @@
 {% block title %}Entrar - Hevo{% endblock %}
 
 {% block content %}
-<div class="auth-page">
-    <img src="{% static 'branding/hevo_logo_white.png' %}" alt="Hevo" class="auth-logo">
-    <div class="auth-card">
-        <form method="post" class="auth-form">
+<div class="d-flex flex-column align-items-center justify-content-center min-vh-100 bg-hevo p-4">
+    <img src="{% static 'branding/hevo_logo_white.png' %}" alt="Hevo" style="height: 72px;" class="mb-2">
+    <p class="text-white text-uppercase mb-4" style="letter-spacing: 0.08em;">IA que vende</p>
+    <div class="card p-4" style="width: 100%; max-width: 360px;">
+        <form method="post">
             {% csrf_token %}
             {% if form.errors %}
-            <p class="form-error">Usuário ou senha inválidos.</p>
+            <div class="alert alert-danger">Usuário ou senha inválidos.</div>
             {% endif %}
-            <label>
-                Usuário
+            <div class="mb-3">
+                <label class="form-label">Usuário</label>
                 {{ form.username }}
-            </label>
-            <label>
-                Senha
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Senha</label>
                 {{ form.password }}
-            </label>
-            <button type="submit">Entrar</button>
+            </div>
+            <button type="submit" class="btn btn-hevo w-100">Entrar</button>
         </form>
     </div>
 </div>

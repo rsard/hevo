@@ -14,7 +14,22 @@ from apps.venue.models import (
 )
 
 
-class VenueProfileForm(forms.ModelForm):
+class BootstrapFormMixin:
+    """Adds Bootstrap form-control/form-select/form-check-input classes to widgets."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            widget = field.widget
+            if isinstance(widget, forms.CheckboxInput):
+                widget.attrs['class'] = 'form-check-input'
+            elif isinstance(widget, (forms.Select, forms.SelectMultiple)):
+                widget.attrs['class'] = 'form-select'
+            else:
+                widget.attrs['class'] = 'form-control'
+
+
+class VenueProfileForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Venue
         fields = [
@@ -47,7 +62,7 @@ class VenueProfileForm(forms.ModelForm):
         }
 
 
-class OpeningHoursForm(forms.ModelForm):
+class OpeningHoursForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = OpeningHours
         fields = ['is_closed', 'opens_at', 'closes_at']
@@ -63,7 +78,7 @@ OpeningHoursFormSet = forms.modelformset_factory(
 )
 
 
-class EventTypeForm(forms.ModelForm):
+class EventTypeForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = EventType
         fields = ['name', 'min_guests', 'max_guests']
@@ -74,7 +89,7 @@ class EventTypeForm(forms.ModelForm):
         }
 
 
-class PackageForm(forms.ModelForm):
+class PackageForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Package
         fields = ['name', 'description', 'base_price', 'event_type']
@@ -87,7 +102,7 @@ class PackageForm(forms.ModelForm):
         widgets = {'description': forms.Textarea(attrs={'rows': 3})}
 
 
-class MenuForm(forms.ModelForm):
+class MenuForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Menu
         fields = ['name', 'description', 'price_per_person']
@@ -99,17 +114,23 @@ class MenuForm(forms.ModelForm):
         widgets = {'description': forms.Textarea(attrs={'rows': 2})}
 
 
+class MenuItemForm(BootstrapFormMixin, forms.ModelForm):
+    class Meta:
+        model = MenuItem
+        fields = ['name', 'description', 'category']
+        labels = {'name': 'Nome', 'description': 'Descrição', 'category': 'Categoria'}
+
+
 MenuItemFormSet = forms.inlineformset_factory(
     Menu,
     MenuItem,
-    fields=['name', 'description', 'category'],
-    labels={'name': 'Nome', 'description': 'Descrição', 'category': 'Categoria'},
+    form=MenuItemForm,
     extra=1,
     can_delete=True,
 )
 
 
-class DecorationOptionForm(forms.ModelForm):
+class DecorationOptionForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = DecorationOption
         fields = ['name', 'description', 'price']
@@ -117,7 +138,7 @@ class DecorationOptionForm(forms.ModelForm):
         widgets = {'description': forms.Textarea(attrs={'rows': 2})}
 
 
-class FAQForm(forms.ModelForm):
+class FAQForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = FAQ
         fields = ['question', 'answer', 'order']
@@ -125,14 +146,14 @@ class FAQForm(forms.ModelForm):
         widgets = {'answer': forms.Textarea(attrs={'rows': 3})}
 
 
-class ImageForm(forms.ModelForm):
+class ImageForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Image
         fields = ['image', 'caption', 'order']
         labels = {'image': 'Imagem', 'caption': 'Legenda', 'order': 'Ordem'}
 
 
-class DocumentForm(forms.ModelForm):
+class DocumentForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Document
         fields = ['title', 'file']

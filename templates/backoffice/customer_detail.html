@@ -3,69 +3,77 @@
 {% block title %}{{ venue.name }} - Clientes - Hevo{% endblock %}
 
 {% block content %}
-<div class="page">
-    <a href="{% url 'backoffice:customer-list' %}" class="back-link">← Clientes</a>
+<div class="container-fluid p-4">
+    <a
+        href="{% url 'backoffice:customer-list' %}"
+        class="d-inline-block text-muted text-decoration-none small mb-3">← Clientes</a>
 
-    <div class="page-header">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <h1>{{ venue.name }}</h1>
         {% if venue.whatsapp_phone_number_id %}
-        <span class="badge-status">WhatsApp conectado</span>
+        <span class="badge text-bg-success">WhatsApp conectado</span>
         {% else %}
-        <span class="badge-status badge-status-warning">WhatsApp não conectado</span>
+        <span class="badge text-bg-warning">WhatsApp não conectado</span>
         {% endif %}
     </div>
 
-    <div class="detail-card">
-        <h2>Espaço</h2>
-        <dl class="detail-list">
-            <dt>Número do WhatsApp</dt>
-            <dd>{{ venue.whatsapp_number }}</dd>
-            <dt>ID do número (WhatsApp)</dt>
-            <dd>{{ venue.whatsapp_phone_number_id|default:'—' }}</dd>
-            <dt>Ativo</dt>
-            <dd>{{ venue.is_active|yesno:'Sim,Não' }}</dd>
-            <dt>Criado em</dt>
-            <dd>{{ venue.created_at|date:'d/m/Y' }}</dd>
-        </dl>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2>Espaço</h2>
+            <dl class="detail-list">
+                <dt>Número do WhatsApp</dt>
+                <dd>{{ venue.whatsapp_number }}</dd>
+                <dt>ID do número (WhatsApp)</dt>
+                <dd>{{ venue.whatsapp_phone_number_id|default:'—' }}</dd>
+                <dt>Ativo</dt>
+                <dd>{{ venue.is_active|yesno:'Sim,Não' }}</dd>
+                <dt>Criado em</dt>
+                <dd>{{ venue.created_at|date:'d/m/Y' }}</dd>
+            </dl>
+        </div>
     </div>
 
-    <div class="detail-card">
-        <h2>Assinatura</h2>
-        {% if venue.subscription %}
-        <dl class="detail-list">
-            <dt>Plano</dt>
-            <dd>{{ venue.subscription.plan_name }}</dd>
-            <dt>Valor mensal</dt>
-            <dd>R$ {{ venue.subscription.monthly_price }}</dd>
-            <dt>Status</dt>
-            <dd>{{ venue.subscription.get_status_display }}</dd>
-            <dt>Início</dt>
-            <dd>{{ venue.subscription.started_at|date:'d/m/Y' }}</dd>
-            {% if venue.subscription.notes %}
-            <dt>Observações</dt>
-            <dd>{{ venue.subscription.notes }}</dd>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2>Assinatura</h2>
+            {% if venue.subscription %}
+            <dl class="detail-list">
+                <dt>Plano</dt>
+                <dd>{{ venue.subscription.plan_name }}</dd>
+                <dt>Valor mensal</dt>
+                <dd>R$ {{ venue.subscription.monthly_price }}</dd>
+                <dt>Status</dt>
+                <dd>{{ venue.subscription.get_status_display }}</dd>
+                <dt>Início</dt>
+                <dd>{{ venue.subscription.started_at|date:'d/m/Y' }}</dd>
+                {% if venue.subscription.notes %}
+                <dt>Observações</dt>
+                <dd>{{ venue.subscription.notes }}</dd>
+                {% endif %}
+            </dl>
+            {% else %}
+            <p class="text-muted">Sem assinatura cadastrada.</p>
             {% endif %}
-        </dl>
-        {% else %}
-        <p class="muted">Sem assinatura cadastrada.</p>
-        {% endif %}
+        </div>
     </div>
 
-    <div class="detail-card">
-        <h2>Usuários</h2>
-        <ul class="settings-item-list">
-            {% for membership in venue.memberships.all %}
-            <li>
-                <div>
-                    <strong>{{ membership.user.get_username }}</strong>
-                    <span class="muted">{{ membership.user.email }}</span>
-                </div>
-                <span class="badge-status">{{ membership.get_role_display }}</span>
-            </li>
-            {% empty %}
-            <li class="muted">Nenhum usuário associado.</li>
-            {% endfor %}
-        </ul>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2>Usuários</h2>
+            <ul class="list-group list-group-flush">
+                {% for membership in venue.memberships.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ membership.user.get_username }}</strong>
+                        <span class="text-muted">{{ membership.user.email }}</span>
+                    </div>
+                    <span class="badge text-bg-secondary">{{ membership.get_role_display }}</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">Nenhum usuário associado.</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 </div>
 {% endblock %}

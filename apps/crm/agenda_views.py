@@ -19,10 +19,12 @@ MONTH_NAMES_PT = [
 
 
 def _week_start(a_date):
+    """Returns the Monday of the week containing the given date."""
     return a_date - timedelta(days=a_date.weekday())
 
 
 def _week_label(week_start, week_end):
+    """Formats a week's date range in Portuguese for display in the agenda header."""
     if week_start.month == week_end.month:
         return f'{week_start.day} - {week_end.day} de {MONTH_NAMES_PT[week_end.month - 1]}'
     return (
@@ -33,6 +35,7 @@ def _week_label(week_start, week_end):
 
 @login_required
 def agenda(request):
+    """Renders the venue's agenda: a 4-week grid of events from the connected calendar."""
     venue = get_active_venue(request.user)
     if venue is None:
         raise Http404('Nenhum espaço associado a este usuário.')

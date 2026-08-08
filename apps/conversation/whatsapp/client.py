@@ -5,7 +5,10 @@ GRAPH_API_BASE = 'https://graph.facebook.com'
 
 
 class WhatsAppClient:
+    """Thin client for sending outbound messages via the WhatsApp Cloud API."""
+
     def __init__(self, phone_number_id):
+        """Sets up the API URL and auth headers for the given WhatsApp phone number."""
         self.phone_number_id = phone_number_id
         self._url = f'{GRAPH_API_BASE}/{settings.WHATSAPP_API_VERSION}/{phone_number_id}/messages'
         self._headers = {
@@ -14,6 +17,7 @@ class WhatsAppClient:
         }
 
     def send_text(self, *, to, body):
+        """Sends a free-form text message to a WhatsApp contact."""
         payload = {
             'messaging_product': 'whatsapp',
             'to': to,

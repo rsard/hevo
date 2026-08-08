@@ -1,10 +1,14 @@
-<ul class="activity-timeline" id="activity-list">
+<ul class="list-group list-group-flush" id="activity-list">
     {% for activity in activities %}
-    <li>
+    <li class="list-group-item px-0">
         <div>{{ activity.description }}</div>
-        <span class="muted">{{ activity.get_activity_type_display }} · {{ activity.created_at|timesince }}</span>
+        <span class="text-muted small">
+            {{ activity.get_activity_type_display }} · {{ activity.created_at|timesince }}
+        </span>
     </li>
     {% empty %}
-    <li class="muted">Nenhuma atividade registrada.</li>
+    <li class="list-group-item px-0">
+        {% include 'core/_empty_state.html' with icon='fa-clock-rotate-left' title='Nenhuma atividade registrada' %}
+    </li>
     {% endfor %}
 </ul>

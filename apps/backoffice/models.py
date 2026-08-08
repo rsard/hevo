@@ -4,6 +4,8 @@ from apps.core.models import TimeStampedModel
 
 
 class Subscription(TimeStampedModel):
+    """A venue's billing plan and subscription status."""
+
     class Status(models.TextChoices):
         TRIALING = 'trialing', 'Em teste'
         ACTIVE = 'active', 'Ativa'

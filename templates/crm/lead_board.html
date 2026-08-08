@@ -4,41 +4,33 @@
 {% block title %}Leads - Hevo{% endblock %}
 
 {% block content %}
-<div class="page">
-    <div class="page-header">
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <h1>Leads</h1>
-        <input
-            type="search"
-            name="q"
-            class="search-input"
-            placeholder="Buscar por nome ou telefone"
-            value="{{ query }}"
-            hx-get="{% url 'crm:lead-list' %}"
-            hx-trigger="keyup changed delay:300ms, search"
-            hx-target="#kanban-board"
-            hx-swap="outerHTML">
+        <div class="d-flex align-items-center gap-3">
+            <div class="btn-group" role="group">
+                <span class="btn btn-outline-hevo active">Kanban</span>
+                <a href="{% url 'crm:lead-table' %}" class="btn btn-outline-hevo">Tabela</a>
+            </div>
+            <input
+                type="search"
+                name="q"
+                class="form-control"
+                placeholder="Buscar por nome ou telefone"
+                value="{{ query }}"
+                hx-get="{% url 'crm:lead-list' %}{% querystring q=None %}"
+                hx-trigger="keyup changed delay:300ms, search"
+                hx-target="#kanban-container"
+                hx-swap="outerHTML">
+            <a
+                href="{% url 'crm:lead-export' %}{% querystring %}"
+                class="btn btn-outline-hevo text-nowrap">
+                <i class="fa-solid fa-file-excel"></i> Exportar
+            </a>
+        </div>
     </div>
 
-    {% if all_labels %}
-    <div class="label-filter-row">
-        <a
-            class="label-filter-chip {% if not active_label %}active{% endif %}"
-            hx-get="{% url 'crm:lead-list' %}"
-            hx-target="#kanban-board"
-            hx-push-url="true"
-            href="{% url 'crm:lead-list' %}">Todas as labels</a>
-        {% for label in all_labels %}
-        <a
-            class="label-filter-chip {% if active_label == label.id|stringformat:'s' %}active{% endif %}"
-            hx-get="{% url 'crm:lead-list' %}?label={{ label.id }}"
-            hx-target="#kanban-board"
-            hx-push-url="true"
-            href="{% url 'crm:lead-list' %}?label={{ label.id }}">{{ label.name }}</a>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    {% include 'crm/_kanban_board.html' %}
+    {% include 'crm/_kanban_container.html' %}
 </div>
 
 <script

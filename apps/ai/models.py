@@ -4,6 +4,8 @@ from apps.core.models import TenantModel
 
 
 class AIUsageLog(TenantModel):
+    """Tracks token usage and latency for a single LLM call, for cost monitoring."""
+
     conversation = models.ForeignKey(
         'conversation.Conversation',
         on_delete=models.SET_NULL,

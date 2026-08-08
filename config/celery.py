@@ -1,3 +1,5 @@
+"""Celery application setup; autodiscovers tasks from installed apps."""
+
 import os
 
 from celery import Celery

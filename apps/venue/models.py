@@ -4,6 +4,8 @@ from apps.core.models import TenantModel, TimeStampedModel
 
 
 class Venue(TimeStampedModel):
+    """An event venue, with the profile and policy data used by the AI sales agent."""
+
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
     whatsapp_number = models.CharField(max_length=20, unique=True)
@@ -21,6 +23,8 @@ class Venue(TimeStampedModel):
 
 
 class OpeningHours(TimeStampedModel):
+    """A venue's opening hours for a single weekday."""
+
     class Weekday(models.IntegerChoices):
         MONDAY = 0, 'Segunda-feira'
         TUESDAY = 1, 'Terça-feira'
@@ -45,6 +49,8 @@ class OpeningHours(TimeStampedModel):
 
 
 class EventType(TenantModel):
+    """A category of event a venue hosts (e.g. wedding, birthday), with guest count limits."""
+
     name = models.CharField(max_length=100)
     min_guests = models.PositiveIntegerField(null=True, blank=True)
     max_guests = models.PositiveIntegerField(null=True, blank=True)
@@ -57,6 +63,8 @@ class EventType(TenantModel):
 
 
 class Package(TenantModel):
+    """A priced bundle of services a venue offers for a given event type."""
+
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     base_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -69,6 +77,8 @@ class Package(TenantModel):
 
 
 class Menu(TenantModel):
+    """A food/drink menu a venue offers, made up of MenuItems."""
+
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     price_per_person = models.DecimalField(
@@ -80,6 +90,8 @@ class Menu(TenantModel):
 
 
 class MenuItem(models.Model):
+    """A single dish or drink belonging to a Menu."""
+
     class Category(models.TextChoices):
         STARTER = 'starter', 'Entrada'
         MAIN = 'main', 'Prato principal'
@@ -96,6 +108,8 @@ class MenuItem(models.Model):
 
 
 class DecorationOption(TenantModel):
+    """An optional decoration add-on a venue offers, with its price."""
+
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -105,6 +119,8 @@ class DecorationOption(TenantModel):
 
 
 class FAQ(TenantModel):
+    """A frequently asked question and answer shown to venue visitors."""
+
     question = models.CharField(max_length=500)
     answer = models.TextField()
     order = models.PositiveIntegerField(default=0)
@@ -119,6 +135,8 @@ class FAQ(TenantModel):
 
 
 class Document(TenantModel):
+    """A file (e.g. contract, brochure) uploaded for a venue."""
+
     title = models.CharField(max_length=255)
     file = models.FileField(upload_to='venue_documents/')
 
@@ -127,6 +145,8 @@ class Document(TenantModel):
 
 
 class Image(TenantModel):
+    """A photo uploaded for a venue's gallery."""
+
     image = models.ImageField(upload_to='venue_images/')
     caption = models.CharField(max_length=255, blank=True)
     order = models.PositiveIntegerField(default=0)

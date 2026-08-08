@@ -3,44 +3,66 @@
 {% block title %}Clientes - Hevo{% endblock %}
 
 {% block content %}
-<div class="page">
-    <div class="page-header">
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <h1>Clientes</h1>
-        <a href="{% url 'backoffice:customer-create' %}" class="secondary-button">Novo cliente</a>
+        <div class="d-flex align-items-center gap-3">
+            <div class="btn-group" role="group">
+                <a href="{% url 'backoffice:dashboard' %}" class="btn btn-outline-hevo">
+                    Visão Geral
+                </a>
+                <span class="btn btn-outline-hevo active">Clientes</span>
+            </div>
+            <a href="{% url 'backoffice:customer-create' %}" class="btn btn-hevo">
+                Novo cliente
+            </a>
+        </div>
     </div>
 
-    <div class="detail-card">
-        <ul class="settings-item-list">
-            {% for venue in venues %}
-            <li class="linked-item">
-                <a href="{% url 'backoffice:customer-detail' venue.pk %}" class="settings-item-list-link">
+    <div class="card">
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                {% for venue in venues %}
+                <a
+                    href="{% url 'backoffice:customer-detail' venue.pk %}"
+                    class="list-group-item list-group-item-action d-flex
+                        justify-content-between align-items-center">
                     <div>
                         <strong>{{ venue.name }}</strong>
-                        <span class="muted">
-                            {{ venue.whatsapp_number }}
-                            {% with owner=venue.memberships.all|first %}
-                            {% if owner %}· {{ owner.user.get_username }}{% endif %}
-                            {% endwith %}
+                        <span class="text-muted">{{ venue.whatsapp_number }}</span>
+                        {% with owner=venue.memberships.all|first %}
+                        {% if owner %}
+                        <span class="d-flex align-items-center gap-2 text-muted">
+                            {% include 'core/_avatar.html' with user=owner.user %}
+                            {{ owner.user.get_username }}
                         </span>
+                        {% endif %}
+                        {% endwith %}
                     </div>
-                    <div class="item-actions">
+                    <div class="d-flex gap-3 flex-shrink-0">
                         {% if venue.whatsapp_phone_number_id %}
-                        <span class="badge-status">WhatsApp conectado</span>
+                        <span class="badge text-bg-success">WhatsApp conectado</span>
                         {% else %}
-                        <span class="badge-status badge-status-warning">WhatsApp não conectado</span>
+                        <span class="badge text-bg-warning">WhatsApp não conectado</span>
                         {% endif %}
                         {% if venue.subscription %}
-                        <span class="badge-status">{{ venue.subscription.plan_name }} · R$ {{ venue.subscription.monthly_price }} · {{ venue.subscription.get_status_display }}</span>
+                        <span class="badge text-bg-secondary">
+                            {{ venue.subscription.plan_name }} ·
+                            R$ {{ venue.subscription.monthly_price }} ·
+                            {{ venue.subscription.get_status_display }}
+                        </span>
                         {% else %}
-                        <span class="muted">Sem assinatura</span>
+                        <span class="text-muted">Sem assinatura</span>
                         {% endif %}
                     </div>
                 </a>
-            </li>
-            {% empty %}
-            <li class="muted">Nenhum cliente cadastrado ainda.</li>
-            {% endfor %}
-        </ul>
+                {% empty %}
+                <div class="list-group-item">
+                    {% include 'core/_empty_state.html' with icon='fa-building' title='Nenhum cliente cadastrado ainda' subtitle='Clique em "Novo cliente" para cadastrar o primeiro.' %}
+                </div>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 </div>
 {% endblock %}

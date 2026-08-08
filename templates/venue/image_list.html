@@ -3,27 +3,36 @@
 {% block title %}Fotos - Hevo{% endblock %}
 
 {% block content %}
-<div class="page">
-    <h1>Configurações</h1>
-    {% include 'venue/_settings_nav.html' %}
-    <div class="detail-card">
-        <div class="settings-list-header">
-            <h2>Fotos</h2>
-            <a href="{% url 'venue:image-create' %}" class="secondary-button">Adicionar</a>
-        </div>
-        <div class="image-grid">
-            {% for item in items %}
-            <div class="image-tile">
-                <img src="{{ item.image.url }}" alt="{{ item.caption }}">
-                <div class="image-tile-caption">{{ item.caption|default:'—' }}</div>
-                <div class="item-actions">
-                    <a href="{% url 'venue:image-update' item.pk %}">Editar</a>
-                    <a href="{% url 'venue:image-delete' item.pk %}">Excluir</a>
-                </div>
+<div class="container-fluid p-4">
+    <h1>Base de Conhecimento</h1>
+    {% include 'venue/_knowledge_base_nav.html' %}
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Fotos</h2>
+                <a href="{% url 'venue:image-create' %}" class="btn btn-hevo">Adicionar</a>
             </div>
-            {% empty %}
-            <p class="muted">Nenhuma foto cadastrada.</p>
-            {% endfor %}
+            <div class="row row-cols-2 row-cols-md-4 g-3">
+                {% for item in items %}
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="{{ item.image.url }}" alt="{{ item.caption }}"
+                             class="card-img-top">
+                        <div class="card-body">
+                            <p class="card-text">{{ item.caption|default:'—' }}</p>
+                            <div class="d-flex gap-2 align-items-center">
+                                <a href="{% url 'venue:image-update' item.pk %}"
+                                   class="btn btn-sm btn-outline-secondary">Editar</a>
+                                <a href="{% url 'venue:image-delete' item.pk %}"
+                                   class="btn btn-sm btn-outline-secondary">Excluir</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                {% include 'core/_empty_state.html' with icon='fa-image' title='Nenhuma foto cadastrada' subtitle='Adicione fotos do seu espaço para exibir aos clientes.' %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>

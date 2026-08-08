@@ -28,14 +28,15 @@ QUALIFIED_SCORE_THRESHOLD = 50
 NEGOTIATION_ELIGIBLE_STAGES = {
     Lead.Stage.CONTACTED,
     Lead.Stage.QUALIFIED,
-    Lead.Stage.VISIT_SCHEDULED,
-    Lead.Stage.PROPOSAL_SENT,
 }
 
 
 class QualificationService:
+    """Uses AI to extract lead qualification data from the conversation transcript."""
+
     @staticmethod
     def qualify(lead):
+        """Runs the AI qualification prompt on the conversation and applies the result."""
         conversation = lead.conversation
         history = ConversationService.get_history(conversation, limit=50)
         if not history:
@@ -60,6 +61,7 @@ class QualificationService:
 
     @staticmethod
     def _apply(lead, data):
+        """Updates lead fields from AI output and advances stage/escalation as needed."""
         event_type_name = data.get('event_type')
         if event_type_name:
             lead.event_type = EventType.objects.filter(

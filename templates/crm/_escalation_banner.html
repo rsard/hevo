@@ -1,6 +1,11 @@
 {% if lead.escalated_at %}
-<div class="escalation-banner" id="escalation-banner">
-    <span><strong>Atendimento humano solicitado</strong> · há {{ lead.escalated_at|timesince }}. Respostas automáticas estão pausadas para este lead.</span>
+<div
+    class="alert alert-danger d-flex justify-content-between align-items-center mb-4"
+    id="escalation-banner">
+    <span>
+        <strong>Atendimento humano solicitado</strong> · há {{ lead.escalated_at|timesince }}.
+        Respostas automáticas estão pausadas para este lead.
+    </span>
     <form
         method="post"
         action="{% url 'crm:lead-resolve-escalation' lead.pk %}"
@@ -8,9 +13,23 @@
         hx-target="#escalation-banner"
         hx-swap="outerHTML">
         {% csrf_token %}
-        <button type="submit" class="secondary-button">Marcar como atendido</button>
+        <button type="submit" class="btn btn-hevo btn-sm text-nowrap">
+            Marcar como atendido</button>
     </form>
 </div>
 {% else %}
-<div id="escalation-banner"></div>
+<div class="mb-4" id="escalation-banner">
+    <form
+        method="post"
+        action="{% url 'crm:lead-escalate' lead.pk %}"
+        hx-post="{% url 'crm:lead-escalate' lead.pk %}"
+        hx-target="#escalation-banner"
+        hx-swap="outerHTML">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger btn-sm">
+            <i class="fa-solid fa-hand"></i>
+            Solicitar atendimento humano
+        </button>
+    </form>
+</div>
 {% endif %}

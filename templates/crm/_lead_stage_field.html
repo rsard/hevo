@@ -1,6 +1,6 @@
 <div id="lead-stage-field">
     <select
-        class="stage-select stage-{{ lead.stage }}"
+        class="form-select form-select-sm"
         name="stage"
         hx-post="{% url 'crm:lead-stage-update' lead.pk %}"
         hx-trigger="change"
@@ -8,7 +8,8 @@
         hx-swap="outerHTML"
         hx-vals='{"render": "field"}'>
         {% for value, label in stages %}
-        <option value="{{ value }}" {% if lead.stage == value %}selected{% endif %}>{{ label }}</option>
+        <option value="{{ value }}" {% if lead.stage == value %}selected{% endif %}>
+            {{ label }}</option>
         {% endfor %}
     </select>
 </div>

@@ -1,0 +1,15 @@
+{% load crm_extras %}
+<div id="lead-urgency-field">
+    <select
+        class="form-select form-select-sm text-{{ lead.urgency|urgency_color }}"
+        name="urgency"
+        hx-post="{% url 'crm:lead-urgency-update' lead.pk %}"
+        hx-trigger="change"
+        hx-target="#lead-urgency-field"
+        hx-swap="outerHTML">
+        {% for value, label in urgencies %}
+        <option value="{{ value }}" {% if lead.urgency == value %}selected{% endif %}>
+            {{ label }}</option>
+        {% endfor %}
+    </select>
+</div>

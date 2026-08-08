@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Administração - Hevo{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h1>Administração</h1>
+        <div class="btn-group" role="group">
+            <span class="btn btn-outline-hevo active">Visão Geral</span>
+            <a href="{% url 'backoffice:customer-list' %}" class="btn btn-outline-hevo">
+                Clientes
+            </a>
+        </div>
+    </div>
+
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3">
+        <div class="col">
+            <a
+                href="{% url 'crm:lead-list' %}"
+                class="card h-100 text-decoration-none
+                    {% if escalated_count %}text-bg-danger{% endif %}">
+                <div class="card-body">
+                    <span class="fs-2 fw-bold d-block">{{ escalated_count }}</span>
+                    <span
+                        class="{% if escalated_count %}small{% else %}text-muted small{% endif %}">
+                        {% if escalated_count %}
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        {% endif %}
+                        Aguardando atendimento humano
+                    </span>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <div class="card h-100 text-bg-hevo">
+                <div class="card-body">
+                    <span class="fs-2 fw-bold d-block">{{ total_venues }}</span>
+                    <span class="small">Total de clientes</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <span class="fs-2 fw-bold d-block">{{ active_subscriptions }}</span>
+                    <span class="text-muted small">Assinaturas ativas</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <span class="fs-2 fw-bold d-block">{{ new_venues_30d }}</span>
+                    <span class="text-muted small">Novos clientes (30 dias)</span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100 text-bg-hevo">
+                <div class="card-body">
+                    <span class="small d-block">Taxa de conversão</span>
+                    {% if conversion_rate is not None %}
+                    <div class="meter">
+                        <div class="meter-track">
+                            <div class="meter-fill" style="width: {{ conversion_rate }}%"></div>
+                        </div>
+                        <span class="meter-value">{{ conversion_rate }}%</span>
+                    </div>
+                    {% else %}
+                    <span class="fs-2 fw-bold">—</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <span class="fs-2 fw-bold d-block">{{ total_leads }}</span>
+                    <span class="text-muted small">Total de leads na plataforma</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Relatório semanal</h2>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2>Novos leads por semana (todos os clientes)</h2>
+            <div class="bar-chart">
+                {% for week in weekly_leads %}
+                <div class="bar-chart-col">
+                    <div class="bar-chart-bar-wrap">
+                        <div>
+                            <span class="bar-chart-value">{{ week.count }}</span>
+                            <div
+                                class="bar-chart-bar"
+                                style="height: {% widthratio week.pct 100 90 %}px"
+                                title="Semana de {{ week.label }}: {{ week.count }} leads"
+                            ></div>
+                        </div>
+                    </div>
+                    <span class="bar-chart-axis-label">{{ week.label }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <h2>Clientes</h2>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Assinatura</th>
+                        <th>Leads</th>
+                        <th>Aguardando atendimento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in venue_rows %}
+                    <tr
+                        class="leads-table-row"
+                        data-href="{% url 'backoffice:customer-detail' row.venue.pk %}">
+                        <td>{{ row.venue.name }}</td>
+                        <td>
+                            {% if row.venue.subscription %}
+                            <span class="badge text-bg-secondary">
+                                {{ row.venue.subscription.get_status_display }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">Sem assinatura</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ row.lead_count }}</td>
+                        <td>{{ row.escalated_count }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-muted">Nenhum cliente cadastrado ainda.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/table-row-link.js' %}"></script>
+{% endblock %}

@@ -3,10 +3,12 @@ from apps.ai.providers import OpenAIProvider
 
 
 def get_provider():
+    """Returns the LLM provider instance used to generate AI replies."""
     return OpenAIProvider()
 
 
 def log_usage(*, venue, response, conversation=None, latency_ms=None):
+    """Records token usage and latency for an LLM call."""
     return AIUsageLog.objects.create(
         venue=venue,
         conversation=conversation,

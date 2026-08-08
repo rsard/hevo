@@ -7,6 +7,7 @@ from apps.venue.models import Venue
 
 @shared_task
 def send_followups_for_all_venues():
+    """Celery task: sends follow-up messages to stale leads across all active venues."""
     for venue in Venue.objects.filter(is_active=True):
         for lead in FollowUpService.leads_needing_followup(venue):
             try:
@@ -21,6 +22,7 @@ def send_followups_for_all_venues():
 
 @shared_task
 def send_escalation_notification(lead_id):
+    """Celery task: notifies venue staff that a lead requested human attention."""
     lead = Lead.objects.select_related('venue').get(pk=lead_id)
     try:
         NotificationService.notify_escalation(lead)
@@ -34,5 +36,6 @@ def send_escalation_notification(lead_id):
 
 @shared_task
 def mark_inactive_leads_as_lost():
+    """Celery task: marks long-silent leads as lost across all active venues."""
     for venue in Venue.objects.filter(is_active=True):
         FollowUpService.mark_inactive_leads_as_lost(venue)

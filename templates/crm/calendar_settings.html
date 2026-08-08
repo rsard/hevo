@@ -3,22 +3,27 @@
 {% block title %}Integrações - Hevo{% endblock %}
 
 {% block content %}
-<div class="page">
+<div class="container-fluid p-4">
     <h1>Configurações</h1>
-    {% include 'venue/_settings_nav.html' %}
-    <div class="detail-card settings-form-card">
-        <h2>Google Calendar</h2>
-        {% if connection %}
-        <p>Conectado · calendário: {{ connection.calendar_id }}</p>
-        <p class="muted">Conectado em {{ connection.created_at|date:'d/m/Y' }}</p>
-        <form method="post" action="{% url 'crm:calendar-disconnect' %}">
-            {% csrf_token %}
-            <button type="submit" class="secondary-button danger-button">Desconectar</button>
-        </form>
-        {% else %}
-        <p class="muted">Conecte o Google Calendar para criar eventos automaticamente quando uma visita for agendada.</p>
-        <a href="{% url 'crm:calendar-connect' %}" class="secondary-button">Conectar Google Calendar</a>
-        {% endif %}
+    {% include 'venue/_account_nav.html' %}
+    <div class="card">
+        <div class="card-body">
+            <h2>Google Calendar</h2>
+            {% if connection %}
+            <p>Conectado</p>
+            <p class="text-muted">Conectado em {{ connection.created_at|date:'d/m/Y' }}</p>
+            <form method="post" action="{% url 'crm:calendar-disconnect' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger">Desconectar</button>
+            </form>
+            {% else %}
+            <p class="text-muted">
+                Conecte o Google Calendar para criar eventos automaticamente quando uma
+                visita for agendada.</p>
+            <a href="{% url 'crm:calendar-connect' %}" class="btn btn-hevo">
+                Conectar Google Calendar</a>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

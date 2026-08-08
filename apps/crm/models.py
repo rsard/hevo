@@ -6,6 +6,8 @@ from apps.core.models import TenantModel, TimeStampedModel
 
 
 class Label(TenantModel):
+    """A colored tag venues can attach to leads for organization."""
+
     class Color(models.TextChoices):
         BLUE = 'blue', 'Azul'
         GREEN = 'green', 'Verde'
@@ -28,20 +30,26 @@ class Label(TenantModel):
 
 
 class Lead(TenantModel):
+    """A prospective customer conversation tracked through the sales funnel."""
+
     class Stage(models.TextChoices):
-        NEW = 'new', 'New Lead'
-        CONTACTED = 'contacted', 'Contacted'
-        QUALIFIED = 'qualified', 'Qualified'
-        VISIT_SCHEDULED = 'visit_scheduled', 'Visit Scheduled'
-        PROPOSAL_SENT = 'proposal_sent', 'Proposal Sent'
-        NEGOTIATION = 'negotiation', 'Negotiation'
-        WON = 'won', 'Won'
-        LOST = 'lost', 'Lost'
+        NEW = 'new', 'Novo Lead'
+        CONTACTED = 'contacted', 'Contatado'
+        QUALIFIED = 'qualified', 'Qualificado'
+        NEGOTIATION = 'negotiation', 'Em Negociação'
+        WON = 'won', 'Concluído'
+        LOST = 'lost', 'Arquivado'
 
     class Sentiment(models.TextChoices):
-        POSITIVE = 'positive', 'Positive'
-        NEUTRAL = 'neutral', 'Neutral'
-        NEGATIVE = 'negative', 'Negative'
+        POSITIVE = 'positive', 'Positivo'
+        NEUTRAL = 'neutral', 'Neutro'
+        NEGATIVE = 'negative', 'Negativo'
+
+    class Urgency(models.TextChoices):
+        LOW = 'low', 'Baixa'
+        MEDIUM = 'medium', 'Média'
+        HIGH = 'high', 'Alta'
+        URGENT = 'urgent', 'Urgente'
 
     conversation = models.OneToOneField(
         'conversation.Conversation', on_delete=models.CASCADE, related_name='lead',
@@ -58,6 +66,7 @@ class Lead(TenantModel):
     qualification_score = models.PositiveSmallIntegerField(null=True, blank=True)
     stage = models.CharField(max_length=20, choices=Stage.choices, default=Stage.NEW)
     sentiment = models.CharField(max_length=10, choices=Sentiment.choices, blank=True)
+    urgency = models.CharField(max_length=10, choices=Urgency.choices, default=Urgency.MEDIUM)
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -74,11 +83,13 @@ class Lead(TenantModel):
 
 
 class LeadActivity(models.Model):
+    """An audit log entry recording a note, stage change, or action on a lead."""
+
     class ActivityType(models.TextChoices):
-        NOTE = 'note', 'Note'
-        STAGE_CHANGE = 'stage_change', 'Stage Change'
-        AI_ACTION = 'ai_action', 'AI Action'
-        HUMAN_ACTION = 'human_action', 'Human Action'
+        NOTE = 'note', 'Nota'
+        STAGE_CHANGE = 'stage_change', 'Mudança de Estágio'
+        AI_ACTION = 'ai_action', 'Ação da IA'
+        HUMAN_ACTION = 'human_action', 'Ação Humana'
         ESCALATION = 'escalation', 'Escalonamento'
 
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='activities')
@@ -104,12 +115,14 @@ class LeadActivity(models.Model):
 
 
 class Visit(TenantModel):
+    """A scheduled venue visit for a lead, optionally synced to an external calendar."""
+
     class Status(models.TextChoices):
-        SCHEDULED = 'scheduled', 'Scheduled'
-        CONFIRMED = 'confirmed', 'Confirmed'
-        COMPLETED = 'completed', 'Completed'
-        CANCELLED = 'cancelled', 'Cancelled'
-        NO_SHOW = 'no_show', 'No Show'
+        SCHEDULED = 'scheduled', 'Agendada'
+        CONFIRMED = 'confirmed', 'Confirmada'
+        COMPLETED = 'completed', 'Concluída'
+        CANCELLED = 'cancelled', 'Cancelada'
+        NO_SHOW = 'no_show', 'Não Compareceu'
 
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='visits')
     scheduled_at = models.DateTimeField()
@@ -125,6 +138,8 @@ class Visit(TenantModel):
 
 
 class CalendarConnection(TimeStampedModel):
+    """Stores a venue's OAuth connection to an external calendar provider."""
+
     class Provider(models.TextChoices):
         GOOGLE = 'google', 'Google Calendar'
 

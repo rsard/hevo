@@ -33,7 +33,7 @@ function initKanban() {
 initKanban();
 
 document.addEventListener('htmx:afterSwap', (event) => {
-    if (event.detail.target.id === 'kanban-board') {
+    if (event.detail.target.id === 'kanban-container' || event.detail.target.id === 'kanban-board') {
         initKanban();
     }
 });

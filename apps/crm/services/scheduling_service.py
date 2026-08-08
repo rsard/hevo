@@ -9,8 +9,12 @@ VISIT_DURATION = timedelta(hours=1)
 
 
 class SchedulingService:
+    """Checks venue availability and books visits, syncing with the connected calendar."""
+
     @staticmethod
     def is_available(*, venue, start):
+        """Returns whether a 1-hour visit slot is free: within opening hours, no
+        conflicting visit, and no clash on the connected external calendar."""
         end = start + VISIT_DURATION
         try:
             hours = venue.opening_hours.get(weekday=start.weekday())
@@ -27,7 +31,22 @@ class SchedulingService:
             scheduled_at__lt=end,
             scheduled_at__gte=start - VISIT_DURATION,
         )
-        return not conflicts.exists()
+        if conflicts.exists():
+            return False
+
+        connection = getattr(venue, 'calendar_connection', None)
+        if connection:
+            events = GoogleCalendarProvider().list_events(
+                connection=connection, time_min=start, time_max=end,
+            )
+            for event in events:
+                if event['is_all_day']:
+                    if event['start'] <= start.date() < event['end']:
+                        return False
+                elif event['end'] > start and event['start'] < end:
+                    return False
+
+        return True
 
     @staticmethod
     def suggest_alternative_slots(*, venue, after, count=3, horizon_days=14):
@@ -49,6 +68,8 @@ class SchedulingService:
 
     @staticmethod
     def schedule_visit(*, lead, start, notes=''):
+        """Books a visit for the lead, creates the calendar event if connected, and
+        advances the lead to Visit Scheduled."""
         if not SchedulingService.is_available(venue=lead.venue, start=start):
             raise ValueError('Requested time is not available.')
 
@@ -66,5 +87,5 @@ class SchedulingService:
             visit.calendar_event_id = event_id
             visit.save(update_fields=['calendar_event_id'])
 
-        CRMService.update_stage(lead=lead, stage=Lead.Stage.VISIT_SCHEDULED)
+        CRMService.update_stage(lead=lead, stage=Lead.Stage.NEGOTIATION)
         return visit

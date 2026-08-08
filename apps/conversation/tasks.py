@@ -20,6 +20,11 @@ SALES_PERSONA_PROMPT = (
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=30)
 def process_inbound_whatsapp_message(self, *, phone_number_id, from_wa_id, message_id, text):
+    """Generates and sends the AI reply to an inbound WhatsApp message.
+
+    Creates/updates the lead, skips replying if escalated to a human, and retries
+    on failure via Celery. Runs qualification after a successful reply.
+    """
     try:
         venue = Venue.objects.get(whatsapp_phone_number_id=phone_number_id, is_active=True)
     except Venue.DoesNotExist:
@@ -64,13 +69,16 @@ def process_inbound_whatsapp_message(self, *, phone_number_id, from_wa_id, messa
         response = provider.generate(system_prompt=system_prompt, messages=history)
         log_usage(venue=venue, response=response, conversation=conversation)
 
+        # Send before recording: if the send raises, no outbound row exists, so a
+        # retry correctly starts over instead of the already_replied check above
+        # mistaking "we saved a reply" for "we actually delivered one".
+        WhatsAppClient(phone_number_id).send_text(to=from_wa_id, body=response.content)
         ConversationService.record_message(
             conversation=conversation,
             direction=Message.Direction.OUTBOUND,
             sender_type=Message.SenderType.AI,
             content=response.content,
         )
-        WhatsAppClient(phone_number_id).send_text(to=from_wa_id, body=response.content)
     except Exception as exc:
         if self.request.retries >= self.max_retries:
             CRMService.log_activity(

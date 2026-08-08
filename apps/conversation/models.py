@@ -4,6 +4,8 @@ from apps.core.models import TenantModel
 
 
 class Conversation(TenantModel):
+    """A messaging thread between a venue and one external contact on a channel."""
+
     class Channel(models.TextChoices):
         WHATSAPP = 'whatsapp', 'WhatsApp'
 
@@ -24,14 +26,16 @@ class Conversation(TenantModel):
 
 
 class Message(models.Model):
+    """A single inbound or outbound message within a conversation."""
+
     class Direction(models.TextChoices):
         INBOUND = 'inbound', 'Inbound'
         OUTBOUND = 'outbound', 'Outbound'
 
     class SenderType(models.TextChoices):
-        CUSTOMER = 'customer', 'Customer'
-        AI = 'ai', 'AI'
-        HUMAN = 'human', 'Human'
+        CUSTOMER = 'customer', 'Cliente'
+        AI = 'ai', 'IA'
+        HUMAN = 'human', 'Humano'
 
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
     direction = models.CharField(max_length=10, choices=Direction.choices)

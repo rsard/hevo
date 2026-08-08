@@ -3,16 +3,18 @@
 {% block title %}Decoração - Hevo{% endblock %}
 
 {% block content %}
-<div class="page">
-    <h1>Configurações</h1>
-    {% include 'venue/_settings_nav.html' %}
-    <div class="detail-card settings-form-card">
-        <h2>{% if object %}Editar{% else %}Nova{% endif %} opção de decoração</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="secondary-button">Salvar</button>
-        </form>
+<div class="container-fluid p-4">
+    <h1>Base de Conhecimento</h1>
+    {% include 'venue/_knowledge_base_nav.html' %}
+    <div class="card">
+        <div class="card-body">
+            <h2>{% if object %}Editar{% else %}Nova{% endif %} opção de decoração</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-hevo">Salvar</button>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

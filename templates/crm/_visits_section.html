@@ -1,24 +1,35 @@
-<div class="detail-card" id="visits-section">
-    <h2>Visitas</h2>
-    <ul class="visit-list">
-        {% for visit in lead.visits.all %}
-        <li>
-            <span>{{ visit.scheduled_at|date:'d/m/Y H:i' }}</span>
-            <span class="muted">{{ visit.get_status_display }}</span>
-        </li>
-        {% empty %}
-        <li class="muted">Nenhuma visita agendada.</li>
-        {% endfor %}
-    </ul>
-    {% if visit_error %}
-    <p class="form-error">{{ visit_error }}</p>
-    {% endif %}
-    <form
-        class="visit-form"
-        hx-post="{% url 'crm:lead-schedule-visit' lead.pk %}"
-        hx-target="#visits-section"
-        hx-swap="outerHTML">
-        <input type="datetime-local" name="scheduled_at" class="search-input" required>
-        <button type="submit" class="secondary-button">Agendar visita</button>
-    </form>
+<div class="card" id="visits-section">
+    <div class="card-body">
+        <h2>Visitas</h2>
+        <ul class="list-group list-group-flush mb-3">
+            {% for visit in lead.visits.all %}
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span>{{ visit.scheduled_at|date:'d/m/Y H:i' }}</span>
+                <span class="text-muted">{{ visit.get_status_display }}</span>
+            </li>
+            {% empty %}
+            <li class="list-group-item px-0">
+                {% include 'core/_empty_state.html' with icon='fa-calendar-check' title='Nenhuma visita agendada' %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% if visit_error %}
+        <p class="text-danger">{{ visit_error }}</p>
+        {% endif %}
+        <form
+            class="d-flex gap-2"
+            hx-post="{% url 'crm:lead-schedule-visit' lead.pk %}"
+            hx-target="#visits-section"
+            hx-swap="outerHTML">
+            <input
+                type="text"
+                id="visit-date-input"
+                class="form-control"
+                placeholder="Data da visita"
+                autocomplete="off"
+                required>
+            <input type="time" id="visit-time-input" class="form-control" required>
+            <button type="submit" class="btn btn-hevo text-nowrap">Agendar visita</button>
+        </form>
+    </div>
 </div>

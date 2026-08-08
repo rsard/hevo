@@ -3,30 +3,36 @@
 {% block title %}FAQs - Hevo{% endblock %}
 
 {% block content %}
-<div class="page">
-    <h1>Configurações</h1>
-    {% include 'venue/_settings_nav.html' %}
-    <div class="detail-card">
-        <div class="settings-list-header">
-            <h2>Perguntas frequentes</h2>
-            <a href="{% url 'venue:faq-create' %}" class="secondary-button">Adicionar</a>
+<div class="container-fluid p-4">
+    <h1>Base de Conhecimento</h1>
+    {% include 'venue/_knowledge_base_nav.html' %}
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Perguntas frequentes</h2>
+                <a href="{% url 'venue:faq-create' %}" class="btn btn-hevo">Adicionar</a>
+            </div>
+            <ul class="list-group">
+                {% for item in items %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ item.question }}</strong>
+                        <span class="text-muted">{{ item.answer|truncatechars:80 }}</span>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <a href="{% url 'venue:faq-update' item.pk %}"
+                           class="btn btn-sm btn-outline-secondary">Editar</a>
+                        <a href="{% url 'venue:faq-delete' item.pk %}"
+                           class="btn btn-sm btn-outline-secondary">Excluir</a>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item">
+                    {% include 'core/_empty_state.html' with icon='fa-circle-question' title='Nenhuma FAQ cadastrada' subtitle='Cadastre perguntas frequentes para a IA responder aos clientes.' %}
+                </li>
+                {% endfor %}
+            </ul>
         </div>
-        <ul class="settings-item-list">
-            {% for item in items %}
-            <li>
-                <div>
-                    <strong>{{ item.question }}</strong>
-                    <span class="muted">{{ item.answer|truncatechars:80 }}</span>
-                </div>
-                <div class="item-actions">
-                    <a href="{% url 'venue:faq-update' item.pk %}">Editar</a>
-                    <a href="{% url 'venue:faq-delete' item.pk %}">Excluir</a>
-                </div>
-            </li>
-            {% empty %}
-            <li class="muted">Nenhuma FAQ cadastrada.</li>
-            {% endfor %}
-        </ul>
     </div>
 </div>
 {% endblock %}

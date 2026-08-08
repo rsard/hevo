@@ -1,12 +1,13 @@
 {% load static %}
-<div class="kanban-board" id="kanban-board">
+<div class="kanban-board d-flex gap-3 overflow-auto" id="kanban-board">
     {% for column in columns %}
     <div class="kanban-column">
-        <div class="kanban-column-header">
+        <div class="kanban-column-header d-flex justify-content-between align-items-center mb-2">
             <span>{{ column.label }}</span>
-            <span class="kanban-count">{{ column.leads|length }}</span>
+            <span class="kanban-count badge rounded-pill text-bg-secondary">
+                {{ column.leads|length }}</span>
         </div>
-        <div class="kanban-column-cards" data-stage="{{ column.value }}">
+        <div class="kanban-column-cards d-flex flex-column gap-2" data-stage="{{ column.value }}">
             {% for lead in column.leads %}
             {% include 'crm/_lead_card.html' %}
             {% endfor %}

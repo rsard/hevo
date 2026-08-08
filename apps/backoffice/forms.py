@@ -9,6 +9,8 @@ from apps.venue.models import Venue
 
 
 class NewCustomerForm(forms.Form):
+    """Form for staff to onboard a new venue, its owner account, and its subscription."""
+
     venue_name = forms.CharField(label='Nome do espaço', max_length=255)
     venue_whatsapp_number = forms.CharField(label='Número do WhatsApp', max_length=20)
     venue_whatsapp_phone_number_id = forms.CharField(
@@ -37,30 +39,43 @@ class NewCustomerForm(forms.Form):
     )
     notes = forms.CharField(label='Observações', required=False, widget=forms.Textarea(attrs={'rows': 3}))
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field, forms.ChoiceField):
+                field.widget.attrs['class'] = 'form-select'
+            else:
+                field.widget.attrs['class'] = 'form-control'
+
     def clean_venue_whatsapp_number(self):
+        """Rejects a WhatsApp number already used by another venue."""
         number = self.cleaned_data['venue_whatsapp_number']
         if Venue.objects.filter(whatsapp_number=number).exists():
             raise forms.ValidationError('Já existe um espaço com este número de WhatsApp.')
         return number
 
     def clean_venue_whatsapp_phone_number_id(self):
+        """Rejects a WhatsApp phone number ID already used by another venue."""
         phone_number_id = self.cleaned_data['venue_whatsapp_phone_number_id']
         if phone_number_id and Venue.objects.filter(whatsapp_phone_number_id=phone_number_id).exists():
             raise forms.ValidationError('Já existe um espaço com este ID de número de telefone.')
         return phone_number_id
 
     def clean_owner_username(self):
+        """Rejects a username already taken by another user."""
         username = self.cleaned_data['owner_username']
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError('Este nome de usuário já está em uso.')
         return username
 
     def clean_owner_password(self):
+        """Validates the new owner's password against Django's password validators."""
         password = self.cleaned_data['owner_password']
         password_validation.validate_password(password)
         return password
 
     def unique_slug(self):
+        """Builds a unique venue slug, appending a numeric suffix if the base is taken."""
         base = slugify(self.cleaned_data['venue_name'])
         slug = base
         suffix = 2

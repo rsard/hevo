@@ -1,29 +1,38 @@
-<div class="label-picker" id="label-picker">
+{% load crm_extras %}
+<div class="d-flex flex-wrap align-items-center gap-2" id="label-picker">
     {% for label in lead.labels.all %}
-    <span class="label-chip label-chip-{{ label.color }}">
+    <span
+        class="badge
+            text-bg-{{ label.color|label_color }}"
+        >
         {{ label.name }}
         <button
             type="button"
-            class="label-chip-remove"
+            class="btn-close btn-close-white ms-1"
+            style="font-size: 0.6rem;"
             hx-post="{% url 'crm:lead-toggle-label' lead.pk label.pk %}"
             hx-target="#label-picker"
             hx-swap="outerHTML"
-            title="Remover label">×</button>
+            title="Remover label"
+            aria-label="Remover label"></button>
     </span>
     {% endfor %}
-    <details class="label-picker-add">
-        <summary>+ Label</summary>
-        <div class="label-picker-menu">
+    <details class="dropdown">
+        <summary class="btn btn-outline-secondary btn-sm">+ Label</summary>
+        <div class="d-flex flex-column gap-1 mt-2">
             {% for label in unassigned_labels %}
             <button
                 type="button"
+                class="btn btn-sm btn-link text-decoration-none p-0 text-start"
                 hx-post="{% url 'crm:lead-toggle-label' lead.pk label.pk %}"
                 hx-target="#label-picker"
                 hx-swap="outerHTML">
-                <span class="label-chip label-chip-{{ label.color }}">{{ label.name }}</span>
+                <span
+                    class="badge text-bg-{{ label.color|label_color }}"
+                    >{{ label.name }}</span>
             </button>
             {% empty %}
-            <span class="muted">Nenhuma label disponível.</span>
+            <span class="text-muted">Nenhuma label disponível.</span>
             {% endfor %}
         </div>
     </details>

@@ -1,0 +1,8 @@
+{% with active=request.resolver_match.url_name %}
+<nav class="nav nav-tabs mb-3">
+    <a href="{% url 'crm:label-list' %}"
+        class="nav-link{% if 'label' in active %} active{% endif %}">Labels</a>
+    <a href="{% url 'crm:calendar-settings' %}"
+        class="nav-link{% if 'calendar' in active %} active{% endif %}">Integrações</a>
+</nav>
+{% endwith %}

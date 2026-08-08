@@ -10,6 +10,7 @@ from apps.user.services import get_active_venue
 
 @login_required
 def calendar_settings(request):
+    """Renders the venue's calendar connection settings page."""
     venue = get_active_venue(request.user)
     if venue is None:
         raise Http404('Nenhum espaço associado a este usuário.')
@@ -19,6 +20,7 @@ def calendar_settings(request):
 
 @login_required
 def calendar_connect(request):
+    """Starts the Google OAuth flow to connect the venue's calendar."""
     venue = get_active_venue(request.user)
     if venue is None:
         raise Http404('Nenhum espaço associado a este usuário.')
@@ -29,6 +31,8 @@ def calendar_connect(request):
 
 @login_required
 def calendar_callback(request):
+    """Handles the Google OAuth redirect: validates state, exchanges the code, and
+    saves the calendar connection."""
     venue = get_active_venue(request.user)
     if venue is None:
         raise Http404('Nenhum espaço associado a este usuário.')
@@ -63,6 +67,7 @@ def calendar_callback(request):
 
 @login_required
 def calendar_disconnect(request):
+    """Removes the venue's calendar connection."""
     venue = get_active_venue(request.user)
     if venue is None:
         raise Http404('Nenhum espaço associado a este usuário.')

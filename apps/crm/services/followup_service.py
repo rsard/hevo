@@ -6,27 +6,30 @@ from django.utils import timezone
 from apps.conversation.models import Conversation, Message
 from apps.conversation.services import ConversationService
 from apps.conversation.whatsapp.client import WhatsAppClient
-from apps.crm.models import Lead, LeadActivity
+from apps.crm.models import Lead, LeadActivity, Visit
 from apps.crm.services.crm_service import CRMService
 
 INACTIVITY_THRESHOLD = timedelta(hours=24)
 STALE_STAGES = [Lead.Stage.NEW, Lead.Stage.CONTACTED, Lead.Stage.QUALIFIED]
 
 LOST_THRESHOLD = timedelta(days=7)
-# Visit Scheduled is excluded: silence before a scheduled visit doesn't mean
-# the lead is dead, and Won/Lost are terminal states we don't auto-touch.
+# Won/Lost are terminal states we don't auto-touch. A lead with an upcoming
+# scheduled visit is excluded separately below: silence before a visit
+# doesn't mean the lead is dead, even though scheduling puts it in Negotiation.
 STALE_STAGES_FOR_LOST = [
     Lead.Stage.NEW,
     Lead.Stage.CONTACTED,
     Lead.Stage.QUALIFIED,
-    Lead.Stage.PROPOSAL_SENT,
     Lead.Stage.NEGOTIATION,
 ]
 
 
 class FollowUpService:
+    """Automates re-engaging quiet leads and marking long-silent ones as lost."""
+
     @staticmethod
     def leads_needing_followup(venue):
+        """Returns leads in early stages with no interaction for 24h+."""
         cutoff = timezone.now() - INACTIVITY_THRESHOLD
         return Lead.objects.filter(
             venue=venue,
@@ -66,7 +69,10 @@ class FollowUpService:
         """A lead is only marked Lost if the customer went quiet *and* we already
         tried to re-engage them since — never just for going quiet on its own."""
         cutoff = timezone.now() - LOST_THRESHOLD
-        candidates = Lead.objects.filter(venue=venue, stage__in=STALE_STAGES_FOR_LOST)
+        candidates = Lead.objects.filter(venue=venue, stage__in=STALE_STAGES_FOR_LOST).exclude(
+            visits__status__in=[Visit.Status.SCHEDULED, Visit.Status.CONFIRMED],
+            visits__scheduled_at__gte=timezone.now(),
+        )
         for lead in candidates:
             last_inbound = lead.conversation.messages.filter(
                 direction=Message.Direction.INBOUND,

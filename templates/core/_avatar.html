@@ -1,0 +1,7 @@
+{% load ui_extras %}
+{% with display_name=user.get_full_name|default:user.username %}
+<span
+    class="rounded-circle d-inline-flex align-items-center justify-content-center text-white bg-{{ user.pk|avatar_color }}"
+    style="width: 28px; height: 28px; font-size: 0.7rem; font-weight: 600; flex-shrink: 0;"
+    title="{{ display_name }}">{{ display_name|initials }}</span>
+{% endwith %}

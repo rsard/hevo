@@ -1,0 +1,22 @@
+{% with active=request.resolver_match.url_name %}
+<nav class="nav nav-tabs mb-3">
+    <a href="{% url 'venue:profile' %}"
+        class="nav-link{% if active == 'profile' %} active{% endif %}">Perfil</a>
+    <a href="{% url 'venue:opening-hours' %}"
+        class="nav-link{% if active == 'opening-hours' %} active{% endif %}">Horários</a>
+    <a href="{% url 'venue:event-type-list' %}"
+        class="nav-link{% if 'event-type' in active %} active{% endif %}">Tipos de evento</a>
+    <a href="{% url 'venue:package-list' %}"
+        class="nav-link{% if 'package' in active %} active{% endif %}">Pacotes</a>
+    <a href="{% url 'venue:menu-list' %}"
+        class="nav-link{% if 'menu' in active %} active{% endif %}">Cardápios</a>
+    <a href="{% url 'venue:decoration-list' %}"
+        class="nav-link{% if 'decoration' in active %} active{% endif %}">Decoração</a>
+    <a href="{% url 'venue:faq-list' %}"
+        class="nav-link{% if 'faq' in active %} active{% endif %}">FAQs</a>
+    <a href="{% url 'venue:image-list' %}"
+        class="nav-link{% if 'image' in active %} active{% endif %}">Fotos</a>
+    <a href="{% url 'venue:document-list' %}"
+        class="nav-link{% if 'document' in active %} active{% endif %}">Documentos</a>
+</nav>
+{% endwith %}
