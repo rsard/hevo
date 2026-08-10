@@ -125,8 +125,7 @@
                 </a>
                 {% endif %}
             </nav>
-            <div class="mt-auto d-flex align-items-center justify-content-between p-3 border-top border-secondary">
-                <span class="small text-white-50">{{ user.get_username }}</span>
+            <div class="mt-auto p-3 border-top border-secondary">
                 <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-sm btn-outline-light">Sair</button>

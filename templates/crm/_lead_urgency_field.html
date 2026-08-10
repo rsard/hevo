@@ -1,7 +1,7 @@
 {% load crm_extras %}
 <div id="lead-urgency-field">
     <select
-        class="form-select form-select-sm text-{{ lead.urgency|urgency_color }}"
+        class="form-select form-select-sm"
         name="urgency"
         hx-post="{% url 'crm:lead-urgency-update' lead.pk %}"
         hx-trigger="change"

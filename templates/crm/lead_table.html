@@ -34,39 +34,39 @@
 
     <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
         {% if all_labels %}
-        <div class="btn-row" role="group">
+        <div class="filter-chips" role="group">
             <a
-                class="btn btn-outline-hevo btn-sm {% if not active_label %}active{% endif %}"
+                class="filter-chip {% if not active_label %}active{% endif %}"
                 href="{% url 'crm:lead-table' %}{% querystring label=None %}">Todas as labels</a>
             {% for label in all_labels %}
             <a
-                class="btn btn-outline-hevo btn-sm
+                class="filter-chip
                     {% if active_label == label.id|stringformat:'s' %}active{% endif %}"
                 href="{% url 'crm:lead-table' %}{% querystring label=label.id %}">{{ label.name }}</a>
             {% endfor %}
         </div>
         {% endif %}
 
-        <div class="btn-row" role="group">
+        <div class="filter-chips" role="group">
             <a
-                class="btn btn-outline-secondary btn-sm {% if not active_urgency %}active{% endif %}"
+                class="filter-chip filter-chip-neutral {% if not active_urgency %}active{% endif %}"
                 href="{% url 'crm:lead-table' %}{% querystring urgency=None %}">Todas as urgências</a>
             {% for value, label in urgencies %}
             <a
-                class="btn btn-outline-secondary btn-sm {% if active_urgency == value %}active{% endif %}"
+                class="filter-chip filter-chip-neutral {% if active_urgency == value %}active{% endif %}"
                 href="{% url 'crm:lead-table' %}{% querystring urgency=value %}">{{ label }}</a>
             {% endfor %}
         </div>
 
         {% if escalated %}
         <a
-            class="btn btn-danger btn-sm"
+            class="filter-chip filter-chip-danger active"
             href="{% url 'crm:lead-table' %}{% querystring escalated=None %}">
             <i class="fa-solid fa-triangle-exclamation"></i> Aguardando atendimento humano
         </a>
         {% else %}
         <a
-            class="btn btn-outline-danger btn-sm"
+            class="filter-chip filter-chip-danger"
             href="{% url 'crm:lead-table' %}{% querystring escalated='1' %}">
             <i class="fa-solid fa-triangle-exclamation"></i> Aguardando atendimento humano
         </a>

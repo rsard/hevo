@@ -8,12 +8,16 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <h1>Agenda</h1>
         {% if connection and not error %}
-        <div class="d-flex gap-2">
-            <a href="?offset={{ prev_offset }}" class="btn btn-hevo">← Anterior</a>
+        <div class="d-flex align-items-center gap-2">
+            <a href="?offset={{ prev_offset }}" class="agenda-nav-btn" aria-label="Semana anterior">
+                <i class="fa-solid fa-chevron-left"></i>
+            </a>
             {% if offset != 0 %}
-            <a href="?offset=0" class="btn btn-hevo">Hoje</a>
+            <a href="?offset=0" class="btn btn-sm btn-outline-hevo">Hoje</a>
             {% endif %}
-            <a href="?offset={{ next_offset }}" class="btn btn-hevo">Próximo →</a>
+            <a href="?offset={{ next_offset }}" class="agenda-nav-btn" aria-label="Próxima semana">
+                <i class="fa-solid fa-chevron-right"></i>
+            </a>
         </div>
         {% endif %}
     </div>

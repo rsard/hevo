@@ -2,9 +2,9 @@
 <div id="kanban-container">
     <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
         {% if all_labels %}
-        <div class="btn-row" role="group">
+        <div class="filter-chips" role="group">
             <a
-                class="btn btn-outline-hevo btn-sm {% if not active_label %}active{% endif %}"
+                class="filter-chip {% if not active_label %}active{% endif %}"
                 hx-get="{% url 'crm:lead-list' %}{% querystring label=None %}"
                 hx-target="#kanban-container"
                 hx-swap="outerHTML"
@@ -12,7 +12,7 @@
                 href="{% url 'crm:lead-list' %}{% querystring label=None %}">Todas as labels</a>
             {% for label in all_labels %}
             <a
-                class="btn btn-outline-hevo btn-sm
+                class="filter-chip
                     {% if active_label == label.id|stringformat:'s' %}active{% endif %}"
                 hx-get="{% url 'crm:lead-list' %}{% querystring label=label.id %}"
                 hx-target="#kanban-container"
@@ -23,9 +23,9 @@
         </div>
         {% endif %}
 
-        <div class="btn-row" role="group">
+        <div class="filter-chips" role="group">
             <a
-                class="btn btn-outline-secondary btn-sm {% if not active_urgency %}active{% endif %}"
+                class="filter-chip filter-chip-neutral {% if not active_urgency %}active{% endif %}"
                 hx-get="{% url 'crm:lead-list' %}{% querystring urgency=None %}"
                 hx-target="#kanban-container"
                 hx-swap="outerHTML"
@@ -33,7 +33,7 @@
                 href="{% url 'crm:lead-list' %}{% querystring urgency=None %}">Todas as urgências</a>
             {% for value, label in urgencies %}
             <a
-                class="btn btn-outline-secondary btn-sm {% if active_urgency == value %}active{% endif %}"
+                class="filter-chip filter-chip-neutral {% if active_urgency == value %}active{% endif %}"
                 hx-get="{% url 'crm:lead-list' %}{% querystring urgency=value %}"
                 hx-target="#kanban-container"
                 hx-swap="outerHTML"
@@ -44,7 +44,7 @@
 
         {% if escalated %}
         <a
-            class="btn btn-danger btn-sm"
+            class="filter-chip filter-chip-danger active"
             hx-get="{% url 'crm:lead-list' %}{% querystring escalated=None %}"
             hx-target="#kanban-container"
             hx-swap="outerHTML"
@@ -54,7 +54,7 @@
         </a>
         {% else %}
         <a
-            class="btn btn-outline-danger btn-sm"
+            class="filter-chip filter-chip-danger"
             hx-get="{% url 'crm:lead-list' %}{% querystring escalated='1' %}"
             hx-target="#kanban-container"
             hx-swap="outerHTML"

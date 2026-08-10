@@ -8,8 +8,8 @@
         {{ label.name }}
         <button
             type="button"
-            class="btn-close btn-close-white ms-1"
-            style="font-size: 0.6rem;"
+            class="btn-close ms-1"
+            style="font-size: 0.55rem;"
             hx-post="{% url 'crm:lead-toggle-label' lead.pk label.pk %}"
             hx-target="#label-picker"
             hx-swap="outerHTML"
@@ -17,23 +17,29 @@
             aria-label="Remover label"></button>
     </span>
     {% endfor %}
-    <details class="dropdown">
-        <summary class="btn btn-outline-secondary btn-sm">+ Label</summary>
-        <div class="d-flex flex-column gap-1 mt-2">
+    <div class="dropdown">
+        <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm dropdown-toggle"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">+ Label</button>
+        <ul class="dropdown-menu p-2" style="min-width: 160px;">
             {% for label in unassigned_labels %}
-            <button
-                type="button"
-                class="btn btn-sm btn-link text-decoration-none p-0 text-start"
-                hx-post="{% url 'crm:lead-toggle-label' lead.pk label.pk %}"
-                hx-target="#label-picker"
-                hx-swap="outerHTML">
-                <span
-                    class="badge text-bg-{{ label.color|label_color }}"
-                    >{{ label.name }}</span>
-            </button>
+            <li class="mb-1">
+                <button
+                    type="button"
+                    class="btn btn-sm btn-link text-decoration-none p-0 text-start"
+                    hx-post="{% url 'crm:lead-toggle-label' lead.pk label.pk %}"
+                    hx-target="#label-picker"
+                    hx-swap="outerHTML">
+                    <span
+                        class="badge text-bg-{{ label.color|label_color }}"
+                        >{{ label.name }}</span>
+                </button>
+            </li>
             {% empty %}
-            <span class="text-muted">Nenhuma label disponível.</span>
+            <li><span class="text-muted small">Nenhuma label disponível.</span></li>
             {% endfor %}
-        </div>
-    </details>
+        </ul>
+    </div>
 </div>

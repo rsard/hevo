@@ -81,7 +81,75 @@ select:focus-visible {
 .btn-row {
     display: flex;
     flex-wrap: wrap;
+    flex-shrink: 0;
     gap: 0.4rem;
+}
+
+/* Filter chips (label/urgency/escalation filters on the leads page): pill,
+   no border by default, soft tinted background when active — one step more
+   minimal than .btn-row's outlined buttons. */
+
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+
+.filter-chip:hover {
+    color: var(--color-text);
+    border-color: var(--color-text-tertiary);
+}
+
+.filter-chip.active {
+    color: var(--brand-color);
+    background: var(--brand-color-soft);
+    border-color: transparent;
+    font-weight: 600;
+}
+
+.filter-chip-neutral.active {
+    color: var(--color-text);
+    background: var(--color-border);
+    border-color: transparent;
+}
+
+.filter-chip-danger {
+    color: var(--danger-color);
+    border-color: var(--color-border);
+}
+
+.filter-chip-danger.active {
+    background: var(--bs-danger-bg-subtle);
+    border-color: transparent;
+}
+
+/* Agenda week nav: plain arrows, no button chrome */
+
+.agenda-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-sm);
+    color: var(--brand-color);
+}
+
+.agenda-nav-btn:hover {
+    background: var(--brand-color-soft);
 }
 
 /* Cards: no border, page background alone gives enough separation */
