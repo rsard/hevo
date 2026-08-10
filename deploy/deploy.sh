@@ -10,6 +10,10 @@ set -a
 source .env
 set +a
 
+# .env's AWS_ACCESS_KEY_ID/SECRET are the app's S3-only creds — unset them
+# so this call falls back to the instance's IAM role (ECR pull permission).
+unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
+
 aws ecr get-login-password --region us-east-2 \
   | docker login --username AWS --password-stdin "${ECR_REGISTRY}"
 
