@@ -141,14 +141,19 @@ prod.
 aws ec2 create-security-group --group-name hevo-dev-sg \
   --description "Hevo dev" --vpc-id <VPC_ID>
 
-# 80/443 abertos, 22 só do seu IP
+# 80/443 abertos, 22 aberto pra internet
 aws ec2 authorize-security-group-ingress --group-id <DEV_SG_ID> \
   --protocol tcp --port 80 --cidr 0.0.0.0/0
 aws ec2 authorize-security-group-ingress --group-id <DEV_SG_ID> \
   --protocol tcp --port 443 --cidr 0.0.0.0/0
 aws ec2 authorize-security-group-ingress --group-id <DEV_SG_ID> \
-  --protocol tcp --port 22 --cidr <SEU_IP>/32
+  --protocol tcp --port 22 --cidr 0.0.0.0/0
 ```
+
+22 fica aberto pro mundo porque o deploy do GitHub Actions conecta via SSH
+a partir de IPs dinâmicos dos runners — não dá pra restringir por CIDR fixo.
+Autenticação continua só por chave (sem senha, padrão do AL2023), então o
+risco prático é baixo, mas é bom saber que está exposto.
 
 (prod, mais tarde) mesma coisa com `hevo-prod-sg`, mais uma
 `hevo-prod-rds-sg` liberando 5432 só a partir da `hevo-prod-sg`:
