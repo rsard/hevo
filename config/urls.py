@@ -17,15 +17,15 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import include, path
 
 from apps.user.forms import LoginForm
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('entrar/', LoginView.as_view(form_class=LoginForm), name='login'),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('login/', LoginView.as_view(form_class=LoginForm), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
     path('conversation/', include('apps.conversation.urls')),
     path('', include('apps.crm.urls')),
     path('base-conhecimento/', include('apps.venue.urls')),

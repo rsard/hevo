@@ -122,9 +122,17 @@
                 {% if user.is_staff %}
                 <a
                     href="{% url 'backoffice:dashboard' %}"
-                    class="sidebar-nav-link {% if request.resolver_match.app_name == 'backoffice' %}active{% endif %}">
+                    class="sidebar-nav-link
+                        {% if request.resolver_match.app_name == 'backoffice' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-gauge fa-fw"></i>
+                    Dashboard
+                </a>
+                <a
+                    href="{% url 'backoffice:customer-list' %}"
+                    class="sidebar-nav-link
+                        {% if request.resolver_match.app_name == 'backoffice' and 'customer' in request.resolver_match.url_name %}active{% endif %}">
                     <i class="fa-solid fa-users fa-fw"></i>
-                    Administração
+                    Clientes
                 </a>
                 {% endif %}
             </nav>
