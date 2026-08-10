@@ -170,9 +170,12 @@ aws ec2 authorize-security-group-ingress --group-id <RDS_SG_ID> \
 ## 6. Instância EC2 (dev)
 
 Amazon Linux 2023 (arm64), Docker + Compose instalados via user-data.
-`t4g.nano` (2 vCPU, 0.5GB RAM) — o mínimo possível. Com Django + Redis +
-2 processos Celery nesse pouco de RAM, adicione um swapfile no user-data
-pra evitar OOM kill em picos, já que 512MB é justo:
+`t4g.micro` (2 vCPU, 1GB RAM) — `t4g.nano` seria mais barato mas essa conta
+está restrita a tipos elegíveis pro Free Tier (`describe-instance-types
+--filters Name=free-tier-eligible,Values=true` mostra quais); `t4g.micro`
+está na lista, `t4g.nano` não. Mesmo assim, com Django + Redis + 2 processos
+Celery, 1GB é justo — o user-data já sobe um swapfile pra evitar OOM kill em
+picos:
 
 `user-data.sh`:
 
@@ -186,7 +189,7 @@ curl -SL https://github.com/docker/compose/releases/latest/download/docker-compo
 chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 mkdir -p /opt/hevo && chown ec2-user:ec2-user /opt/hevo
 
-# swap — t4g.nano só tem 512MB de RAM
+# swap — t4g.micro só tem 1GB de RAM
 fallocate -l 1G /swapfile
 chmod 600 /swapfile
 mkswap /swapfile
@@ -196,7 +199,7 @@ echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
 ```bash
 aws ec2 run-instances --image-id <AL2023_ARM64_AMI_ID> \
-  --instance-type t4g.nano --key-name <SEU_KEY_PAIR> \
+  --instance-type t4g.micro --key-name <SEU_KEY_PAIR> \
   --security-group-ids <DEV_SG_ID> \
   --iam-instance-profile Name=hevo-ec2-ecr-pull \
   --user-data file://user-data.sh \
@@ -208,7 +211,7 @@ o IP não mudar em um restart.
 
 (prod, mais tarde) mesma instância, trocando `<DEV_SG_ID>` por
 `<PROD_SG_ID>` e o tag `hevo-dev` por `hevo-prod`. Comece também em
-`t4g.small` ou maior — prod atende clientes reais, `nano` é aceitável só
+`t4g.small` ou maior — prod atende clientes reais, `micro` é aceitável só
 pra dev. Redimensiona depois se precisar (`stop` → `modify-instance-attribute`
 → `start`), sem tocar em mais nada.
 
@@ -312,15 +315,14 @@ Fase atual — só dev:
 
 | Item | Dev |
 |---|---|
-| EC2 t4g.nano | ~$3 |
+| EC2 t4g.micro | ~$6 |
 | EBS 20GB | ~$2 |
 | S3 (uso baixo) | ~$1 |
 | ECR (uso baixo) | ~$1 |
-| **Total** | **~$7/mês** |
+| **Total** | **~$10/mês** |
 
 Quando prod entrar (t4g.small + RDS db.t4g.micro): mais ~$30-33/mês. Sem
 custo de Route53 (DNS fica no Registro.br) nem de domínio novo.
 
-`t4g.nano` tem só 512MB de RAM — se o Django/Celery começarem a OOM mesmo
-com swap, o próximo degrau é `t4g.micro` (1GB, ~$6/mês) antes de ir pro
-`small`.
+Se o Django/Celery começarem a OOM mesmo com swap, o próximo degrau é
+`t4g.small` (2GB, ~$12/mês).
