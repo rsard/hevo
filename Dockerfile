@@ -31,11 +31,16 @@ RUN pip install -r requirements/production.txt
 
 COPY . .
 
-# collectstatic only needs STATIC_ROOT/STATICFILES_DIRS, not the production
-# security settings, so it runs against dev settings to avoid requiring a
-# real SECRET_KEY/ALLOWED_HOSTS at build time. DATABASE_URL isn't used here
-# either, but settings.py requires it to be parseable just to import.
-RUN DJANGO_SETTINGS_MODULE=config.settings.development \
+# Must run against PRODUCTION settings: that's what picks whitenoise's
+# CompressedManifestStaticFilesStorage, which writes staticfiles.json. Without
+# it, {% static %} 500s at runtime with "Missing staticfiles manifest entry"
+# on every page, since the manifest this backend needs was never generated.
+# The real SECRET_KEY/ALLOWED_HOSTS/DATABASE_URL aren't available yet at
+# build time and aren't needed for collectstatic — these are just
+# throwaway values that satisfy production.py's fail-fast checks.
+RUN DJANGO_SETTINGS_MODULE=config.settings.production \
+    SECRET_KEY=build-time-only-not-used-at-runtime \
+    ALLOWED_HOSTS=localhost \
     DATABASE_URL=postgres://build:build@localhost/build \
     python manage.py collectstatic --noinput \
     && chown -R app:app /app
