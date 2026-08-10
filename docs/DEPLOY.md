@@ -13,6 +13,10 @@ gerenciado; dev roda Postgres em container pra economizar. Domínios:
 Substitua `<ACCOUNT_ID>` pelo seu AWS Account ID em todos os comandos abaixo.
 Região: `us-east-2`.
 
+**Fase atual: só dev.** Os passos marcados "(prod)" ficam pra depois — não
+provisionar RDS/EC2 de prod nem mergear `develop` em `main` ainda, pra não
+gerar custo de prod antes da hora.
+
 ## 1. ECR — repositório de imagens
 
 ```bash
@@ -117,51 +121,44 @@ aws iam add-role-to-instance-profile \
 
 ## 4. S3
 
-O bucket de dev (`hevo-develop`) já existe. Criar o de prod com a mesma
-política/CORS que o de dev:
-
-```bash
-aws s3api create-bucket --bucket hevo-prod --region us-east-2 \
-  --create-bucket-configuration LocationConstraint=us-east-2
-```
-
-Copie a bucket policy e CORS config do `hevo-develop` (console S3 →
-Permissions) pro `hevo-prod`. As credenciais de acesso (`AWS_ACCESS_KEY_ID`/
-`AWS_SECRET_ACCESS_KEY`) já usadas hoje podem ser reaproveitadas se o IAM
-user tiver acesso aos dois buckets — senão, adicione `hevo-prod` à policy
-desse user.
+Ambos os buckets já existem (`hevo-develop` e `hevo-prod`), nada a criar
+aqui. Só confirme que o IAM user cujas chaves vão pro `.env` tem acesso aos
+dois — senão, adicione `hevo-prod` à policy dele quando chegar a hora do
+prod.
 
 ## 5. Security groups
 
 ```bash
-# uma por ambiente
 aws ec2 create-security-group --group-name hevo-dev-sg \
   --description "Hevo dev" --vpc-id <VPC_ID>
-aws ec2 create-security-group --group-name hevo-prod-sg \
-  --description "Hevo prod" --vpc-id <VPC_ID>
 
-# em cada uma: 80/443 abertos, 22 só do seu IP
-aws ec2 authorize-security-group-ingress --group-id <SG_ID> \
+# 80/443 abertos, 22 só do seu IP
+aws ec2 authorize-security-group-ingress --group-id <DEV_SG_ID> \
   --protocol tcp --port 80 --cidr 0.0.0.0/0
-aws ec2 authorize-security-group-ingress --group-id <SG_ID> \
+aws ec2 authorize-security-group-ingress --group-id <DEV_SG_ID> \
   --protocol tcp --port 443 --cidr 0.0.0.0/0
-aws ec2 authorize-security-group-ingress --group-id <SG_ID> \
+aws ec2 authorize-security-group-ingress --group-id <DEV_SG_ID> \
   --protocol tcp --port 22 --cidr <SEU_IP>/32
 ```
 
-Prod também precisa de uma SG pra RDS, liberando 5432 só a partir da
-`hevo-prod-sg` (não pra internet):
+(prod, mais tarde) mesma coisa com `hevo-prod-sg`, mais uma
+`hevo-prod-rds-sg` liberando 5432 só a partir da `hevo-prod-sg`:
 
 ```bash
+aws ec2 create-security-group --group-name hevo-prod-sg \
+  --description "Hevo prod" --vpc-id <VPC_ID>
 aws ec2 create-security-group --group-name hevo-prod-rds-sg \
   --description "Hevo prod RDS" --vpc-id <VPC_ID>
 aws ec2 authorize-security-group-ingress --group-id <RDS_SG_ID> \
   --protocol tcp --port 5432 --source-group <PROD_SG_ID>
 ```
 
-## 6. Instâncias EC2
+## 6. Instância EC2 (dev)
 
 Amazon Linux 2023 (arm64), Docker + Compose instalados via user-data.
+`t4g.nano` (2 vCPU, 0.5GB RAM) — o mínimo possível. Com Django + Redis +
+2 processos Celery nesse pouco de RAM, adicione um swapfile no user-data
+pra evitar OOM kill em picos, já que 512MB é justo:
 
 `user-data.sh`:
 
@@ -174,34 +171,34 @@ curl -SL https://github.com/docker/compose/releases/latest/download/docker-compo
   -o /usr/libexec/docker/cli-plugins/docker-compose
 chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 mkdir -p /opt/hevo && chown ec2-user:ec2-user /opt/hevo
+
+# swap — t4g.nano só tem 512MB de RAM
+fallocate -l 1G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+echo '/swapfile none swap sw 0 0' >> /etc/fstab
 ```
 
 ```bash
-# dev
 aws ec2 run-instances --image-id <AL2023_ARM64_AMI_ID> \
-  --instance-type t4g.small --key-name <SEU_KEY_PAIR> \
+  --instance-type t4g.nano --key-name <SEU_KEY_PAIR> \
   --security-group-ids <DEV_SG_ID> \
   --iam-instance-profile Name=hevo-ec2-ecr-pull \
   --user-data file://user-data.sh \
   --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=hevo-dev}]'
-
-# prod
-aws ec2 run-instances --image-id <AL2023_ARM64_AMI_ID> \
-  --instance-type t4g.small --key-name <SEU_KEY_PAIR> \
-  --security-group-ids <PROD_SG_ID> \
-  --iam-instance-profile Name=hevo-ec2-ecr-pull \
-  --user-data file://user-data.sh \
-  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=hevo-prod}]'
 ```
 
-Aloque um Elastic IP pra cada instância (`aws ec2 allocate-address` +
-`associate-address`) pra o IP não mudar em um restart.
+Aloque um Elastic IP (`aws ec2 allocate-address` + `associate-address`) pra
+o IP não mudar em um restart.
 
-Suba pra `t4g.medium` mais tarde se a prod apertar — é só trocar o tipo da
-instância (`stop` → `modify-instance-attribute` → `start`), sem tocar em
-mais nada.
+(prod, mais tarde) mesma instância, trocando `<DEV_SG_ID>` por
+`<PROD_SG_ID>` e o tag `hevo-dev` por `hevo-prod`. Comece também em
+`t4g.small` ou maior — prod atende clientes reais, `nano` é aceitável só
+pra dev. Redimensiona depois se precisar (`stop` → `modify-instance-attribute`
+→ `start`), sem tocar em mais nada.
 
-## 7. RDS (só prod)
+## 7. RDS (prod, mais tarde)
 
 ```bash
 aws rds create-db-instance \
@@ -224,28 +221,28 @@ Anote o endpoint (`aws rds describe-db-instances`) pro `DATABASE_URL` do
 `hevo.ia.br` provavelmente está no Registro.br (não Route53) — não é preciso
 criar hosted zone paga. Onde o DNS estiver hoje, crie:
 
-- `A app.hevo.ia.br` → Elastic IP da instância prod
 - `A dev.hevo.ia.br` → Elastic IP da instância dev
+- (prod, mais tarde) `A app.hevo.ia.br` → Elastic IP da instância prod
 
-## 9. Configurar cada servidor
+## 9. Configurar o servidor (dev)
 
-Via SSH, em cada instância:
+Via SSH:
 
 ```bash
 ssh ec2-user@<IP>
 sudo mkdir -p /opt/hevo && sudo chown ec2-user:ec2-user /opt/hevo
 ```
 
-Copie do repo pra `/opt/hevo/` (via `scp` local, um por vez):
+Copie do repo pra `/opt/hevo/` (via `scp` local):
 
-- dev: `deploy/docker-compose.dev.yml` → renomeie pra `docker-compose.yml`
-- prod: `deploy/docker-compose.prod.yml` → renomeie pra `docker-compose.yml`
+- `deploy/docker-compose.dev.yml` → `/opt/hevo/docker-compose.yml`
 - `deploy/Caddyfile` → `/opt/hevo/Caddyfile`
 - `deploy/deploy.sh` → `/opt/hevo/deploy.sh` (já vem com +x, confira depois do scp)
 
 Crie `/opt/hevo/.env` a partir de `deploy/.env.example`, preenchendo os
-valores reais daquele ambiente (ver comentários no arquivo — `IMAGE`,
-`DATABASE_URL`, `SITE_DOMAIN` etc. mudam entre dev e prod).
+valores reais de dev (ver comentários no arquivo).
+
+(prod, mais tarde) mesma coisa, usando `deploy/docker-compose.prod.yml`.
 
 Primeiro `up` manual, pra não depender do pipeline logo de cara:
 
@@ -269,23 +266,24 @@ Em Settings → Secrets and variables → Actions:
 
 - Secret de repositório: `AWS_ROLE_ARN` (do passo 2)
 
-Em Settings → Environments, criar `development` e `production`, cada uma com:
+Em Settings → Environments, criar `development` com:
 
-- `SSH_HOST` — Elastic IP da instância
+- `SSH_HOST` — Elastic IP da instância dev
 - `SSH_USER` — `ec2-user`
 - `SSH_KEY` — chave privada do key pair usado no `run-instances`
 
-Recomendado: em `production`, marque "Required reviewers" pra exigir uma
-aprovação manual antes do deploy ir pro ar.
+(prod, mais tarde) criar também `production` com os mesmos três secrets
+apontando pra instância prod. Recomendado marcar "Required reviewers" nela,
+pra exigir aprovação manual antes do deploy ir pro ar.
 
 ## 11. Primeiro deploy automático
 
 ```bash
 git push origin develop   # builda, publica hevo:dev, reimplanta dev
-git push origin main      # builda, publica hevo:prod, reimplanta prod
 ```
 
-Acompanhe em Actions → Deploy.
+Acompanhe em Actions → Deploy. Não dar push em `main` ainda — isso fica pra
+quando decidirmos subir prod.
 
 ## 12. Rollback
 
@@ -296,15 +294,19 @@ reimplantando a versão antiga.
 
 ## Custos estimados (us-east-2)
 
-| Item | Dev | Prod |
-|---|---|---|
-| EC2 t4g.small | ~$12 | ~$12 |
-| EBS 20GB | ~$2 | ~$2 |
-| RDS db.t4g.micro | — | ~$14 |
-| S3 (uso baixo) | ~$1 | ~$2-5 |
-| ECR (uso baixo) | ~$1 (compartilhado) | — |
-| **Total** | **~$16** | **~$30-33** |
+Fase atual — só dev:
 
-Total combinado: **~$46-49/mês**. Sem custo de Route53 (DNS fica no
-Registro.br) nem de domínio novo. Cresce com uso real de S3/dados; sobe se
-precisar de `t4g.medium` em prod (~$25/mês em vez de ~$12).
+| Item | Dev |
+|---|---|
+| EC2 t4g.nano | ~$3 |
+| EBS 20GB | ~$2 |
+| S3 (uso baixo) | ~$1 |
+| ECR (uso baixo) | ~$1 |
+| **Total** | **~$7/mês** |
+
+Quando prod entrar (t4g.small + RDS db.t4g.micro): mais ~$30-33/mês. Sem
+custo de Route53 (DNS fica no Registro.br) nem de domínio novo.
+
+`t4g.nano` tem só 512MB de RAM — se o Django/Celery começarem a OOM mesmo
+com swap, o próximo degrau é `t4g.micro` (1GB, ~$6/mês) antes de ir pro
+`small`.
