@@ -2,7 +2,7 @@
 <div id="kanban-container">
     <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
         {% if all_labels %}
-        <div class="btn-group" role="group">
+        <div class="btn-row" role="group">
             <a
                 class="btn btn-outline-hevo btn-sm {% if not active_label %}active{% endif %}"
                 hx-get="{% url 'crm:lead-list' %}{% querystring label=None %}"
@@ -23,7 +23,7 @@
         </div>
         {% endif %}
 
-        <div class="btn-group" role="group">
+        <div class="btn-row" role="group">
             <a
                 class="btn btn-outline-secondary btn-sm {% if not active_urgency %}active{% endif %}"
                 hx-get="{% url 'crm:lead-list' %}{% querystring urgency=None %}"

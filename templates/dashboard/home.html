@@ -6,11 +6,11 @@
 <div class="container-fluid p-4">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <h1>Dashboard</h1>
-        <div class="btn-group" role="group">
+        <div class="d-flex">
             {% for key, choice in period_choices.items %}
             <a
                 href="?period={{ key }}"
-                class="btn btn-outline-hevo {% if period == key %}active{% endif %}"
+                class="text-hevo ms-2 {% if period == key %}active{% endif %}"
             >{{ choice.0 }}</a>
             {% endfor %}
         </div>
@@ -18,15 +18,12 @@
 
     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3">
         <div class="col">
-            <a
-                href="{% url 'crm:lead-list' %}"
-                class="card h-100 text-decoration-none
-                    {% if escalated_count %}text-bg-danger{% else %}text-bg-hevo{% endif %}">
+            <a href="{% url 'crm:lead-list' %}" class="card h-100 text-decoration-none text-bg-hevo">
                 <div class="card-body">
-                    <span class="fs-2 fw-bold d-block">{{ escalated_count }}</span>
+                    <span class="fs-5 fw-bold d-block">{{ escalated_count }}</span>
                     <span class="small">
                         <i class="fa-solid fa-triangle-exclamation"></i>
-                        Aguardando atendimento humano
+                        Aguardando atendimento
                     </span>
                 </div>
             </a>
@@ -36,7 +33,7 @@
                 href="{% url 'crm:lead-list' %}"
                 class="card h-100 text-decoration-none text-bg-hevo">
                 <div class="card-body">
-                    <span class="fs-2 fw-bold d-block">{{ total_leads }}</span>
+                    <span class="fs-5 fw-bold d-block">{{ total_leads }}</span>
                     <span class="small">Total de leads</span>
                 </div>
             </a>
@@ -44,7 +41,7 @@
         <div class="col">
             <a href="{% url 'crm:lead-list' %}" class="card h-100 text-decoration-none">
                 <div class="card-body">
-                    <span class="fs-2 fw-bold d-block">{{ new_today }}</span>
+                    <span class="fs-5 fw-bold d-block">{{ new_today }}</span>
                     <span class="text-muted small">Novos hoje</span>
                 </div>
             </a>
@@ -52,7 +49,7 @@
         <div class="col">
             <a href="{% url 'crm:agenda' %}" class="card h-100 text-decoration-none">
                 <div class="card-body">
-                    <span class="fs-2 fw-bold d-block">{{ upcoming_visits }}</span>
+                    <span class="fs-5 fw-bold d-block">{{ upcoming_visits }}</span>
                     <span class="text-muted small">Visitas agendadas</span>
                 </div>
             </a>
@@ -66,10 +63,10 @@
                         <div class="meter-track">
                             <div class="meter-fill" style="width: {{ conversion_rate }}%"></div>
                         </div>
-                        <span class="meter-value">{{ conversion_rate }}%</span>
+                        <span class="meter-value fs-5">{{ conversion_rate }}%</span>
                     </div>
                     {% else %}
-                    <span class="fs-2 fw-bold">—</span>
+                    <span class="fs-5 fw-bold">—</span>
                     {% endif %}
                 </div>
             </div>
@@ -77,18 +74,10 @@
         <div class="col">
             <div class="card h-100">
                 <div class="card-body">
-                    <span class="fs-2 fw-bold d-block">{{ avg_score|default:'—' }}</span>
+                    <span class="fs-5 fw-bold d-block">{{ avg_score|default:'—' }}</span>
                     <span class="text-muted small">Score médio</span>
                 </div>
             </div>
-        </div>
-        <div class="col">
-            <a href="{% url 'crm:lead-list' %}" class="card h-100 text-decoration-none">
-                <div class="card-body">
-                    <span class="fs-2 fw-bold d-block">{{ lost_count }}</span>
-                    <span class="text-muted small">Leads perdidos</span>
-                </div>
-            </a>
         </div>
     </div>
 
@@ -178,18 +167,22 @@
         </div>
     </div>
 
-    <h2>Pipeline atual</h2>
-    <div class="table-responsive">
-    <table class="table table-hover">
-        <tbody>
-            {% for label, count in pipeline_rows %}
-            <tr>
-                <td>{{ label }}</td>
-                <td class="text-end fw-semibold">{{ count }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2>Pipeline atual</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <tbody>
+                        {% for label, count in pipeline_rows %}
+                        <tr>
+                            <td>{{ label }}</td>
+                            <td class="text-end fw-semibold">{{ count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

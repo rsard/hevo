@@ -1,6 +1,6 @@
 {% load crm_extras %}
 <div
-    class="kanban-card card border-start border-4 border-{{ lead.stage|stage_color }}"
+    class="kanban-card card border-start border-3 border-{{ lead.stage|stage_color }}"
     id="lead-card-{{ lead.pk }}"
     data-lead-id="{{ lead.pk }}"
     data-stage-url="{% url 'crm:lead-stage-update' lead.pk %}"
