@@ -13,6 +13,11 @@
             </li>
             {% endfor %}
         </ul>
+        {% if visit_success %}
+        <p class="text-success small">
+            <i class="fa-solid fa-circle-check"></i> Visita agendada com sucesso.
+        </p>
+        {% endif %}
         {% if visit_error %}
         <p class="text-danger">{{ visit_error }}</p>
         {% endif %}

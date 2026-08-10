@@ -1,4 +1,9 @@
 <ul class="list-group list-group-flush" id="activity-list">
+    {% if note_success %}
+    <li class="list-group-item px-0 text-success small">
+        <i class="fa-solid fa-circle-check"></i> Nota adicionada.
+    </li>
+    {% endif %}
     {% for activity in activities %}
     <li class="list-group-item px-0">
         <div>{{ activity.description }}</div>

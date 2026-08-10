@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static crm_extras %}
 
 {% block title %}{{ lead.customer_name|default:lead.customer_phone }} - Hevo{% endblock %}
 
@@ -44,7 +44,7 @@
                                 align-self-start bg-light
                                 {% endif %}"
                             style="max-width: 70%; white-space: pre-wrap;">
-                            <div class="small">{{ message.content }}</div>
+                            <div class="small">{{ message.content|collapse_blank_lines }}</div>
                             <div
                                 class="small mt-1
                                     {% if message.direction == 'outbound' %}text-white-50

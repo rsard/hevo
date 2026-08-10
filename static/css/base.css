@@ -777,6 +777,7 @@ a.agenda-day-event-title:hover {
     color: var(--brand-color);
     border-bottom-color: var(--brand-color);
     font-weight: 600;
+    text-decoration: none;
 }
 
 /* Login form labels: match the muted/small style used elsewhere

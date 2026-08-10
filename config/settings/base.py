@@ -209,6 +209,13 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
+# Every .delay() call is fire-and-forget — nothing in the codebase ever reads
+# a task's result via .get()/AsyncResult. With a result backend configured,
+# Celery still sets up Redis pub/sub for result tracking synchronously inside
+# .delay() (visible as extra latency on every call site, e.g. the "Solicitar
+# atendimento humano" button). Ignoring results skips that setup entirely.
+CELERY_TASK_IGNORE_RESULT = True
+
 CELERY_BEAT_SCHEDULE = {
     'send-followups-hourly': {
         'task': 'apps.crm.tasks.send_followups_for_all_venues',

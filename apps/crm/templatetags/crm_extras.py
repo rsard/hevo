@@ -1,3 +1,5 @@
+import re
+
 from django import template
 
 register = template.Library()
@@ -46,3 +48,13 @@ def stage_color(stage):
 def label_color(color):
     """Bootstrap contextual color name for a Label.Color value."""
     return LABEL_COLORS.get(color, 'secondary')
+
+
+@register.filter
+def collapse_blank_lines(text):
+    """Collapses runs of 2+ newlines into one. AI-generated messages often
+    have blank-line paragraph breaks that, combined with the chat bubble's
+    white-space: pre-wrap, render as an oversized gap inside the message."""
+    if not text:
+        return text
+    return re.sub(r'\n{2,}', '\n', text)

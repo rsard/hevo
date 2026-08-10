@@ -262,6 +262,7 @@ def lead_schedule_visit(request, pk):
 
     parsed = parse_datetime(request.POST.get('scheduled_at', ''))
     visit_error = None
+    visit_success = False
     if parsed is None:
         visit_error = 'Informe uma data e hora válidas.'
     else:
@@ -269,11 +270,14 @@ def lead_schedule_visit(request, pk):
             parsed = timezone.make_aware(parsed)
         try:
             SchedulingService.schedule_visit(lead=lead, start=parsed)
+            visit_success = True
         except ValueError:
             visit_error = 'Horário indisponível para este espaço. Escolha outro.'
 
     lead.refresh_from_db()
-    return render(request, 'crm/_visits_section.html', {'lead': lead, 'visit_error': visit_error})
+    return render(request, 'crm/_visits_section.html', {
+        'lead': lead, 'visit_error': visit_error, 'visit_success': visit_success,
+    })
 
 
 @login_required
@@ -329,6 +333,7 @@ def lead_add_note(request, pk):
 
     lead = get_object_or_404(Lead.objects.filter(venue=venue), pk=pk)
     content = request.POST.get('content', '').strip()
+    note_success = False
     if content:
         CRMService.log_activity(
             lead=lead,
@@ -336,7 +341,10 @@ def lead_add_note(request, pk):
             description=content,
             created_by=request.user,
         )
-    return render(request, 'crm/_activity_list.html', {'activities': _recent_activities(lead)})
+        note_success = True
+    return render(request, 'crm/_activity_list.html', {
+        'activities': _recent_activities(lead), 'note_success': note_success,
+    })
 
 
 @login_required
