@@ -105,6 +105,13 @@ GitHub Actions runs on every push to `main` and on pull requests:
 - `.github/workflows/docker.yml` — builds both Docker targets to catch
   Dockerfile breakage
 
+## Deploy
+
+Dev and prod each run on a single EC2 instance via Docker Compose, with
+automatic deploy from GitHub Actions on push to `develop`/`main`. See
+[`docs/DEPLOY.md`](docs/DEPLOY.md) for the full setup runbook and
+[`deploy/`](deploy) for the server-side Compose/Caddy files.
+
 ## Project layout
 
 ```
