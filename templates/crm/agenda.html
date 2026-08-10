@@ -49,7 +49,7 @@
                             {% if day.is_today %}agenda-day-cell-today{% endif %}">
                         <div class="agenda-day-number">{{ day.number }}</div>
                         {% for event in day.events %}
-                        <div class="agenda-day-event bg-{{ event.id|color_index }}">
+                        <div class="agenda-day-event bg-{{ event.id|color_index }}-subtle">
                             <span class="agenda-day-event-time">
                                 {% if event.is_all_day %}Dia todo
                                 {% else %}{{ event.start|time:'H:i' }}{% endif %}
