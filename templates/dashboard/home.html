@@ -16,9 +16,9 @@
         </div>
     </div>
 
-    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3">
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 mb-4 g-3">
         <div class="col">
-            <a href="{% url 'crm:lead-list' %}" class="card h-100 text-decoration-none text-bg-hevo">
+            <a href="{% url 'crm:lead-list' %}?escalated=1" class="card h-100 text-decoration-none text-bg-hevo">
                 <div class="card-body">
                     <span class="fs-5 fw-bold d-block">{{ escalated_count }}</span>
                     <span class="small">
@@ -81,7 +81,6 @@
         </div>
     </div>
 
-    <h2>Relatório semanal</h2>
     <div class="row g-3 mb-3">
         <div class="col-md-6">
             <div class="card h-100">
@@ -130,6 +129,48 @@
                         {% endfor %}
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2>Quando os clientes mandam mensagem</h2>
+            <p class="text-muted">
+                Mensagens recebidas por dia da semana e horário — mostra os momentos
+                mais movimentados.
+            </p>
+            <div class="heatmap-wrap">
+                <div class="heatmap">
+                    <div class="heatmap-row">
+                        <span class="heatmap-row-label"></span>
+                        {% for cell in activity_heatmap.0.cells %}
+                        <span class="heatmap-hour-label">
+                            {% if cell.hour|divisibleby:3 %}{{ cell.hour }}h{% endif %}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% for row in activity_heatmap %}
+                    <div class="heatmap-row">
+                        <span class="heatmap-row-label">{{ row.label }}</span>
+                        {% for cell in row.cells %}
+                        <span
+                            class="heatmap-cell heatmap-level-{{ cell.level }}"
+                            title="{{ row.label }} {{ cell.hour }}h: {{ cell.count }} mensagem{{ cell.count|pluralize }}"
+                        ></span>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="heatmap-legend">
+                <span>Menos</span>
+                <span class="heatmap-cell heatmap-level-0"></span>
+                <span class="heatmap-cell heatmap-level-1"></span>
+                <span class="heatmap-cell heatmap-level-2"></span>
+                <span class="heatmap-cell heatmap-level-3"></span>
+                <span class="heatmap-cell heatmap-level-4"></span>
+                <span>Mais</span>
             </div>
         </div>
     </div>

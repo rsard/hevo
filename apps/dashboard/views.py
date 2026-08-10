@@ -7,6 +7,7 @@ from django.http import Http404
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
+from apps.conversation.models import Message
 from apps.crm.models import Lead, LeadActivity, Visit
 from apps.user.services import get_active_venue
 
@@ -41,6 +42,12 @@ FUNNEL_TIERS = [
 ]
 # Validated: node scripts/validate_palette.js "<these>" --ordinal --surface "#ffffff" --mode light
 FUNNEL_COLORS = ['#8fb4bc', '#437f8c', '#164c58', '#0a2e37']
+
+WEEKDAY_LABELS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo']
+# Sequential ramp (brand hue), one step per activity-heatmap level 1-4; level 0
+# (no messages) uses the neutral border color in CSS instead, not this ramp.
+# Validated: node scripts/validate_palette.js
+#   "#8fbcc2,#67a1ab,#3f7a84,#1a5868" --ordinal --surface "#ffffff" --mode light
 
 
 def _week_start(a_date):
@@ -98,6 +105,39 @@ def _conversion_funnel(leads):
         })
         previous_count = count
     return funnel
+
+
+def _activity_heatmap(datetimes):
+    """Buckets timestamps into a weekday x hour grid (Monday=0..Sunday=6), each
+    cell leveled 0-4 relative to the busiest slot — for a GitHub-style heatmap
+    of when leads message in."""
+    counts = Counter()
+    for value in datetimes:
+        local = timezone.localtime(value)
+        counts[(local.weekday(), local.hour)] += 1
+
+    peak = max(counts.values(), default=0)
+
+    def level(count):
+        if not count:
+            return 0
+        pct = count / peak
+        if pct <= 0.25:
+            return 1
+        if pct <= 0.5:
+            return 2
+        if pct <= 0.75:
+            return 3
+        return 4
+
+    rows = []
+    for weekday, label in enumerate(WEEKDAY_LABELS):
+        cells = []
+        for hour in range(24):
+            count = counts.get((weekday, hour), 0)
+            cells.append({'hour': hour, 'count': count, 'level': level(count)})
+        rows.append({'label': label, 'cells': cells})
+    return rows
 
 
 @login_required
@@ -162,6 +202,15 @@ def dashboard_home(request):
         week_starts,
     )
 
+    inbound_messages = Message.objects.filter(
+        conversation__venue=venue, direction=Message.Direction.INBOUND,
+    )
+    if period_days is not None:
+        inbound_messages = inbound_messages.filter(
+            created_at__date__gte=today - timedelta(days=period_days),
+        )
+    activity_heatmap = _activity_heatmap(inbound_messages.values_list('created_at', flat=True))
+
     context = {
         'venue': venue,
         'period': period,
@@ -176,10 +225,10 @@ def dashboard_home(request):
         'escalated_count': all_leads.filter(escalated_at__isnull=False).count(),
         'conversion_rate': conversion_rate,
         'avg_score': round(avg_score, 1) if avg_score is not None else None,
-        'lost_count': lost_count,
         'pipeline_rows': pipeline_rows,
         'weekly_leads': weekly_leads,
         'weekly_visits': weekly_visits,
         'funnel_data': _conversion_funnel(leads),
+        'activity_heatmap': activity_heatmap,
     }
     return render(request, 'dashboard/home.html', context)
