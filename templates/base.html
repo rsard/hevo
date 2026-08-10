@@ -44,13 +44,13 @@
         <img src="{% static 'branding/hevo_logo_white.png' %}" alt="Hevo" style="height: 20px;">
     </nav>
     {% endif %}
-    <div class="d-flex" style="min-height: 100vh;">
+    <div class="d-flex" style="height: 100vh;">
         {% if user.is_authenticated %}
         <aside
             class="offcanvas-lg offcanvas-start d-flex flex-column bg-secondary"
             tabindex="-1"
             id="sidebar-off-canvas"
-            style="width: 480px; flex-shrink: 0;">
+            style="width: 480px; flex-shrink: 0; min-height: 100vh;">
             <div class="offcanvas-header border-bottom border-secondary d-lg-none">
                 <img src="{% static 'branding/hevo_logo_white.png' %}" alt="Hevo" style="height: 22px;">
                 <button
@@ -63,7 +63,7 @@
             <div class="d-none d-lg-flex align-items-center gap-2 p-3 border-bottom border-secondary">
                 <img src="{% static 'branding/hevo_logo_white.png' %}" alt="Hevo" style="height: 22px;">
             </div>
-            <div class="offcanvas-body d-flex flex-column p-0">
+            <div class="offcanvas-body d-flex flex-column flex-grow-1 h-100 p-0">
             {% if active_venue %}
             <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom border-secondary">
                 <div class="flex-grow-1 overflow-hidden">
