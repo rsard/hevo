@@ -14,7 +14,8 @@ concurrency:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    # arm64 runner — EC2 instances are Graviton (t4g), images must match
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
 
@@ -42,6 +43,7 @@ jobs:
         with:
           context: .
           target: production
+          platforms: linux/arm64
           push: true
           tags: |
             ${{ steps.ecr.outputs.registry }}/hevo:${{ steps.vars.outputs.tag }}
