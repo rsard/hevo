@@ -37,14 +37,15 @@
                     <div class="d-flex flex-column gap-2">
                         {% for message in conversation_messages %}
                         <div
-                            class="p-2 rounded-3
+                            class="message-bubble p-2 rounded-3
                                 {% if message.direction == 'outbound' %}
                                 align-self-end bg-hevo text-white
                                 {% else %}
                                 align-self-start bg-light
-                                {% endif %}"
-                            style="max-width: 70%; white-space: pre-wrap;">
-                            <div class="small">{{ message.content|collapse_blank_lines }}</div>
+                                {% endif %}">
+                            <div
+                                class="message-bubble-content small"
+                            >{{ message.content|collapse_blank_lines }}</div>
                             <div
                                 class="small mt-1
                                     {% if message.direction == 'outbound' %}text-white-50

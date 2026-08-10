@@ -57,4 +57,5 @@ def collapse_blank_lines(text):
     white-space: pre-wrap, render as an oversized gap inside the message."""
     if not text:
         return text
-    return re.sub(r'\n{2,}', '\n', text)
+    normalized = text.replace('\r\n', '\n').replace('\r', '\n')
+    return re.sub(r'\n{2,}', '\n', normalized)

@@ -627,6 +627,22 @@ a.agenda-day-event-title:hover {
     background: var(--brand-color-soft);
 }
 
+/* Conversation message bubbles */
+
+.message-bubble {
+    max-width: 70%;
+}
+
+/* white-space: pre-wrap lives here, not on .message-bubble — that div also
+   wraps the sender/timestamp line, and whitespace-only text nodes between
+   the two (from the template's own indentation) would render as visible
+   blank lines if the whole bubble preserved whitespace. */
+
+.message-bubble-content {
+    line-height: 1.35;
+    white-space: pre-wrap;
+}
+
 /* "hevo" brand-color variant of Bootstrap's utility/component classes: same
    shape as the built-in *-primary classes, but using the brand teal instead
    of Bootstrap's default blue. Add a new "-hevo" class here whenever a
