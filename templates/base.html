@@ -75,11 +75,14 @@
                     </div>
                 </div>
                 {% if active_venue_lead_count is not None %}
-                <span
-                    class="badge rounded-pill bg-white bg-opacity-25 text-white"
-                    title="Leads ativos">
-                    {{ active_venue_lead_count }}
-                </span>
+                <div class="text-center">
+                    <div class="text-white fw-semibold" style="font-size: 0.95rem; line-height: 1;">
+                        {{ active_venue_lead_count }}
+                    </div>
+                    <div class="text-white-50 text-nowrap" style="font-size: 0.6rem; line-height: 1.2;">
+                        leads ativos
+                    </div>
+                </div>
                 {% endif %}
             </div>
             {% endif %}

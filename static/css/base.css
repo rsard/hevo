@@ -152,6 +152,28 @@ select:focus-visible {
     background: var(--brand-color-soft);
 }
 
+/* Plain text-link actions: row actions (Editar/Excluir) and view toggles
+   (Kanban/Tabela) — no button chrome at all, just colored text. */
+
+.text-link {
+    color: var(--brand-color);
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+}
+
+.text-link-danger {
+    color: var(--danger-color);
+}
+
+.text-link.active {
+    font-weight: 700;
+    text-decoration: underline;
+}
+
 /* Cards: no border, page background alone gives enough separation */
 
 .card {

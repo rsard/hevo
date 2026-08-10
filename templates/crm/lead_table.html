@@ -8,9 +8,9 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <h1>Leads</h1>
         <div class="d-flex align-items-center gap-3">
-            <div class="btn-row" role="group">
-                <a href="{% url 'crm:lead-list' %}" class="btn btn-outline-hevo">Kanban</a>
-                <span class="btn btn-outline-hevo active">Tabela</span>
+            <div class="d-flex align-items-center gap-3" role="group">
+                <a href="{% url 'crm:lead-list' %}" class="text-link">Kanban</a>
+                <span class="text-link active">Tabela</span>
             </div>
             <form method="get">
                 <input type="hidden" name="label" value="{{ active_label }}">

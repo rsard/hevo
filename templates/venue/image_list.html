@@ -22,9 +22,9 @@
                             <p class="card-text">{{ item.caption|default:'—' }}</p>
                             <div class="d-flex gap-2 align-items-center">
                                 <a href="{% url 'venue:image-update' item.pk %}"
-                                   class="btn btn-sm btn-outline-secondary">Editar</a>
+                                   class="text-link">Editar</a>
                                 <a href="{% url 'venue:image-delete' item.pk %}"
-                                   class="btn btn-sm btn-outline-secondary">Excluir</a>
+                                   class="text-link text-link-danger">Excluir</a>
                             </div>
                         </div>
                     </div>

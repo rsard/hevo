@@ -19,9 +19,9 @@
                     <span class="badge text-bg-{{ item.color|label_color }}">{{ item.name }}</span>
                     <div class="d-flex gap-2">
                         <a href="{% url 'crm:label-update' item.pk %}"
-                           class="btn btn-sm btn-outline-secondary">Editar</a>
+                           class="text-link">Editar</a>
                         <a href="{% url 'crm:label-delete' item.pk %}"
-                           class="btn btn-sm btn-outline-secondary">Excluir</a>
+                           class="text-link text-link-danger">Excluir</a>
                     </div>
                 </li>
                 {% empty %}
