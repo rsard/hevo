@@ -309,6 +309,31 @@ voltar uma versão: Actions → Deploy → ache o run do commit anterior → "Re
 all jobs". Isso rebuilda aquele commit e sobrescreve a tag de novo,
 reimplantando a versão antiga.
 
+## 13. E-mail (pendente)
+
+`EMAIL_BACKEND` em produção é `smtp.EmailBackend`, mas o `deploy/.env.example`
+deixa `EMAIL_HOST` em branco — sem configurar, cai no default `localhost:25`,
+que não existe na instância. Isso hoje **não quebra nada** (o envio falha
+silenciosamente, só loga um erro), mas também **não notifica ninguém** — por
+exemplo, o e-mail de "atendimento humano solicitado" (`NotificationService.
+notify_escalation`) não chega em lugar nenhum.
+
+Pra funcionar de verdade, configure um SMTP real e preencha no `.env` do
+servidor:
+
+```
+EMAIL_HOST=<host do provedor, ex: email-smtp.us-east-2.amazonaws.com>
+EMAIL_PORT=587
+EMAIL_HOST_USER=<usuário SMTP>
+EMAIL_HOST_PASSWORD=<senha/token SMTP>
+EMAIL_USE_TLS=True
+```
+
+Opções comuns: AWS SES (mesma região da infra, barato, mas sai do sandbox
+exigindo verificação de domínio/e-mail antes de mandar pra destinatários
+não verificados), SendGrid, Mailgun. Qualquer um funciona — só precisa de
+credenciais SMTP válidas nesses quatro campos.
+
 ## Custos estimados (us-east-2)
 
 Fase atual — só dev:
