@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import json
+import logging
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
@@ -9,6 +10,8 @@ from django.views.decorators.http import require_http_methods
 
 from apps.conversation.tasks import process_inbound_whatsapp_message
 from apps.conversation.whatsapp.parser import extract_messages
+
+logger = logging.getLogger(__name__)
 
 
 @csrf_exempt
@@ -37,12 +40,18 @@ def _handle_incoming(request):
 
     payload = json.loads(request.body)
     for phone_number_id, from_wa_id, message_id, text in extract_messages(payload):
-        process_inbound_whatsapp_message.delay(
-            phone_number_id=phone_number_id,
-            from_wa_id=from_wa_id,
-            message_id=message_id,
-            text=text,
-        )
+        try:
+            process_inbound_whatsapp_message.delay(
+                phone_number_id=phone_number_id,
+                from_wa_id=from_wa_id,
+                message_id=message_id,
+                text=text,
+            )
+        except Exception:
+            # A broker hiccup here shouldn't 500 the webhook — Meta retries
+            # failed deliveries, but repeated 5xx responses risk it disabling
+            # the subscription, and would also abandon the rest of this batch.
+            logger.exception('Failed to queue inbound WhatsApp message %s', message_id)
     return JsonResponse({'status': 'received'})
 
 

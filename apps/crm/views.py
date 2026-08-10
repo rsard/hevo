@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required
@@ -18,6 +19,8 @@ from apps.crm.models import Label, Lead, LeadActivity
 from apps.crm.services import CRMService, LeadExportService, SchedulingService
 from apps.crm.tasks import send_escalation_notification
 from apps.user.services import get_active_venue
+
+logger = logging.getLogger(__name__)
 
 STALE_THRESHOLD = timedelta(hours=24)
 RECENT_ACTIVITIES_COUNT = 5
@@ -298,7 +301,12 @@ def lead_escalate(request, pk):
             description=f'Escalonado manualmente por {request.user.get_username()}.',
             created_by=request.user,
         )
-        send_escalation_notification.delay(lead.id)
+        try:
+            send_escalation_notification.delay(lead.id)
+        except Exception:
+            # The escalation itself already saved — a broker hiccup here
+            # shouldn't 500 the request and leave the UI looking stale.
+            logger.exception('Failed to queue escalation notification for lead %s', lead.id)
     return render(request, 'crm/_escalation_banner.html', {'lead': lead})
 
 
