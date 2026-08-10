@@ -33,8 +33,11 @@ COPY . .
 
 # collectstatic only needs STATIC_ROOT/STATICFILES_DIRS, not the production
 # security settings, so it runs against dev settings to avoid requiring a
-# real SECRET_KEY/ALLOWED_HOSTS at build time.
-RUN DJANGO_SETTINGS_MODULE=config.settings.development python manage.py collectstatic --noinput \
+# real SECRET_KEY/ALLOWED_HOSTS at build time. DATABASE_URL isn't used here
+# either, but settings.py requires it to be parseable just to import.
+RUN DJANGO_SETTINGS_MODULE=config.settings.development \
+    DATABASE_URL=postgres://build:build@localhost/build \
+    python manage.py collectstatic --noinput \
     && chown -R app:app /app
 
 USER app

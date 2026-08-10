@@ -25,16 +25,25 @@ aws ecr create-repository --repository-name hevo --region us-east-2
 
 ## 2. IAM role pro GitHub Actions (OIDC, sem chave fixa)
 
-Criar o provider OIDC do GitHub (uma vez por conta AWS):
+Criar o provider OIDC do GitHub (uma vez por conta AWS). O thumbprint não é
+verificado de fato pela AWS pra esse provider, mas o parâmetro exige 40 hex
+chars — pegue o valor real do certificado em vez de copiar um fixo:
 
 ```bash
+THUMBPRINT=$(echo | openssl s_client -servername token.actions.githubusercontent.com \
+  -connect token.actions.githubusercontent.com:443 2>/dev/null | \
+  openssl x509 -fingerprint -sha1 -noout | sed 's/.*=//; s/://g' | tr 'A-Z' 'a-z')
+
 aws iam create-open-id-connect-provider \
   --url https://token.actions.githubusercontent.com \
   --client-id-list sts.amazonaws.com \
-  --thumbprint-list 6938fd4d98bab03faadb97b34396831e3780aea
+  --thumbprint-list "$THUMBPRINT"
 ```
 
-Trust policy (`trust.json`) — restringe a role ao repo `rsard/hevo`:
+Trust policy (`trust.json`) — restringe a role ao repo `rsard/hevo`. O
+GitHub inclui IDs numéricos imutáveis no claim `sub`
+(`repo:rsard@<id>/hevo@<id>:ref:...`, não só `repo:rsard/hevo:ref:...`) —
+o wildcard cobre isso:
 
 ```json
 {
@@ -50,7 +59,7 @@ Trust policy (`trust.json`) — restringe a role ao repo `rsard/hevo`:
         "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
       },
       "StringLike": {
-        "token.actions.githubusercontent.com:sub": "repo:rsard/hevo:ref:refs/heads/*"
+        "token.actions.githubusercontent.com:sub": "repo:rsard@*/hevo@*:ref:refs/heads/*"
       }
     }
   }]
