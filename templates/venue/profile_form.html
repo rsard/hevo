@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
-{% load static %}
 
-{% block title %}Configurações - Hevo{% endblock %}
+{% block title %}Base de Conhecimento - Hevo{% endblock %}
 
 {% block content %}
 <div class="container-fluid p-4">
@@ -22,38 +21,5 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <h2>Conexão com WhatsApp</h2>
-            {% if venue.whatsapp_phone_number_id and venue.whatsapp_business_account_id %}
-            <p class="text-success mb-2">
-                <i class="fa-solid fa-circle-check"></i>
-                WhatsApp conectado.
-            </p>
-            <button type="button" id="whatsapp-connect-btn" class="btn btn-outline-secondary btn-sm">
-                Reconectar
-            </button>
-            {% else %}
-            <p class="text-muted">
-                Conecte o WhatsApp Business do seu espaço pra IA poder responder seus clientes.
-                Você faz login com a sua própria conta — a Hevo não assume o número, só pede
-                permissão pra enviar e receber mensagens por ele.
-            </p>
-            <button type="button" id="whatsapp-connect-btn" class="btn btn-hevo">
-                <i class="fa-brands fa-whatsapp"></i>
-                Conectar WhatsApp
-            </button>
-            {% endif %}
-            <div id="whatsapp-connect-status"></div>
-        </div>
-    </div>
 </div>
-
-<script>
-    window.HEVO_FACEBOOK_APP_ID = '{{ facebook_app_id }}';
-    window.HEVO_WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID = '{{ whatsapp_embedded_signup_config_id }}';
-    window.HEVO_WHATSAPP_API_VERSION = '{{ whatsapp_api_version }}';
-    window.HEVO_WHATSAPP_CONNECT_URL = '{% url "venue:whatsapp-connect" %}';
-</script>
-<script src="{% static 'js/whatsapp-embedded-signup.js' %}"></script>
 {% endblock %}

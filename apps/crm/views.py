@@ -27,8 +27,8 @@ RECENT_ACTIVITIES_COUNT = 5
 
 
 def _recent_activities(lead):
-    """Returns the lead's most recent activities, oldest first."""
-    return list(reversed(lead.activities.order_by('-created_at')[:RECENT_ACTIVITIES_COUNT]))
+    """Returns the lead's most recent activities, newest first."""
+    return lead.activities.order_by('-created_at')[:RECENT_ACTIVITIES_COUNT]
 
 
 SORT_FIELDS = {
@@ -400,3 +400,4 @@ class LabelDeleteView(VenueScopedViewMixin, DeleteView):
     model = Label
     template_name = 'venue/confirm_delete.html'
     success_url = reverse_lazy('crm:label-list')
+    extra_context = {'section_title': 'Configurações', 'nav_template': 'venue/_account_nav.html'}

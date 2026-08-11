@@ -325,10 +325,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 
 /* Settings */
 
-.settings-form-card {
-    max-width: 560px;
-}
-
 .settings-form-card form p {
     display: flex;
     flex-direction: column;

@@ -2,7 +2,6 @@ import json
 import logging
 
 import requests
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, JsonResponse
@@ -65,9 +64,6 @@ def profile_edit(request):
     return render(request, 'venue/profile_form.html', {
         'venue': venue,
         'form': form,
-        'facebook_app_id': settings.FACEBOOK_APP_ID,
-        'whatsapp_embedded_signup_config_id': settings.WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID,
-        'whatsapp_api_version': settings.WHATSAPP_API_VERSION,
     })
 
 
@@ -156,6 +152,7 @@ class EventTypeDeleteView(VenueScopedViewMixin, DeleteView):
     model = EventType
     template_name = 'venue/confirm_delete.html'
     success_url = reverse_lazy('venue:event-type-list')
+    extra_context = {'section_title': 'Base de Conhecimento', 'nav_template': 'venue/_knowledge_base_nav.html'}
 
 
 class PackageFormMixin:
@@ -198,6 +195,7 @@ class PackageDeleteView(VenueScopedViewMixin, DeleteView):
     model = Package
     template_name = 'venue/confirm_delete.html'
     success_url = reverse_lazy('venue:package-list')
+    extra_context = {'section_title': 'Base de Conhecimento', 'nav_template': 'venue/_knowledge_base_nav.html'}
 
 
 class DecorationOptionListView(VenueScopedViewMixin, ListView):
@@ -224,6 +222,7 @@ class DecorationOptionDeleteView(VenueScopedViewMixin, DeleteView):
     model = DecorationOption
     template_name = 'venue/confirm_delete.html'
     success_url = reverse_lazy('venue:decoration-list')
+    extra_context = {'section_title': 'Base de Conhecimento', 'nav_template': 'venue/_knowledge_base_nav.html'}
 
 
 class FAQListView(VenueScopedViewMixin, ListView):
@@ -250,6 +249,7 @@ class FAQDeleteView(VenueScopedViewMixin, DeleteView):
     model = FAQ
     template_name = 'venue/confirm_delete.html'
     success_url = reverse_lazy('venue:faq-list')
+    extra_context = {'section_title': 'Base de Conhecimento', 'nav_template': 'venue/_knowledge_base_nav.html'}
 
 
 class ImageListView(VenueScopedViewMixin, ListView):
@@ -276,6 +276,7 @@ class ImageDeleteView(VenueScopedViewMixin, DeleteView):
     model = Image
     template_name = 'venue/confirm_delete.html'
     success_url = reverse_lazy('venue:image-list')
+    extra_context = {'section_title': 'Base de Conhecimento', 'nav_template': 'venue/_knowledge_base_nav.html'}
 
 
 class DocumentListView(VenueScopedViewMixin, ListView):
@@ -302,6 +303,7 @@ class DocumentDeleteView(VenueScopedViewMixin, DeleteView):
     model = Document
     template_name = 'venue/confirm_delete.html'
     success_url = reverse_lazy('venue:document-list')
+    extra_context = {'section_title': 'Base de Conhecimento', 'nav_template': 'venue/_knowledge_base_nav.html'}
 
 
 @login_required
@@ -354,4 +356,8 @@ def menu_delete(request, pk):
         menu.delete()
         messages.success(request, 'Cardápio removido.')
         return redirect('venue:menu-list')
-    return render(request, 'venue/confirm_delete.html', {'object': menu})
+    return render(request, 'venue/confirm_delete.html', {
+        'object': menu,
+        'section_title': 'Base de Conhecimento',
+        'nav_template': 'venue/_knowledge_base_nav.html',
+    })

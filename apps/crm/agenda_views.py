@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
 from django.utils import timezone
+from google.auth.exceptions import RefreshError
 
 from apps.crm.calendar import GoogleCalendarProvider
 from apps.user.services import get_active_venue
@@ -59,6 +60,14 @@ def agenda(request):
             time_max = timezone.make_aware(dt.datetime.combine(range_end, dt.time.min))
             events = GoogleCalendarProvider().list_events(
                 connection=connection, time_min=time_min, time_max=time_max, max_results=250,
+            )
+        except RefreshError:
+            # The stored refresh token no longer works (revoked access, or the
+            # OAuth client's credentials were rotated after this connection was
+            # made) — the venue needs to reconnect, not just retry.
+            error = (
+                'A conexão com o Google Calendar expirou ou foi revogada. '
+                'Reconecte em Configurações → Integrações.'
             )
         except Exception:
             error = 'Não foi possível carregar os eventos do Google Calendar.'

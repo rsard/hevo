@@ -1,0 +1,72 @@
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/css/datepicker-bs5.min.css"
+    crossorigin="anonymous">
+<style>
+    /* Restyles the vanillajs-datepicker popup to match the app's design
+       tokens instead of its default Bootstrap look. Selector specificity
+       here is tuned to beat the specific rules it overrides in the CDN
+       stylesheet above (e.g. `.today.focused:not(.selected)`) — don't
+       simplify these without checking that library's CSS. */
+    .datepicker-picker {
+        font-family: var(--font-sans);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        box-shadow: 0 8px 24px rgba(26, 31, 54, 0.14);
+        padding: 0.5rem;
+    }
+
+    .datepicker-header .datepicker-controls {
+        margin-bottom: 0.25rem;
+    }
+
+    .datepicker-header .button {
+        border: none;
+        background: transparent;
+        border-radius: var(--radius-sm);
+        color: var(--brand-color);
+        transition: background var(--transition-fast);
+    }
+
+    .datepicker-header .button:hover {
+        background: var(--brand-color-soft);
+    }
+
+    .datepicker-header .view-switch {
+        font-weight: 600;
+        color: var(--color-text);
+    }
+
+    .days-of-week .dow {
+        color: var(--color-text-tertiary);
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .datepicker-cell {
+        border-radius: var(--radius-sm);
+        transition: background var(--transition-fast);
+    }
+
+    .datepicker-cell:not(.disabled):hover {
+        background: var(--brand-color-soft);
+    }
+
+    .datepicker-cell.today,
+    .datepicker-cell.today.focused:not(.selected) {
+        background: var(--brand-color-soft);
+        color: var(--brand-color);
+        font-weight: 600;
+    }
+
+    .datepicker-cell.selected,
+    .datepicker-cell.selected:hover {
+        background: var(--brand-color);
+        color: #fff;
+    }
+
+    .datepicker-cell.focused:not(.selected) {
+        background: var(--brand-color-soft);
+    }
+</style>

@@ -77,7 +77,7 @@ WHATSAPP_ACCESS_TOKEN=<token do System User, passo 6>
 
 ## Como funciona depois de configurado
 
-1. O espaço abre `Base de Conhecimento` → `Conectar WhatsApp`
+1. O espaço abre `Configurações` → `Integrações` → `Conectar WhatsApp`
 2. Um popup do Meta abre — o dono do WhatsApp Business loga com a própria
    conta e autoriza a Hevo
 3. O popup manda de volta (via `postMessage`) o `phone_number_id` e

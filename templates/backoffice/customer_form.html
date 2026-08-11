@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Novo cliente - Hevo{% endblock %}
+
+{% block extra_head %}
+{% include '_datepicker_style.html' %}
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid p-4">
     <a
         href="{% url 'backoffice:customer-list' %}"
         class="d-inline-block text-hevo fw-semibold text-decoration-none small mb-3">← Clientes</a>
-    <h1>Novo cliente</h1>
+    <h1 class="mb-4">Novo cliente</h1>
 
     <div class="card settings-form-card">
         <div class="card-body">
@@ -17,7 +22,6 @@
                 <h2>Espaço</h2>
                 <p>{{ form.venue_name.as_field_group }}</p>
                 <p>{{ form.venue_whatsapp_number.as_field_group }}</p>
-                <p>{{ form.venue_whatsapp_phone_number_id.as_field_group }}</p>
 
                 <h2>Login do responsável</h2>
                 <p>{{ form.owner_username.as_field_group }}</p>
@@ -36,4 +40,7 @@
         </div>
     </div>
 </div>
+
+{% include '_datepicker_scripts.html' %}
+<script src="{% static 'js/subscription-datepicker.js' %}"></script>
 {% endblock %}

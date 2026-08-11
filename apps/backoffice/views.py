@@ -104,7 +104,6 @@ def customer_create(request):
                     name=form.cleaned_data['venue_name'],
                     slug=form.unique_slug(),
                     whatsapp_number=form.cleaned_data['venue_whatsapp_number'],
-                    whatsapp_phone_number_id=form.cleaned_data['venue_whatsapp_phone_number_id'] or None,
                 )
                 user = User.objects.create_user(
                     username=form.cleaned_data['owner_username'],

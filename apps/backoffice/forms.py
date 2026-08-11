@@ -13,15 +13,6 @@ class NewCustomerForm(forms.Form):
 
     venue_name = forms.CharField(label='Nome do espaço', max_length=255)
     venue_whatsapp_number = forms.CharField(label='Número do WhatsApp', max_length=20)
-    venue_whatsapp_phone_number_id = forms.CharField(
-        label='ID do número de telefone (WhatsApp)',
-        max_length=32,
-        required=False,
-        help_text=(
-            'Encontrado no Gerenciador do WhatsApp Business (Meta), após registrar o '
-            'número do cliente. Pode ser preenchido depois, se ainda não disponível.'
-        ),
-    )
 
     owner_username = forms.CharField(label='Usuário', max_length=150)
     owner_email = forms.EmailField(label='E-mail')
@@ -35,7 +26,7 @@ class NewCustomerForm(forms.Form):
     started_at = forms.DateField(
         label='Início da assinatura',
         initial=timezone.localdate,
-        widget=forms.DateInput(attrs={'type': 'date'}),
+        widget=forms.DateInput(attrs={'autocomplete': 'off'}),
     )
     notes = forms.CharField(label='Observações', required=False, widget=forms.Textarea(attrs={'rows': 3}))
 
@@ -53,13 +44,6 @@ class NewCustomerForm(forms.Form):
         if Venue.objects.filter(whatsapp_number=number).exists():
             raise forms.ValidationError('Já existe um espaço com este número de WhatsApp.')
         return number
-
-    def clean_venue_whatsapp_phone_number_id(self):
-        """Rejects a WhatsApp phone number ID already used by another venue."""
-        phone_number_id = self.cleaned_data['venue_whatsapp_phone_number_id']
-        if phone_number_id and Venue.objects.filter(whatsapp_phone_number_id=phone_number_id).exists():
-            raise forms.ValidationError('Já existe um espaço com este ID de número de telefone.')
-        return phone_number_id
 
     def clean_owner_username(self):
         """Rejects a username already taken by another user."""

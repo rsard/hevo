@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseBadRequest
@@ -10,12 +11,18 @@ from apps.user.services import get_active_venue
 
 @login_required
 def calendar_settings(request):
-    """Renders the venue's calendar connection settings page."""
+    """Renders the venue's integrations settings page (Google Calendar, WhatsApp)."""
     venue = get_active_venue(request.user)
     if venue is None:
         raise Http404('Nenhum espaço associado a este usuário.')
     connection = getattr(venue, 'calendar_connection', None)
-    return render(request, 'crm/calendar_settings.html', {'venue': venue, 'connection': connection})
+    return render(request, 'crm/calendar_settings.html', {
+        'venue': venue,
+        'connection': connection,
+        'facebook_app_id': settings.FACEBOOK_APP_ID,
+        'whatsapp_embedded_signup_config_id': settings.WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID,
+        'whatsapp_api_version': settings.WHATSAPP_API_VERSION,
+    })
 
 
 @login_required
