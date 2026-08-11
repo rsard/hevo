@@ -6,6 +6,7 @@ app_name = 'venue'
 
 urlpatterns = [
     path('', views.profile_edit, name='profile'),
+    path('whatsapp/conectar/', views.whatsapp_connect, name='whatsapp-connect'),
     path('horarios/', views.opening_hours_edit, name='opening-hours'),
 
     path('tipos-evento/', views.EventTypeListView.as_view(), name='event-type-list'),

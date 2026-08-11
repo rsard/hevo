@@ -4,6 +4,22 @@ from django.conf import settings
 GRAPH_API_BASE = 'https://graph.facebook.com'
 
 
+def subscribe_app_to_waba(waba_id):
+    """Subscribes our app to a WhatsApp Business Account's webhooks.
+
+    Called once, right after a venue completes Embedded Signup: their WABA
+    doesn't send us any events (messages, statuses) until our app is
+    explicitly subscribed to it. Uses Hevo's own System User token — the one
+    configured for sending messages — which Embedded Signup grants access to
+    every WABA connected through our Tech Provider config, so no per-venue
+    token is needed here."""
+    url = f'{GRAPH_API_BASE}/{settings.WHATSAPP_API_VERSION}/{waba_id}/subscribed_apps'
+    headers = {'Authorization': f'Bearer {settings.WHATSAPP_ACCESS_TOKEN}'}
+    response = requests.post(url, headers=headers, timeout=10)
+    response.raise_for_status()
+    return response.json()
+
+
 class WhatsAppClient:
     """Thin client for sending outbound messages via the WhatsApp Cloud API."""
 

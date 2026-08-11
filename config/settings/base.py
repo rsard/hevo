@@ -174,6 +174,13 @@ WHATSAPP_ACCESS_TOKEN = env('WHATSAPP_ACCESS_TOKEN', default='')
 WHATSAPP_APP_SECRET = env('WHATSAPP_APP_SECRET', default='')
 WHATSAPP_VERIFY_TOKEN = env('WHATSAPP_VERIFY_TOKEN', default='')
 
+# Embedded Signup: lets a venue connect their own WhatsApp Business number to
+# Hevo (Meta Tech Provider flow) instead of Hevo owning the number. FACEBOOK_
+# APP_ID is the Meta app's ID (used by the JS SDK); CONFIG_ID identifies the
+# Embedded Signup configuration created in that app's dashboard.
+FACEBOOK_APP_ID = env('FACEBOOK_APP_ID', default='')
+WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID = env('WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID', default='')
+
 # Name/language of the Meta-approved template used for inactivity follow-ups
 # (must exist in the venue's WhatsApp Business Account). TEMPLATE_TEXT is only
 # used locally for the conversation history/UI, not sent to the API.

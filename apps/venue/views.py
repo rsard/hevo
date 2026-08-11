@@ -1,10 +1,17 @@
+import json
+import logging
+
+import requests
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
+from apps.conversation.whatsapp.client import subscribe_app_to_waba
 from apps.core.views import VenueScopedViewMixin
 from apps.user.services import get_active_venue
 from apps.venue.forms import (
@@ -30,6 +37,8 @@ from apps.venue.models import (
     Package,
 )
 
+logger = logging.getLogger(__name__)
+
 
 @login_required
 def profile_edit(request):
@@ -53,7 +62,48 @@ def profile_edit(request):
     else:
         form = VenueProfileForm(instance=venue)
 
-    return render(request, 'venue/profile_form.html', {'venue': venue, 'form': form})
+    return render(request, 'venue/profile_form.html', {
+        'venue': venue,
+        'form': form,
+        'facebook_app_id': settings.FACEBOOK_APP_ID,
+        'whatsapp_embedded_signup_config_id': settings.WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID,
+        'whatsapp_api_version': settings.WHATSAPP_API_VERSION,
+    })
+
+
+@login_required
+@require_POST
+def whatsapp_connect(request):
+    """Completes Embedded Signup: after the venue authorizes Hevo in Meta's
+    popup, the frontend posts here with the phone number/WABA it picked. We
+    subscribe our app to that WABA's webhooks and store both IDs on the venue."""
+    venue = get_active_venue(request.user)
+    if venue is None:
+        raise Http404('Nenhum espaço associado a este usuário.')
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Corpo da requisição inválido.'}, status=400)
+
+    phone_number_id = data.get('phone_number_id', '').strip()
+    waba_id = data.get('waba_id', '').strip()
+    if not phone_number_id or not waba_id:
+        return JsonResponse({'error': 'phone_number_id e waba_id são obrigatórios.'}, status=400)
+
+    try:
+        subscribe_app_to_waba(waba_id)
+    except requests.RequestException:
+        logger.exception('Failed to subscribe app to WABA %s (venue %s)', waba_id, venue.id)
+        return JsonResponse(
+            {'error': 'Não foi possível concluir a conexão com o WhatsApp. Tente novamente.'},
+            status=502,
+        )
+
+    venue.whatsapp_phone_number_id = phone_number_id
+    venue.whatsapp_business_account_id = waba_id
+    venue.save(update_fields=['whatsapp_phone_number_id', 'whatsapp_business_account_id'])
+    return JsonResponse({'status': 'connected'})
 
 
 @login_required

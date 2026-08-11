@@ -10,6 +10,10 @@ class Venue(TimeStampedModel):
     slug = models.SlugField(unique=True)
     whatsapp_number = models.CharField(max_length=20, unique=True)
     whatsapp_phone_number_id = models.CharField(max_length=32, unique=True, null=True, blank=True)
+    # WhatsApp Business Account ID, returned by Meta's Embedded Signup flow
+    # once the venue connects their own WhatsApp Business number to Hevo.
+    # Needed to subscribe our app to that WABA's webhooks.
+    whatsapp_business_account_id = models.CharField(max_length=32, blank=True)
     timezone = models.CharField(max_length=64, default='America/Sao_Paulo')
     description = models.TextField(blank=True)
     address = models.CharField(max_length=255, blank=True)
