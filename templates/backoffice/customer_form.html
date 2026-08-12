@@ -1,16 +1,16 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
 {% block title %}Novo cliente - Hevo{% endblock %}
 
 {% block extra_head %}
-{% include '_datepicker_style.html' %}
+{% include "_datepicker_style.html" %}
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid p-4">
     <a
-        href="{% url 'backoffice:customer-list' %}"
+        href="{% url "backoffice:customer-list" %}"
         class="d-inline-block text-hevo fw-semibold text-decoration-none small mb-3">← Clientes</a>
     <h1 class="mb-4">Novo cliente</h1>
 
@@ -41,6 +41,6 @@
     </div>
 </div>
 
-{% include '_datepicker_scripts.html' %}
-<script src="{% static 'js/subscription-datepicker.js' %}"></script>
+{% include "_datepicker_scripts.html" %}
+<script src="{% static "js/subscription-datepicker.js" %}"></script>
 {% endblock %}

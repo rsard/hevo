@@ -4,7 +4,7 @@
         id="lead-stage-select"
         class="form-select form-select-sm"
         name="stage"
-        hx-post="{% url 'crm:lead-stage-update' lead.pk %}"
+        hx-post="{% url "crm:lead-stage-update" lead.pk %}"
         hx-trigger="change"
         hx-target="#lead-stage-field"
         hx-swap="outerHTML"

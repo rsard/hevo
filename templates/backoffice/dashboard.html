@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
 {% block title %}Dashboard - Hevo{% endblock %}
@@ -112,7 +112,7 @@
                     {% for row in venue_rows %}
                     <tr
                         class="leads-table-row"
-                        data-href="{% url 'backoffice:customer-detail' row.venue.pk %}">
+                        data-href="{% url "backoffice:customer-detail" row.venue.pk %}">
                         <td>{{ row.venue.name }}</td>
                         <td>
                             {% if row.venue.subscription %}
@@ -138,5 +138,5 @@
     </div>
 </div>
 
-<script src="{% static 'js/table-row-link.js' %}"></script>
+<script src="{% static "js/table-row-link.js" %}"></script>
 {% endblock %}

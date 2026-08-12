@@ -5,7 +5,7 @@
         id="lead-urgency-select"
         class="form-select form-select-sm"
         name="urgency"
-        hx-post="{% url 'crm:lead-urgency-update' lead.pk %}"
+        hx-post="{% url "crm:lead-urgency-update" lead.pk %}"
         hx-trigger="change"
         hx-target="#lead-urgency-field"
         hx-swap="outerHTML">

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Dashboard - Hevo{% endblock %}
 
@@ -18,7 +18,7 @@
 
     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 mb-4 g-3">
         <div class="col">
-            <a href="{% url 'crm:lead-list' %}?escalated=1" class="card h-100 text-decoration-none text-bg-hevo">
+            <a href="{% url "crm:lead-list" %}?escalated=1" class="card h-100 text-decoration-none text-bg-hevo">
                 <div class="card-body">
                     <span class="fs-5 fw-bold d-block">{{ escalated_count }}</span>
                     <span class="small">
@@ -30,7 +30,7 @@
         </div>
         <div class="col">
             <a
-                href="{% url 'crm:lead-list' %}"
+                href="{% url "crm:lead-list" %}"
                 class="card h-100 text-decoration-none text-bg-hevo">
                 <div class="card-body">
                     <span class="fs-5 fw-bold d-block">{{ total_leads }}</span>
@@ -39,7 +39,7 @@
             </a>
         </div>
         <div class="col">
-            <a href="{% url 'crm:lead-list' %}" class="card h-100 text-decoration-none">
+            <a href="{% url "crm:lead-list" %}" class="card h-100 text-decoration-none">
                 <div class="card-body">
                     <span class="fs-5 fw-bold d-block">{{ new_today }}</span>
                     <span class="text-muted small">Novos hoje</span>
@@ -47,7 +47,7 @@
             </a>
         </div>
         <div class="col">
-            <a href="{% url 'crm:agenda' %}" class="card h-100 text-decoration-none">
+            <a href="{% url "crm:agenda" %}" class="card h-100 text-decoration-none">
                 <div class="card-body">
                     <span class="fs-5 fw-bold d-block">{{ upcoming_visits }}</span>
                     <span class="text-muted small">Visitas agendadas</span>
@@ -74,7 +74,7 @@
         <div class="col">
             <div class="card h-100">
                 <div class="card-body">
-                    <span class="fs-5 fw-bold d-block">{{ avg_score|default:'—' }}</span>
+                    <span class="fs-5 fw-bold d-block">{{ avg_score|default:"—" }}</span>
                     <span class="text-muted small">Score médio</span>
                 </div>
             </div>

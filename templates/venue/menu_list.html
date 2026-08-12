@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Cardápios - Hevo{% endblock %}
 
@@ -9,12 +9,12 @@
         Essas informações servem de base de conhecimento para a inteligência artificial,
         que as usa para responder seus clientes de forma mais precisa no WhatsApp.
     </p>
-    {% include 'venue/_knowledge_base_nav.html' %}
+    {% include "venue/_knowledge_base_nav.html" %}
     <div class="card">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Cardápios</h2>
-                <a href="{% url 'venue:menu-create' %}" class="btn btn-hevo">Adicionar</a>
+                <a href="{% url "venue:menu-create" %}" class="btn btn-hevo">Adicionar</a>
             </div>
             <ul class="list-group">
                 {% for menu in menus %}
@@ -24,15 +24,15 @@
                         <span class="text-muted">{{ menu.items.count }} itens</span>
                     </div>
                     <div class="d-flex gap-2 align-items-center">
-                        <a href="{% url 'venue:menu-update' menu.pk %}"
+                        <a href="{% url "venue:menu-update" menu.pk %}"
                            class="text-link">Editar</a>
-                        <a href="{% url 'venue:menu-delete' menu.pk %}"
+                        <a href="{% url "venue:menu-delete" menu.pk %}"
                            class="text-link text-link-danger">Excluir</a>
                     </div>
                 </li>
                 {% empty %}
                 <li class="list-group-item">
-                    {% include 'core/_empty_state.html' with icon='fa-utensils' title='Nenhum cardápio cadastrado' subtitle='Cadastre os cardápios oferecidos pelo seu espaço.' %}
+                    {% include "core/_empty_state.html" with icon="fa-utensils" title="Nenhum cardápio cadastrado" subtitle="Cadastre os cardápios oferecidos pelo seu espaço." %}
                 </li>
                 {% endfor %}
             </ul>

@@ -1,9 +1,4 @@
 <ul class="list-group list-group-flush" id="activity-list">
-    {% if note_success %}
-    <li class="list-group-item px-0 text-success small">
-        <i class="fa-solid fa-circle-check"></i> Nota adicionada.
-    </li>
-    {% endif %}
     {% for activity in activities %}
     <li class="list-group-item px-0">
         <div>{{ activity.description }}</div>
@@ -13,7 +8,7 @@
     </li>
     {% empty %}
     <li class="list-group-item px-0">
-        {% include 'core/_empty_state.html' with icon='fa-clock-rotate-left' title='Nenhuma atividade registrada' %}
+        {% include "core/_empty_state.html" with icon="fa-clock-rotate-left" title="Nenhuma atividade registrada" %}
     </li>
     {% endfor %}
 </ul>

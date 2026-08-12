@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load crm_extras %}
 
 {% block title %}Labels - Hevo{% endblock %}
@@ -6,27 +6,27 @@
 {% block content %}
 <div class="container-fluid p-4">
     <h1 class="mb-4">Configurações</h1>
-    {% include 'venue/_account_nav.html' %}
+    {% include "venue/_account_nav.html" %}
     <div class="card">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Labels</h2>
-                <a href="{% url 'crm:label-create' %}" class="btn btn-hevo">Adicionar</a>
+                <a href="{% url "crm:label-create" %}" class="btn btn-hevo">Adicionar</a>
             </div>
             <ul class="list-group list-group-flush">
                 {% for item in items %}
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                     <span class="badge text-bg-{{ item.color|label_color }}">{{ item.name }}</span>
                     <div class="d-flex gap-2">
-                        <a href="{% url 'crm:label-update' item.pk %}"
+                        <a href="{% url "crm:label-update" item.pk %}"
                            class="text-link">Editar</a>
-                        <a href="{% url 'crm:label-delete' item.pk %}"
+                        <a href="{% url "crm:label-delete" item.pk %}"
                            class="text-link text-link-danger">Excluir</a>
                     </div>
                 </li>
                 {% empty %}
                 <li class="list-group-item px-0">
-                    {% include 'core/_empty_state.html' with icon='fa-tag' title='Nenhuma label cadastrada' subtitle='Crie labels para organizar e filtrar seus leads.' %}
+                    {% include "core/_empty_state.html" with icon="fa-tag" title="Nenhuma label cadastrada" subtitle="Crie labels para organizar e filtrar seus leads." %}
                 </li>
                 {% endfor %}
             </ul>

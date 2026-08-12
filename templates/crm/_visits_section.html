@@ -4,26 +4,21 @@
         <ul class="list-group list-group-flush mb-3">
             {% for visit in lead.visits.all %}
             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                <span>{{ visit.scheduled_at|date:'d/m/Y H:i' }}</span>
+                <span>{{ visit.scheduled_at|date:"d/m/Y H:i" }}</span>
                 <span class="text-muted">{{ visit.get_status_display }}</span>
             </li>
             {% empty %}
             <li class="list-group-item px-0">
-                {% include 'core/_empty_state.html' with icon='fa-calendar-check' title='Nenhuma visita agendada' %}
+                {% include "core/_empty_state.html" with icon="fa-calendar-check" title="Nenhuma visita agendada" %}
             </li>
             {% endfor %}
         </ul>
-        {% if visit_success %}
-        <p class="text-success small">
-            <i class="fa-solid fa-circle-check"></i> Visita agendada com sucesso.
-        </p>
-        {% endif %}
-        {% if visit_error %}
-        <p class="text-danger">{{ visit_error }}</p>
+        {% if error_msg %}
+        <p class="text-danger">{{ error_msg }}</p>
         {% endif %}
         <form
             class="d-flex gap-2"
-            hx-post="{% url 'crm:lead-schedule-visit' lead.pk %}"
+            hx-post="{% url "crm:lead-schedule-visit" lead.pk %}"
             hx-target="#visits-section"
             hx-swap="outerHTML">
             <input
@@ -33,7 +28,16 @@
                 placeholder="Data da visita"
                 autocomplete="off"
                 required>
-            <input type="time" id="visit-time-input" class="form-control" required>
+            <input
+                type="text"
+                id="visit-time-input"
+                class="form-control"
+                placeholder="00:00"
+                pattern="[0-2][0-9]:[0-5][0-9]"
+                maxlength="5"
+                inputmode="numeric"
+                autocomplete="off"
+                required>
             <button type="submit" class="btn btn-hevo text-nowrap">Agendar visita</button>
         </form>
     </div>

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
 {% block title %}Integrações - Hevo{% endblock %}
@@ -6,14 +6,14 @@
 {% block content %}
 <div class="container-fluid p-4">
     <h1 class="mb-4">Configurações</h1>
-    {% include 'venue/_account_nav.html' %}
+    {% include "venue/_account_nav.html" %}
     <div class="card mb-3">
         <div class="card-body">
             <h2>Google Calendar</h2>
             {% if connection %}
             <p>Conectado</p>
-            <p class="text-muted">Conectado em {{ connection.created_at|date:'d/m/Y' }}</p>
-            <form method="post" action="{% url 'crm:calendar-disconnect' %}">
+            <p class="text-muted">Conectado em {{ connection.created_at|date:"d/m/Y" }}</p>
+            <form method="post" action="{% url "crm:calendar-disconnect" %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-outline-danger">Desconectar</button>
             </form>
@@ -21,7 +21,7 @@
             <p class="text-muted">
                 Conecte o Google Calendar para criar eventos automaticamente quando uma
                 visita for agendada.</p>
-            <a href="{% url 'crm:calendar-connect' %}" class="btn btn-hevo">
+            <a href="{% url "crm:calendar-connect" %}" class="btn btn-hevo">
                 Conectar</a>
             {% endif %}
         </div>
@@ -59,5 +59,5 @@
     window.HEVO_WHATSAPP_API_VERSION = '{{ whatsapp_api_version }}';
     window.HEVO_WHATSAPP_CONNECT_URL = '{% url "venue:whatsapp-connect" %}';
 </script>
-<script src="{% static 'js/whatsapp-embedded-signup.js' %}"></script>
+<script src="{% static "js/whatsapp-embedded-signup.js" %}"></script>
 {% endblock %}

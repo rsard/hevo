@@ -1,11 +1,11 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Label - Hevo{% endblock %}
 
 {% block content %}
 <div class="container-fluid p-4">
     <h1 class="mb-4">Configurações</h1>
-    {% include 'venue/_account_nav.html' %}
+    {% include "venue/_account_nav.html" %}
     <div class="card">
         <div class="card-body">
             <h2>{% if object %}Editar{% else %}Nova{% endif %} label</h2>

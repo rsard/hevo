@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Excluir - Hevo{% endblock %}
 
 {% block content %}
 <div class="container-fluid p-4">
-    <h1>{{ section_title|default:'Base de Conhecimento' }}</h1>
+    <h1>{{ section_title|default:"Base de Conhecimento" }}</h1>
     {% if nav_template %}{% include nav_template %}{% endif %}
     <div class="card">
         <div class="card-body">

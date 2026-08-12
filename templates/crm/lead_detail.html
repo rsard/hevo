@@ -1,28 +1,28 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static crm_extras %}
 
 {% block title %}{{ lead.customer_name|default:lead.customer_phone }} - Hevo{% endblock %}
 
 {% block extra_head %}
-{% include '_datepicker_style.html' %}
+{% include "_datepicker_style.html" %}
 {% endblock %}
 
 {% block content %}
 <div class="container-fluid p-4">
     <a
-        href="{% url 'crm:lead-list' %}"
+        href="{% url "crm:lead-list" %}"
         class="d-inline-block mb-3 text-decoration-none text-hevo fw-semibold">← Leads</a>
 
-    {% include 'crm/_escalation_banner.html' %}
+    {% include "crm/_escalation_banner.html" %}
 
     <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
         <div>
-            {% include 'crm/_lead_name_field.html' %}
+            {% include "crm/_lead_name_field.html" %}
             <div class="text-muted">{{ lead.customer_phone }}</div>
         </div>
         <div class="d-flex align-items-center gap-3">
-            {% include 'crm/_lead_urgency_field.html' %}
-            {% include 'crm/_lead_stage_field.html' %}
+            {% include "crm/_lead_urgency_field.html" %}
+            {% include "crm/_lead_stage_field.html" %}
         </div>
     </div>
 
@@ -35,7 +35,7 @@
                         {% for message in conversation_messages %}
                         <div
                             class="message-bubble p-2 rounded-3
-                                {% if message.direction == 'outbound' %}
+                                {% if message.direction == "outbound" %}
                                 align-self-end bg-hevo text-white
                                 {% else %}
                                 align-self-start bg-light
@@ -45,10 +45,10 @@
                             >{{ message.content|collapse_blank_lines }}</div>
                             <div
                                 class="small mt-1
-                                    {% if message.direction == 'outbound' %}text-white-50
+                                    {% if message.direction == "outbound" %}text-white-50
                                     {% else %}text-muted{% endif %}">
                                 {{ message.get_sender_type_display }} ·
-                                {{ message.created_at|date:'d/m H:i' }}
+                                {{ message.created_at|date:"d/m H:i" }}
                             </div>
                         </div>
                         {% empty %}
@@ -63,16 +63,16 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <h2>Labels</h2>
-                    {% include 'crm/_label_picker.html' %}
+                    {% include "crm/_label_picker.html" %}
 
                     <h2 class="mt-3">Detalhes</h2>
                     <dl class="row mb-0">
                         <dt class="col-6 text-muted small">Evento</dt>
-                        <dd class="col-6 text-end small">{{ lead.event_type|default:'—' }}</dd>
+                        <dd class="col-6 text-end small">{{ lead.event_type|default:"—" }}</dd>
                         <dt class="col-6 text-muted small">Data</dt>
-                        <dd class="col-6 text-end small">{{ lead.event_date|default:'—' }}</dd>
+                        <dd class="col-6 text-end small">{{ lead.event_date|default:"—" }}</dd>
                         <dt class="col-6 text-muted small">Convidados</dt>
-                        <dd class="col-6 text-end small">{{ lead.guest_count|default:'—' }}</dd>
+                        <dd class="col-6 text-end small">{{ lead.guest_count|default:"—" }}</dd>
                         <dt class="col-6 text-muted small">Orçamento estimado</dt>
                         <dd class="col-6 text-end small">
                             {% if lead.estimated_budget %}R$ {{ lead.estimated_budget }}
@@ -80,15 +80,15 @@
                         </dd>
                         <dt class="col-6 text-muted small">Score</dt>
                         <dd class="col-6 text-end small">
-                            {{ lead.qualification_score|default:'—' }}</dd>
+                            {{ lead.qualification_score|default:"—" }}</dd>
                         <dt class="col-6 text-muted small">Sentimento</dt>
                         <dd class="col-6 text-end small">
-                            {{ lead.get_sentiment_display|default:'—' }}</dd>
+                            {{ lead.get_sentiment_display|default:"—" }}</dd>
                         <dt class="col-6 text-muted small">Responsável</dt>
                         <dd class="col-6 text-end small">
                             {% if lead.assigned_to %}
                             <span class="d-inline-flex align-items-center gap-2">
-                                {% include 'core/_avatar.html' with user=lead.assigned_to %}
+                                {% include "core/_avatar.html" with user=lead.assigned_to %}
                             {% firstof lead.assigned_to.get_full_name lead.assigned_to.username %}
                             </span>
                             {% else %}
@@ -103,14 +103,14 @@
                 </div>
             </div>
 
-            {% include 'crm/_visits_section.html' %}
+            {% include "crm/_visits_section.html" %}
 
             <div class="card mt-4">
                 <div class="card-body">
                     <h2>Atividades</h2>
                     <form
                         class="note-form d-flex gap-2 mb-3"
-                        hx-post="{% url 'crm:lead-add-note' lead.pk %}"
+                        hx-post="{% url "crm:lead-add-note" lead.pk %}"
                         hx-target="#activity-list"
                         hx-swap="outerHTML">
                         {% csrf_token %}
@@ -122,15 +122,15 @@
                             required></textarea>
                         <button type="submit" class="btn btn-hevo text-nowrap">Adicionar</button>
                     </form>
-                    {% include 'crm/_activity_list.html' %}
+                    {% include "crm/_activity_list.html" %}
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="{% static 'js/notes.js' %}"></script>
-<script src="{% static 'js/lead-name-edit.js' %}"></script>
-{% include '_datepicker_scripts.html' %}
-<script src="{% static 'js/visit-datepicker.js' %}"></script>
+<script src="{% static "js/notes.js" %}"></script>
+<script src="{% static "js/lead-name-edit.js" %}"></script>
+{% include "_datepicker_scripts.html" %}
+<script src="{% static "js/visit-datepicker.js" %}"></script>
 {% endblock %}

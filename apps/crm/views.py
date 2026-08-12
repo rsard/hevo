@@ -32,6 +32,12 @@ def _recent_activities(lead):
     return lead.activities.order_by('-created_at')[:RECENT_ACTIVITIES_COUNT]
 
 
+def _with_toast(response, message):
+    """Attaches an HX-Trigger header so the client shows a toast with this message."""
+    response['HX-Trigger'] = json.dumps({'showToast': {'message': message}})
+    return response
+
+
 SORT_FIELDS = {
     'interaction': 'last_interaction_at',
     'score': 'qualification_score',
@@ -214,14 +220,12 @@ def lead_stage_update(request, pk):
         return HttpResponseBadRequest('Estágio inválido.')
 
     CRMService.update_stage(lead=lead, stage=stage, actor=request.user)
-    toast = json.dumps({'showToast': {'message': f'Estágio atualizado para {lead.get_stage_display()}.'}})
 
     if request.POST.get('render') == 'field':
         response = render(request, 'crm/_lead_stage_field.html', {'lead': lead, 'stages': Lead.Stage.choices})
     else:
         response = render(request, 'crm/_lead_card.html', {'lead': lead})
-    response['HX-Trigger'] = toast
-    return response
+    return _with_toast(response, f'Estágio atualizado com sucesso.')
 
 
 @login_required
@@ -241,10 +245,7 @@ def lead_urgency_update(request, pk):
     lead.save(update_fields=['urgency', 'updated_at'])
 
     response = render(request, 'crm/_lead_urgency_field.html', {'lead': lead, 'urgencies': Lead.Urgency.choices})
-    response['HX-Trigger'] = json.dumps(
-        {'showToast': {'message': f'Urgência atualizada para {lead.get_urgency_display()}.'}}
-    )
-    return response
+    return _with_toast(response, f'Urgência atualizada com sucesso.')
 
 
 @login_required
@@ -259,7 +260,8 @@ def lead_name_update(request, pk):
     lead.customer_name = request.POST.get('customer_name', '').strip()
     lead.save(update_fields=['customer_name', 'updated_at'])
 
-    return render(request, 'crm/_lead_name_field.html', {'lead': lead})
+    response = render(request, 'crm/_lead_name_field.html', {'lead': lead})
+    return _with_toast(response, 'Nome atualizado com sucesso.')
 
 
 @login_required
@@ -273,23 +275,22 @@ def lead_schedule_visit(request, pk):
     lead = get_object_or_404(Lead.objects.filter(venue=venue), pk=pk)
 
     parsed = parse_datetime(request.POST.get('scheduled_at', ''))
-    visit_error = None
-    visit_success = False
+    error_msg = None
     if parsed is None:
-        visit_error = 'Informe uma data e hora válidas.'
+        error_msg = 'Informe uma data e hora válidas.'
     else:
         if timezone.is_naive(parsed):
             parsed = timezone.make_aware(parsed)
         try:
             SchedulingService.schedule_visit(lead=lead, start=parsed)
-            visit_success = True
         except ValueError:
-            visit_error = 'Horário indisponível para este espaço. Escolha outro.'
+            error_msg = 'Horário indisponível para este espaço. Escolha outro.'
 
     lead.refresh_from_db()
-    return render(request, 'crm/_visits_section.html', {
-        'lead': lead, 'visit_error': visit_error, 'visit_success': visit_success,
-    })
+    response = render(request, 'crm/_visits_section.html', {'lead': lead, 'error_msg': error_msg})
+    if not error_msg:
+        response = _with_toast(response, 'Visita agendada com sucesso.')
+    return response
 
 
 @login_required
@@ -359,9 +360,10 @@ def lead_add_note(request, pk):
             created_by=request.user,
         )
         note_success = True
-    return render(request, 'crm/_activity_list.html', {
-        'activities': _recent_activities(lead), 'note_success': note_success,
-    })
+    response = render(request, 'crm/_activity_list.html', {'activities': _recent_activities(lead)})
+    if note_success:
+        response = _with_toast(response, 'Nota adicionada com sucesso.')
+    return response
 
 
 @login_required
@@ -376,13 +378,16 @@ def lead_toggle_label(request, pk, label_id):
     label = get_object_or_404(Label.objects.filter(venue=venue), pk=label_id)
     if lead.labels.filter(pk=label.pk).exists():
         lead.labels.remove(label)
+        toast_message = f'Label removida com sucesso.'
     else:
         lead.labels.add(label)
+        toast_message = f'Label adicionada com sucesso.'
     assigned_label_ids = {label.id for label in lead.labels.all()}
-    return render(request, 'crm/_label_picker.html', {
+    response = render(request, 'crm/_label_picker.html', {
         'lead': lead,
         'unassigned_labels': Label.objects.filter(venue=venue).exclude(id__in=assigned_label_ids),
     })
+    return _with_toast(response, toast_message)
 
 
 class LabelListView(VenueScopedViewMixin, ListView):
