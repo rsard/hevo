@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import timedelta
 
@@ -213,10 +214,14 @@ def lead_stage_update(request, pk):
         return HttpResponseBadRequest('Estágio inválido.')
 
     CRMService.update_stage(lead=lead, stage=stage, actor=request.user)
+    toast = json.dumps({'showToast': {'message': f'Estágio atualizado para {lead.get_stage_display()}.'}})
 
     if request.POST.get('render') == 'field':
-        return render(request, 'crm/_lead_stage_field.html', {'lead': lead, 'stages': Lead.Stage.choices})
-    return render(request, 'crm/_lead_card.html', {'lead': lead})
+        response = render(request, 'crm/_lead_stage_field.html', {'lead': lead, 'stages': Lead.Stage.choices})
+    else:
+        response = render(request, 'crm/_lead_card.html', {'lead': lead})
+    response['HX-Trigger'] = toast
+    return response
 
 
 @login_required
@@ -235,7 +240,11 @@ def lead_urgency_update(request, pk):
     lead.urgency = urgency
     lead.save(update_fields=['urgency', 'updated_at'])
 
-    return render(request, 'crm/_lead_urgency_field.html', {'lead': lead, 'urgencies': Lead.Urgency.choices})
+    response = render(request, 'crm/_lead_urgency_field.html', {'lead': lead, 'urgencies': Lead.Urgency.choices})
+    response['HX-Trigger'] = json.dumps(
+        {'showToast': {'message': f'Urgência atualizada para {lead.get_urgency_display()}.'}}
+    )
+    return response
 
 
 @login_required

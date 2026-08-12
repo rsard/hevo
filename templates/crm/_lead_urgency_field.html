@@ -1,6 +1,8 @@
 {% load crm_extras %}
 <div id="lead-urgency-field">
+    <label class="form-label mb-1" for="lead-urgency-select">Urgência</label>
     <select
+        id="lead-urgency-select"
         class="form-select form-select-sm"
         name="urgency"
         hx-post="{% url 'crm:lead-urgency-update' lead.pk %}"

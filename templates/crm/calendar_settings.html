@@ -22,14 +22,14 @@
                 Conecte o Google Calendar para criar eventos automaticamente quando uma
                 visita for agendada.</p>
             <a href="{% url 'crm:calendar-connect' %}" class="btn btn-hevo">
-                Conectar Google Calendar</a>
+                Conectar</a>
             {% endif %}
         </div>
     </div>
 
     <div class="card">
         <div class="card-body">
-            <h2>Conexão com WhatsApp</h2>
+            <h2>WhatsApp</h2>
             {% if venue.whatsapp_phone_number_id and venue.whatsapp_business_account_id %}
             <p class="text-success mb-2">
                 <i class="fa-solid fa-circle-check"></i>
@@ -45,8 +45,7 @@
                 permissão pra enviar e receber mensagens por ele.
             </p>
             <button type="button" id="whatsapp-connect-btn" class="btn btn-hevo">
-                <i class="fa-brands fa-whatsapp"></i>
-                Conectar WhatsApp
+                Conectar
             </button>
             {% endif %}
             <div id="whatsapp-connect-status"></div>

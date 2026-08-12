@@ -1,5 +1,7 @@
 <div id="lead-stage-field">
+    <label class="form-label mb-1" for="lead-stage-select">Estágio</label>
     <select
+        id="lead-stage-select"
         class="form-select form-select-sm"
         name="stage"
         hx-post="{% url 'crm:lead-stage-update' lead.pk %}"

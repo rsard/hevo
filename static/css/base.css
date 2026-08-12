@@ -876,3 +876,33 @@ a.agenda-day-event-title:hover {
     color: var(--color-text-secondary);
     font-weight: 500;
 }
+
+/* Toasts */
+
+#toast-container {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 1080;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    pointer-events: none;
+}
+
+.toast-item {
+    background: var(--color-text);
+    color: #fff;
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.toast-item.show {
+    opacity: 1;
+    transform: translateY(0);
+}
