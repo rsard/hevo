@@ -12,10 +12,10 @@ from apps.user.services import get_active_venue
 
 WEEKS_TO_SHOW = 4
 
-WEEKDAY_SHORT_PT = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
+WEEKDAY_SHORT_PT = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
 MONTH_NAMES_PT = [
-    'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
+    "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
 ]
 
 
@@ -27,10 +27,10 @@ def _week_start(a_date):
 def _week_label(week_start, week_end):
     """Formats a week's date range in Portuguese for display in the agenda header."""
     if week_start.month == week_end.month:
-        return f'{week_start.day} - {week_end.day} de {MONTH_NAMES_PT[week_end.month - 1]}'
+        return f"{week_start.day} - {week_end.day} de {MONTH_NAMES_PT[week_end.month - 1]}"
     return (
-        f'{week_start.day} de {MONTH_NAMES_PT[week_start.month - 1]} - '
-        f'{week_end.day} de {MONTH_NAMES_PT[week_end.month - 1]}'
+        f"{week_start.day} de {MONTH_NAMES_PT[week_start.month - 1]} - "
+        f"{week_end.day} de {MONTH_NAMES_PT[week_end.month - 1]}"
     )
 
 
@@ -39,14 +39,14 @@ def agenda(request):
     """Renders the venue's agenda: a 4-week grid of events from the connected calendar."""
     venue = get_active_venue(request.user)
     if venue is None:
-        raise Http404('Nenhum espaço associado a este usuário.')
+        raise Http404("Nenhum espaço associado a este usuário.")
 
     try:
-        offset = int(request.GET.get('offset', 0))
+        offset = int(request.GET.get("offset", 0))
     except ValueError:
         offset = 0
 
-    connection = getattr(venue, 'calendar_connection', None)
+    connection = getattr(venue, "calendar_connection", None)
     weeks = []
     error = None
 
@@ -66,36 +66,36 @@ def agenda(request):
             # OAuth client's credentials were rotated after this connection was
             # made) — the venue needs to reconnect, not just retry.
             error = (
-                'A conexão com o Google Calendar expirou ou foi revogada. '
-                'Reconecte em Configurações → Integrações.'
+                "A conexão com o Google Calendar expirou ou foi revogada. "
+                "Reconecte em Configurações → Integrações."
             )
         except Exception:
-            error = 'Não foi possível carregar os eventos do Google Calendar.'
+            error = "Não foi possível carregar os eventos do Google Calendar."
         else:
             events_by_day = {}
             for event in events:
-                events_by_day.setdefault(event['day'], []).append(event)
+                events_by_day.setdefault(event["day"], []).append(event)
 
             for w in range(WEEKS_TO_SHOW):
                 week_start = range_start + timedelta(weeks=w)
                 week_end = week_start + timedelta(days=6)
                 days = [
                     {
-                        'number': (week_start + timedelta(days=d)).day,
-                        'is_today': (week_start + timedelta(days=d)) == today,
-                        'events': events_by_day.get(week_start + timedelta(days=d), []),
+                        "number": (week_start + timedelta(days=d)).day,
+                        "is_today": (week_start + timedelta(days=d)) == today,
+                        "events": events_by_day.get(week_start + timedelta(days=d), []),
                     }
                     for d in range(7)
                 ]
-                weeks.append({'label': _week_label(week_start, week_end), 'days': days})
+                weeks.append({"label": _week_label(week_start, week_end), "days": days})
 
-    return render(request, 'crm/agenda.html', {
-        'venue': venue,
-        'connection': connection,
-        'weekday_names': WEEKDAY_SHORT_PT,
-        'weeks': weeks,
-        'error': error,
-        'offset': offset,
-        'prev_offset': offset - 1,
-        'next_offset': offset + 1,
+    return render(request, "crm/agenda.html", {
+        "venue": venue,
+        "connection": connection,
+        "weekday_names": WEEKDAY_SHORT_PT,
+        "weeks": weeks,
+        "error": error,
+        "offset": offset,
+        "prev_offset": offset - 1,
+        "next_offset": offset + 1,
     })
