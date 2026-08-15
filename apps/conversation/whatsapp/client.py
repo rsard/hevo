@@ -4,6 +4,20 @@ from django.conf import settings
 GRAPH_API_BASE = 'https://graph.facebook.com'
 
 
+def get_waba_phone_number_id(waba_id):
+    """Looks up the first phone number registered to a WABA.
+
+    Used for Coexistence signups (existing WhatsApp Business App users): Meta's
+    popup only returns a waba_id there, since the number already exists and
+    isn't newly registered — so we look it up ourselves instead."""
+    url = f'{GRAPH_API_BASE}/{settings.WHATSAPP_API_VERSION}/{waba_id}/phone_numbers'
+    headers = {'Authorization': f'Bearer {settings.WHATSAPP_ACCESS_TOKEN}'}
+    response = requests.get(url, headers=headers, timeout=10)
+    response.raise_for_status()
+    numbers = response.json().get('data', [])
+    return numbers[0]['id'] if numbers else None
+
+
 def subscribe_app_to_waba(waba_id):
     """Subscribes our app to a WhatsApp Business Account's webhooks.
 

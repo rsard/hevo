@@ -36,7 +36,10 @@ window.addEventListener('message', (event) => {
     }
     if (data.type !== 'WA_EMBEDDED_SIGNUP') return;
 
-    if (data.event === 'FINISH') {
+    if (data.event === 'FINISH' || data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING') {
+        // Coexistence (existing WhatsApp Business App number) doesn't return a
+        // phone_number_id here — the number already exists, so the backend
+        // looks it up from the WABA instead of registering a new one.
         submitConnection(data.data.phone_number_id, data.data.waba_id);
     } else if (data.event === 'CANCEL' || data.event === 'ERROR') {
         setStatus('Conexão cancelada ou interrompida. Tente novamente.', true);
@@ -90,7 +93,12 @@ function launchWhatsAppEmbeddedSignup() {
             config_id: window.HEVO_WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID,
             response_type: 'code',
             override_default_response_type: true,
-            extras: { setup: {}, featureType: '', sessionInfoVersion: '3' },
+            extras: {
+                setup: {},
+                featureType: 'whatsapp_business_app_onboarding',
+                sessionInfoVersion: '3',
+                version: 'v4',
+            },
         },
     );
 }

@@ -10,7 +10,7 @@ from django.urls import reverse_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
-from apps.conversation.whatsapp.client import subscribe_app_to_waba
+from apps.conversation.whatsapp.client import get_waba_phone_number_id, subscribe_app_to_waba
 from apps.core.views import VenueScopedViewMixin
 from apps.user.services import get_active_venue
 from apps.venue.forms import (
@@ -84,16 +84,26 @@ def whatsapp_connect(request):
 
     phone_number_id = data.get("phone_number_id", "").strip()
     waba_id = data.get("waba_id", "").strip()
-    if not phone_number_id or not waba_id:
-        return JsonResponse({"error": "phone_number_id e waba_id são obrigatórios."}, status=400)
+    if not waba_id:
+        return JsonResponse({"error": "waba_id é obrigatório."}, status=400)
 
     try:
+        if not phone_number_id:
+            # Coexistence flow (existing WhatsApp Business App number): the
+            # signup popup only returns the waba_id, so look up the number
+            # that's already registered on it.
+            phone_number_id = get_waba_phone_number_id(waba_id)
         subscribe_app_to_waba(waba_id)
     except requests.RequestException:
-        logger.exception("Failed to subscribe app to WABA %s (venue %s)", waba_id, venue.id)
+        logger.exception("Failed to connect WABA %s (venue %s)", waba_id, venue.id)
         return JsonResponse(
             {"error": "Não foi possível concluir a conexão com o WhatsApp. Tente novamente."},
             status=502,
+        )
+
+    if not phone_number_id:
+        return JsonResponse(
+            {"error": "Nenhum número de telefone encontrado nessa conta do WhatsApp."}, status=400,
         )
 
     venue.whatsapp_phone_number_id = phone_number_id
