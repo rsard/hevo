@@ -2,7 +2,7 @@
 <nav class="tabs-minimal">
     <a href="{% url 'crm:label-list' %}"
         class="tabs-minimal-link{% if 'label' in active %} active{% endif %}">Labels</a>
-    <a href="{% url 'crm:calendar-settings' %}"
-        class="tabs-minimal-link{% if 'calendar' in active %} active{% endif %}">Integrações</a>
+    <a href="{% url 'crm:integration-settings' %}"
+        class="tabs-minimal-link{% if 'integration' in active %} active{% endif %}">Integrações</a>
 </nav>
 {% endwith %}

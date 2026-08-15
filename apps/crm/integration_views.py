@@ -10,13 +10,13 @@ from apps.user.services import get_active_venue
 
 
 @login_required
-def calendar_settings(request):
+def integration_settings(request):
     """Renders the venue's integrations settings page (Google Calendar, WhatsApp)."""
     venue = get_active_venue(request.user)
     if venue is None:
         raise Http404("Nenhum espaço associado a este usuário.")
     connection = getattr(venue, "calendar_connection", None)
-    return render(request, "crm/calendar_settings.html", {
+    return render(request, "crm/integration_settings.html", {
         "venue": venue,
         "connection": connection,
         "facebook_app_id": settings.FACEBOOK_APP_ID,
@@ -46,7 +46,7 @@ def calendar_callback(request):
 
     if request.GET.get("error"):
         messages.error(request, "Conexão com o Google Calendar cancelada ou negada.")
-        return redirect("crm:calendar-settings")
+        return redirect("crm:integration-settings")
 
     expected_state = request.session.pop("google_oauth_state", None)
     state = request.GET.get("state")
@@ -69,7 +69,7 @@ def calendar_callback(request):
         },
     )
     messages.success(request, "Google Calendar conectado com sucesso.")
-    return redirect("crm:calendar-settings")
+    return redirect("crm:integration-settings")
 
 
 @login_required
@@ -81,4 +81,4 @@ def calendar_disconnect(request):
     if request.method == "POST":
         CalendarConnection.objects.filter(venue=venue).delete()
         messages.success(request, "Google Calendar desconectado.")
-    return redirect("crm:calendar-settings")
+    return redirect("crm:integration-settings")

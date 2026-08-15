@@ -5,7 +5,7 @@ from apps.crm.integration_views import (
     calendar_callback,
     calendar_connect,
     calendar_disconnect,
-    calendar_settings,
+    integration_settings,
 )
 from apps.crm.views import (
     LabelCreateView,
@@ -44,10 +44,10 @@ urlpatterns = [
 
     path('agenda/', agenda, name='agenda'),
 
-    path('calendario/', calendar_settings, name='calendar-settings'),
-    path('calendario/conectar/', calendar_connect, name='calendar-connect'),
-    path('calendario/callback/', calendar_callback, name='calendar-callback'),
-    path('calendario/desconectar/', calendar_disconnect, name='calendar-disconnect'),
+    path('integracoes/', integration_settings, name='integration-settings'),
+    path('integracoes/google-calendar/conectar/', calendar_connect, name='calendar-connect'),
+    path('integracoes/google-calendar/callback/', calendar_callback, name='calendar-callback'),
+    path('integracoes/google-calendar/desconectar/', calendar_disconnect, name='calendar-disconnect'),
 
     path('labels/', LabelListView.as_view(), name='label-list'),
     path('labels/novo/', LabelCreateView.as_view(), name='label-create'),
