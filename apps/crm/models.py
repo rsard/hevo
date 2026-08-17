@@ -154,3 +154,14 @@ class CalendarConnection(TimeStampedModel):
 
     def __str__(self):
         return f'{self.venue} - {self.get_provider_display()}'
+
+
+class EmailLog(TenantModel):
+    """Records a single outbound email, so we can monitor usage against the
+    SMTP provider's daily sending limit."""
+
+    subject = models.CharField(max_length=255, blank=True)
+    recipient_count = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f'{self.subject} - {self.venue}'

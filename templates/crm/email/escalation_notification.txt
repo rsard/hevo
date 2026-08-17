@@ -1,0 +1,14 @@
+{{ who }} pediu para falar com uma pessoa da equipe.
+
+Estágio: {{ lead.get_stage_display }}
+Urgência: {{ lead.get_urgency_display }}
+Telefone: {{ lead.customer_phone }}
+Tipo de evento: {{ lead.event_type|default:"Não informado" }}
+Data do evento: {{ lead.event_date|date:"d/m/Y"|default:"Não informada" }}
+Convidados: {{ lead.guest_count|default:"Não informado" }}
+Orçamento estimado: {% if lead.estimated_budget %}R$ {{ lead.estimated_budget }}{% else %}Não informado{% endif %}
+
+Resumo da conversa:
+{{ lead.conversation_summary|default:"Sem resumo disponível." }}
+
+Ver conversa: {{ lead_url }}

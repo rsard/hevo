@@ -70,6 +70,19 @@
                 </div>
             </div>
         </div>
+        <div class="col">
+            <div class="card h-100{% if email_quota_pct >= 90 %} text-bg-hevo{% endif %}">
+                <div class="card-body">
+                    <span class="small d-block">E-mails hoje (limite {{ email_daily_limit }})</span>
+                    <div class="meter">
+                        <div class="meter-track">
+                            <div class="meter-fill" style="width: {{ email_quota_pct }}%"></div>
+                        </div>
+                        <span class="meter-value fs-5">{{ emails_sent_today }}/{{ email_daily_limit }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="card mb-3">

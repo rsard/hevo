@@ -1,7 +1,9 @@
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.urls import reverse
 
+from apps.crm.models import EmailLog
 from apps.user.models import VenueMembership
 
 
@@ -21,14 +23,23 @@ class NotificationService:
 
         who = lead.customer_name or lead.customer_phone
         subject = f'[Hevo] Atendimento humano solicitado — {who}'
-        body = (
-            f'{who} pediu para falar com uma pessoa da equipe.\n\n'
-            f'Resumo: {lead.conversation_summary or "Sem resumo disponível."}\n\n'
-            f"Ver conversa: {settings.SITE_URL}{reverse('crm:lead-detail', args=[lead.pk])}"
-        )
-        send_mail(
+        context = {
+            'who': who,
+            'lead': lead,
+            'lead_url': f"{settings.SITE_URL}{reverse('crm:lead-detail', args=[lead.pk])}",
+        }
+        text_body = render_to_string('crm/email/escalation_notification.txt', context)
+        html_body = render_to_string('crm/email/escalation_notification.html', context)
+
+        message = EmailMultiAlternatives(
             subject=subject,
-            message=body,
+            body=text_body,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=recipients,
+            to=recipients,
+        )
+        message.attach_alternative(html_body, 'text/html')
+        message.send()
+
+        EmailLog.objects.create(
+            venue=lead.venue, subject=subject, recipient_count=len(recipients),
         )

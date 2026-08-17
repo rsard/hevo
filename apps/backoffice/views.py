@@ -4,16 +4,20 @@ from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.db.models import Sum
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from apps.backoffice.forms import NewCustomerForm
 from apps.backoffice.models import Subscription
-from apps.crm.models import Lead
+from apps.crm.models import EmailLog, Lead
 from apps.dashboard.views import WEEKS_TO_SHOW, _week_start, _weekly_series
 from apps.user.models import User, VenueMembership
 from apps.venue.models import Venue
+
+# The SMTP provider (Lark Suite) caps outbound email at 450/day.
+EMAIL_DAILY_LIMIT = 450
 
 
 def staff_required(view_func):
@@ -32,6 +36,11 @@ def platform_dashboard(request):
     """Staff-only view of platform-wide metrics: venues, subscriptions, leads, and trends."""
     today = timezone.localdate()
     venues = Venue.objects.select_related("subscription")
+
+    emails_sent_today = EmailLog.objects.filter(
+        created_at__date=today,
+    ).aggregate(total=Sum("recipient_count"))["total"] or 0
+    email_quota_pct = round(min(emails_sent_today / EMAIL_DAILY_LIMIT, 1) * 100, 1)
 
     active_subscriptions = venues.filter(subscription__status=Subscription.Status.ACTIVE).count()
     new_venues_30d = venues.filter(created_at__date__gte=today - timedelta(days=30)).count()
@@ -68,6 +77,9 @@ def platform_dashboard(request):
         "conversion_rate": conversion_rate,
         "weekly_leads": weekly_leads,
         "venue_rows": venue_rows,
+        "emails_sent_today": emails_sent_today,
+        "email_daily_limit": EMAIL_DAILY_LIMIT,
+        "email_quota_pct": email_quota_pct,
     }
     return render(request, "backoffice/dashboard.html", context)
 

@@ -8,8 +8,11 @@ from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from apps.conversation.tasks import process_inbound_whatsapp_message
-from apps.conversation.whatsapp.parser import extract_messages
+from apps.conversation.tasks import (
+    process_inbound_non_text_whatsapp_message,
+    process_inbound_whatsapp_message,
+)
+from apps.conversation.whatsapp.parser import extract_messages, extract_non_text_messages
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +37,9 @@ def _handle_verification(request):
 
 
 def _handle_incoming(request):
-    """Verifies the signature, then queues each inbound text message for async processing."""
+    """Verifies the signature, then queues each inbound message for async processing.
+    Text messages get an AI reply; anything else (image, audio, ...) is escalated
+    to a human instead, since the AI can't act on it."""
     if not _valid_signature(request):
         return HttpResponseForbidden()
 
@@ -52,6 +57,18 @@ def _handle_incoming(request):
             # failed deliveries, but repeated 5xx responses risk it disabling
             # the subscription, and would also abandon the rest of this batch.
             logger.exception('Failed to queue inbound WhatsApp message %s', message_id)
+
+    for phone_number_id, from_wa_id, message_id, message_type in extract_non_text_messages(payload):
+        try:
+            process_inbound_non_text_whatsapp_message.delay(
+                phone_number_id=phone_number_id,
+                from_wa_id=from_wa_id,
+                message_id=message_id,
+                message_type=message_type,
+            )
+        except Exception:
+            logger.exception('Failed to queue inbound non-text WhatsApp message %s', message_id)
+
     return JsonResponse({'status': 'received'})
 
 

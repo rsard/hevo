@@ -1,4 +1,7 @@
+import logging
+
 from celery import shared_task
+from django.utils import timezone
 
 from apps.ai.services import get_provider, log_usage
 from apps.conversation.models import Message
@@ -6,8 +9,11 @@ from apps.conversation.services import ConversationService
 from apps.conversation.whatsapp.client import WhatsAppClient
 from apps.crm.models import LeadActivity
 from apps.crm.services import CRMService, QualificationService
+from apps.crm.tasks import send_escalation_notification
 from apps.venue.models import Venue
 from apps.venue.services import KnowledgeBaseService
+
+logger = logging.getLogger(__name__)
 
 SALES_PERSONA_PROMPT = (
     "You are the AI sales assistant for {venue_name}, a wedding/event venue in Brazil. "
@@ -15,6 +21,23 @@ SALES_PERSONA_PROMPT = (
     'Answer only using the knowledge base below. Ask qualifying questions (event date, '
     'guest count, budget) naturally over the conversation, and offer to schedule a visit '
     'once the customer seems interested.\n\nKnowledge base:\n{context}'
+)
+
+# WhatsApp message types the AI can't act on — these get escalated to a human
+# instead of silently dropped.
+NON_TEXT_MESSAGE_LABELS = {
+    'image': 'uma imagem',
+    'audio': 'um áudio',
+    'video': 'um vídeo',
+    'document': 'um documento',
+    'sticker': 'uma figurinha',
+    'location': 'uma localização',
+    'contacts': 'um contato',
+}
+
+NON_TEXT_ESCALATION_ACK = (
+    'Recebi o que você mandou, mas ainda não consigo abrir esse tipo de arquivo por '
+    'aqui — já chamei alguém da nossa equipe pra te ajudar com isso, só um momento!'
 )
 
 
@@ -96,3 +119,61 @@ def process_inbound_whatsapp_message(self, *, phone_number_id, from_wa_id, messa
             activity_type=LeadActivity.ActivityType.AI_ACTION,
             description='Falha ao qualificar o lead automaticamente.',
         )
+
+
+@shared_task
+def process_inbound_non_text_whatsapp_message(*, phone_number_id, from_wa_id, message_id, message_type):
+    """Escalates to a human instead of replying: the AI can't act on non-text
+    messages (image, audio, document, ...), so this records the message, marks
+    the lead as needing human attention (if not already), and notifies staff."""
+    try:
+        venue = Venue.objects.get(whatsapp_phone_number_id=phone_number_id, is_active=True)
+    except Venue.DoesNotExist:
+        return
+
+    conversation = ConversationService.get_or_create_conversation(
+        venue=venue, external_contact_id=from_wa_id,
+    )
+
+    label = NON_TEXT_MESSAGE_LABELS.get(message_type, 'um arquivo')
+    _, created = ConversationService.get_or_create_inbound_message(
+        conversation=conversation,
+        sender_type=Message.SenderType.CUSTOMER,
+        content=f'[Cliente enviou {label} — tipo não suportado pela IA: {message_type}]',
+        external_message_id=message_id,
+    )
+    if not created:
+        # A redelivered webhook for a message we've already recorded.
+        return
+
+    lead = CRMService.get_or_create_lead(conversation=conversation, customer_phone=from_wa_id)
+    CRMService.touch_interaction(lead)
+
+    if lead.escalated_at:
+        # Already in human attendance — no need to escalate or notify again,
+        # but the message above is still recorded for the team to see.
+        return
+
+    lead.escalated_at = timezone.now()
+    lead.save(update_fields=['escalated_at', 'updated_at'])
+    CRMService.log_activity(
+        lead=lead,
+        activity_type=LeadActivity.ActivityType.ESCALATION,
+        description=f'Escalonado automaticamente: cliente enviou {label}, que a IA não consegue processar.',
+    )
+
+    try:
+        send_escalation_notification.delay(lead.id)
+    except Exception:
+        logger.exception('Failed to queue escalation notification for lead %s', lead.id)
+
+    try:
+        WhatsAppClient(phone_number_id).send_text(to=from_wa_id, body=NON_TEXT_ESCALATION_ACK)
+        ConversationService.record_message(
+            conversation=conversation,
+            direction=Message.Direction.OUTBOUND,
+            sender_type=Message.SenderType.AI,
+            content=NON_TEXT_ESCALATION_ACK,
+        )
+    except Exception:
+        logger.exception('Failed to send escalation ack to %s', from_wa_id)
