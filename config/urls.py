@@ -31,8 +31,8 @@ from apps.user.forms import HevoPasswordResetForm, HevoSetPasswordForm, LoginFor
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('entrar/', LoginView.as_view(form_class=LoginForm), name='login'),
-    path('sair/', LogoutView.as_view(), name='logout'),
+    path('login/', LoginView.as_view(form_class=LoginForm), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
     path(
         'senha/resetar/',
         PasswordResetView.as_view(
