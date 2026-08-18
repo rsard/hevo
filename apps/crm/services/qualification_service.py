@@ -1,11 +1,15 @@
 import json
+from datetime import date
 
 from django.utils import timezone
 
 from apps.ai.services import get_provider, log_usage
+from apps.conversation.models import Conversation, Message
 from apps.conversation.services import ConversationService
+from apps.conversation.whatsapp.client import WhatsAppClient
 from apps.crm.models import Lead, LeadActivity
 from apps.crm.services.crm_service import CRMService
+from apps.crm.services.scheduling_service import SchedulingService
 from apps.venue.models import EventType
 
 SYSTEM_PROMPT = (
@@ -67,8 +71,12 @@ class QualificationService:
             lead.event_type = EventType.objects.filter(
                 venue=lead.venue, name__iexact=event_type_name,
             ).first()
+        previous_event_date = lead.event_date
         if data.get('event_date'):
-            lead.event_date = data['event_date']
+            try:
+                lead.event_date = date.fromisoformat(data['event_date'])
+            except ValueError:
+                pass
         if data.get('guest_count') is not None:
             lead.guest_count = data['guest_count']
         if data.get('estimated_budget') is not None:
@@ -118,3 +126,49 @@ class QualificationService:
                 activity_type=LeadActivity.ActivityType.AI_ACTION,
                 description='IA detectou sinais de negociação na conversa.',
             )
+
+        if lead.event_date and lead.event_date != previous_event_date:
+            QualificationService._notify_if_date_unavailable(lead)
+
+    @staticmethod
+    def _notify_if_date_unavailable(lead):
+        """If the AI just picked up a new (or changed) event date and the venue
+        is already booked for it, proactively suggests the nearest open dates
+        instead of letting the customer find out the hard way later."""
+        if SchedulingService.is_event_date_available(
+            venue=lead.venue, date=lead.event_date, exclude_lead=lead,
+        ):
+            return
+
+        alternatives = SchedulingService.suggest_alternative_event_dates(
+            venue=lead.venue, after=lead.event_date, exclude_lead=lead,
+        )
+        if not alternatives:
+            return
+
+        dates_text = ', '.join(d.strftime('%d/%m') for d in alternatives)
+        content = (
+            f'Notei que o dia {lead.event_date.strftime("%d/%m")} já está reservado '
+            f'para outro evento em nosso espaço. Mas ainda temos essas datas '
+            f'disponíveis por perto: {dates_text}. Alguma delas funcionaria pra você?'
+        )
+
+        conversation = lead.conversation
+        if conversation.channel == Conversation.Channel.WHATSAPP:
+            WhatsAppClient(lead.venue.whatsapp_phone_number_id).send_text(
+                to=conversation.external_contact_id, body=content,
+            )
+        ConversationService.record_message(
+            conversation=conversation,
+            direction=Message.Direction.OUTBOUND,
+            sender_type=Message.SenderType.AI,
+            content=content,
+        )
+        CRMService.log_activity(
+            lead=lead,
+            activity_type=LeadActivity.ActivityType.AI_ACTION,
+            description=(
+                f'Data {lead.event_date.strftime("%d/%m/%Y")} indisponível — '
+                'sugeri datas alternativas automaticamente.'
+            ),
+        )

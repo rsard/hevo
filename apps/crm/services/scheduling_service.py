@@ -67,6 +67,32 @@ class SchedulingService:
         return suggestions
 
     @staticmethod
+    def is_event_date_available(*, venue, date, exclude_lead=None):
+        """Whether the venue is free to host an event on this date — i.e., no
+        other lead has already won (contracted) an event there for the same day.
+
+        Assumes one event per day per venue (typical wedding-venue exclusivity);
+        doesn't account for venues that host multiple simultaneous events."""
+        won_leads = Lead.objects.filter(venue=venue, event_date=date, stage=Lead.Stage.WON)
+        if exclude_lead is not None:
+            won_leads = won_leads.exclude(pk=exclude_lead.pk)
+        return not won_leads.exists()
+
+    @staticmethod
+    def suggest_alternative_event_dates(*, venue, after, count=3, horizon_days=60, exclude_lead=None):
+        """Walks forward day by day from `after`, collecting the next `count`
+        dates the venue is free to host an event on."""
+        suggestions = []
+        day = after
+        for _ in range(horizon_days):
+            day += timedelta(days=1)
+            if SchedulingService.is_event_date_available(venue=venue, date=day, exclude_lead=exclude_lead):
+                suggestions.append(day)
+            if len(suggestions) >= count:
+                break
+        return suggestions
+
+    @staticmethod
     def schedule_visit(*, lead, start, notes=''):
         """Books a visit for the lead, creates the calendar event if connected, and
         advances the lead to Visit Scheduled."""
