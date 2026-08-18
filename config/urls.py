@@ -17,15 +17,47 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import (
+    LoginView,
+    LogoutView,
+    PasswordResetCompleteView,
+    PasswordResetConfirmView,
+    PasswordResetDoneView,
+    PasswordResetView,
+)
 from django.urls import include, path
 
-from apps.user.forms import LoginForm
+from apps.user.forms import HevoPasswordResetForm, HevoSetPasswordForm, LoginForm
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', LoginView.as_view(form_class=LoginForm), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path(
+        'senha/resetar/',
+        PasswordResetView.as_view(
+            form_class=HevoPasswordResetForm,
+            email_template_name='registration/password_reset_email.txt',
+            html_email_template_name='registration/password_reset_email.html',
+            subject_template_name='registration/password_reset_subject.txt',
+        ),
+        name='password_reset',
+    ),
+    path(
+        'senha/resetar/enviado/',
+        PasswordResetDoneView.as_view(),
+        name='password_reset_done',
+    ),
+    path(
+        'senha/resetar/confirmar/<uidb64>/<token>/',
+        PasswordResetConfirmView.as_view(form_class=HevoSetPasswordForm),
+        name='password_reset_confirm',
+    ),
+    path(
+        'senha/resetar/concluido/',
+        PasswordResetCompleteView.as_view(),
+        name='password_reset_complete',
+    ),
     path('conversation/', include('apps.conversation.urls')),
     path('', include('apps.crm.urls')),
     path('base-conhecimento/', include('apps.venue.urls')),
