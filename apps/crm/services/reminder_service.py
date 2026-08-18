@@ -37,7 +37,11 @@ class ReminderService:
         lead = visit.lead
         conversation = lead.conversation
         when = timezone.localtime(visit.scheduled_at).strftime('%d/%m às %H:%M')
-        content = f'Lembrete: sua visita ao {lead.venue.name} é dia {when}.'
+        content = (
+            settings.WHATSAPP_VISIT_REMINDER_TEMPLATE_BODY
+            .replace('{{1}}', lead.venue.name)
+            .replace('{{2}}', when)
+        )
 
         ConversationService.record_message(
             conversation=conversation,

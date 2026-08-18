@@ -18,6 +18,31 @@ def get_waba_phone_number_id(waba_id):
     return numbers[0]['id'] if numbers else None
 
 
+def create_message_template(waba_id, *, name, category, language, body_text, body_example=None):
+    """Creates a message template on a WABA.
+
+    Raises requests.HTTPError if Meta rejects it — including if a template with
+    this name already exists on the WABA, which callers should treat as fine
+    (nothing to do) rather than a real failure."""
+    url = f'{GRAPH_API_BASE}/{settings.WHATSAPP_API_VERSION}/{waba_id}/message_templates'
+    headers = {
+        'Authorization': f'Bearer {settings.WHATSAPP_ACCESS_TOKEN}',
+        'Content-Type': 'application/json',
+    }
+    body_component = {'type': 'BODY', 'text': body_text}
+    if body_example:
+        body_component['example'] = {'body_text': [body_example]}
+    payload = {
+        'name': name,
+        'language': language,
+        'category': category,
+        'components': [body_component],
+    }
+    response = requests.post(url, headers=headers, json=payload, timeout=10)
+    response.raise_for_status()
+    return response.json()
+
+
 def subscribe_app_to_waba(waba_id):
     """Subscribes our app to a WhatsApp Business Account's webhooks.
 

@@ -2,6 +2,7 @@ import json
 import logging
 
 import requests
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, JsonResponse
@@ -10,7 +11,11 @@ from django.urls import reverse_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
-from apps.conversation.whatsapp.client import get_waba_phone_number_id, subscribe_app_to_waba
+from apps.conversation.whatsapp.client import (
+    create_message_template,
+    get_waba_phone_number_id,
+    subscribe_app_to_waba,
+)
 from apps.core.views import VenueScopedViewMixin
 from apps.user.services import get_active_venue
 from apps.venue.forms import (
@@ -106,10 +111,42 @@ def whatsapp_connect(request):
             {"error": "Nenhum número de telefone encontrado nessa conta do WhatsApp."}, status=400,
         )
 
+    _ensure_default_templates(waba_id)
+
     venue.whatsapp_phone_number_id = phone_number_id
     venue.whatsapp_business_account_id = waba_id
     venue.save(update_fields=["whatsapp_phone_number_id", "whatsapp_business_account_id"])
     return JsonResponse({"status": "connected"})
+
+
+def _ensure_default_templates(waba_id):
+    """Creates the templates Hevo depends on (follow-ups, visit reminders) on a
+    newly connected WABA. Best-effort — a template that already exists (e.g. a
+    venue reconnecting) or gets rejected shouldn't block the connection itself,
+    just leave that automation dark until someone creates it by hand."""
+    templates = [
+        {
+            "name": settings.WHATSAPP_FOLLOWUP_TEMPLATE_NAME,
+            "category": "MARKETING",
+            "language": settings.WHATSAPP_FOLLOWUP_TEMPLATE_LANGUAGE,
+            "body_text": settings.WHATSAPP_FOLLOWUP_TEMPLATE_TEXT,
+        },
+        {
+            "name": settings.WHATSAPP_VISIT_REMINDER_TEMPLATE_NAME,
+            "category": "UTILITY",
+            "language": settings.WHATSAPP_VISIT_REMINDER_TEMPLATE_LANGUAGE,
+            "body_text": settings.WHATSAPP_VISIT_REMINDER_TEMPLATE_BODY,
+            "body_example": ["Espaço Exemplo", "18/08 às 15:00"],
+        },
+    ]
+    for template in templates:
+        try:
+            create_message_template(waba_id, **template)
+        except requests.RequestException:
+            logger.info(
+                "Could not create template %s on WABA %s (may already exist)",
+                template["name"], waba_id,
+            )
 
 
 @login_required
