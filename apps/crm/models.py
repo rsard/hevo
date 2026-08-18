@@ -129,6 +129,7 @@ class Visit(TenantModel):
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.SCHEDULED)
     calendar_event_id = models.CharField(max_length=255, blank=True)
     notes = models.TextField(blank=True)
+    reminder_sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['scheduled_at']

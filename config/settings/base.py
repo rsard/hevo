@@ -194,6 +194,17 @@ WHATSAPP_FOLLOWUP_TEMPLATE_TEXT = env(
     ),
 )
 
+# Name/language of the Meta-approved template used for visit reminders (must
+# exist in the venue's WhatsApp Business Account). Sent HOURS_BEFORE a
+# scheduled visit, to leads that haven't opted out (Cancelled/Completed).
+WHATSAPP_VISIT_REMINDER_TEMPLATE_NAME = env(
+    'WHATSAPP_VISIT_REMINDER_TEMPLATE_NAME', default='visit_reminder',
+)
+WHATSAPP_VISIT_REMINDER_TEMPLATE_LANGUAGE = env(
+    'WHATSAPP_VISIT_REMINDER_TEMPLATE_LANGUAGE', default='pt_BR',
+)
+WHATSAPP_VISIT_REMINDER_HOURS_BEFORE = env.int('WHATSAPP_VISIT_REMINDER_HOURS_BEFORE', default=24)
+
 
 # Email
 
@@ -227,6 +238,10 @@ CELERY_BEAT_SCHEDULE = {
     'send-followups-hourly': {
         'task': 'apps.crm.tasks.send_followups_for_all_venues',
         'schedule': crontab(minute=0),
+    },
+    'send-visit-reminders-hourly': {
+        'task': 'apps.crm.tasks.send_visit_reminders_for_all_venues',
+        'schedule': crontab(minute=15),
     },
     'mark-inactive-leads-lost-daily': {
         'task': 'apps.crm.tasks.mark_inactive_leads_as_lost',
