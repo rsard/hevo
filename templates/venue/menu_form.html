@@ -11,7 +11,25 @@
             <h2>{% if menu.pk %}Editar{% else %}Novo{% endif %} cardápio</h2>
             <form method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
+                {{ form.non_field_errors }}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {{ form.name.errors }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.price_per_person.id_for_label }}">{{ form.price_per_person.label }}</label>
+                    <div class="input-group">
+                        <span class="input-group-text">R$</span>
+                        {{ form.price_per_person }}
+                    </div>
+                    {{ form.price_per_person.errors }}
+                </div>
 
                 <h2>Itens do cardápio</h2>
                 {{ formset.management_form }}

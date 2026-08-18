@@ -11,7 +11,30 @@
             <h2>{% if object %}Editar{% else %}Novo{% endif %} pacote</h2>
             <form method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
+                {{ form.non_field_errors }}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {{ form.name.errors }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.base_price.id_for_label }}">{{ form.base_price.label }}</label>
+                    <div class="input-group">
+                        <span class="input-group-text">R$</span>
+                        {{ form.base_price }}
+                    </div>
+                    {{ form.base_price.errors }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.event_type.id_for_label }}">{{ form.event_type.label }}</label>
+                    {{ form.event_type }}
+                    {{ form.event_type.errors }}
+                </div>
                 <button type="submit" class="btn btn-hevo">Salvar</button>
             </form>
         </div>

@@ -97,7 +97,11 @@ class PackageForm(BootstrapFormMixin, forms.ModelForm):
             'base_price': 'Preço base',
             'event_type': 'Tipo de evento',
         }
-        widgets = {'description': forms.Textarea(attrs={'rows': 3})}
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'base_price': forms.TextInput(attrs={'data-currency-mask': ''}),
+        }
+        localized_fields = ['base_price']
 
 
 class MenuForm(BootstrapFormMixin, forms.ModelForm):
@@ -109,7 +113,11 @@ class MenuForm(BootstrapFormMixin, forms.ModelForm):
             'description': 'Descrição',
             'price_per_person': 'Preço por pessoa',
         }
-        widgets = {'description': forms.Textarea(attrs={'rows': 2})}
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2}),
+            'price_per_person': forms.TextInput(attrs={'data-currency-mask': ''}),
+        }
+        localized_fields = ['price_per_person']
 
 
 class MenuItemForm(BootstrapFormMixin, forms.ModelForm):
@@ -133,7 +141,11 @@ class DecorationOptionForm(BootstrapFormMixin, forms.ModelForm):
         model = DecorationOption
         fields = ['name', 'description', 'price']
         labels = {'name': 'Nome', 'description': 'Descrição', 'price': 'Preço'}
-        widgets = {'description': forms.Textarea(attrs={'rows': 2})}
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2}),
+            'price': forms.TextInput(attrs={'data-currency-mask': ''}),
+        }
+        localized_fields = ['price']
 
 
 class FAQForm(BootstrapFormMixin, forms.ModelForm):

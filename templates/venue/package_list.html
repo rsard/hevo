@@ -20,7 +20,7 @@
                 {% for item in items %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
-                        <strong>{{ item.name }}</strong>
+                        <strong class="me-2">{{ item.name }}</strong>
                         <span class="text-muted">
                             R$ {{ item.base_price }}
                             {% if item.event_type %} · {{ item.event_type.name }}{% endif %}

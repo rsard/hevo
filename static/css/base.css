@@ -121,6 +121,18 @@ select:focus-visible {
     font-weight: 600;
 }
 
+/* Dedicated hover for the "Gerar proposta" chip on the lead detail page —
+   scoped so it doesn't change the other filter chips' hover behavior. */
+.proposal-chip {
+    transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.proposal-chip:hover {
+    background: var(--brand-color);
+    color: #ffffff;
+    border-color: var(--brand-color);
+}
+
 .filter-chip-neutral.active {
     color: var(--color-text);
     background: var(--color-border);
@@ -135,6 +147,18 @@ select:focus-visible {
 .filter-chip-danger.active {
     background: var(--bs-danger-bg-subtle);
     border-color: transparent;
+}
+
+#label-picker .dropdown-menu li {
+    display: flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: background-color 120ms ease;
+}
+
+#label-picker .dropdown-menu li:hover {
+    background-color: var(--color-bg);
 }
 
 /* Agenda week nav: plain arrows, no button chrome */

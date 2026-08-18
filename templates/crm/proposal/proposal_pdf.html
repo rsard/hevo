@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+    @page {
+        size: A4;
+        margin-top: 2.2cm;
+        margin-left: 2.2cm;
+        margin-right: 2.2cm;
+        margin-bottom: 3.2cm;
+
+        @frame footer_frame {
+            -pdf-frame-content: footer_content;
+            left: 2.2cm;
+            width: 16.6cm;
+            bottom: 1.2cm;
+            height: 1.6cm;
+        }
+    }
+    body { font-family: Helvetica, Arial, sans-serif; color: #1a1f36; font-size: 11pt; }
+    h1 { font-size: 20pt; color: #206172; margin: 0 0 4px; }
+    .eyebrow { font-size: 9pt; color: #8792a2; text-transform: uppercase; letter-spacing: 1px; }
+    .meta { color: #697386; font-size: 10pt; margin: 4px 0 0; }
+    hr.rule { border: none; border-top: 2px solid #206172; margin: 10px 0 18px; }
+    table.details { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+    table.details td { padding-top: 8px; padding-bottom: 2px; border-bottom: 1px solid #e3e8ee; font-size: 11pt; vertical-align: middle; }
+    table.details td.label { color: #697386; width: 40%; }
+    table.details td.value { font-weight: bold; }
+    table.price-box { width: 100%; background-color: #e4eef0; margin-bottom: 18px; }
+    table.price-box td { padding-top: 18px; vertical-align: middle; text-align: center; }
+    .price-label { font-size: 10pt; color: #206172; margin: 0; padding: 0;}
+    .price-value { font-size: 22pt; color: #206172; font-weight: bold; display: block; margin: 8px 0 0 0; padding: 0; }
+    .section-title { font-size: 12pt; color: #206172; margin: 14px 0 6px; }
+    .package-description { font-size: 10.5pt; line-height: 1.4; margin: 0; }
+    table.notes-box { width: 100%; background-color: #f6f8fa; margin-bottom: 4px; }
+    table.notes-box td { padding: 10px 12px; font-size: 10.5pt; vertical-align: middle; }
+    .footer {
+        font-size: 9pt;
+        color: #8792a2;
+        line-height: 1.5;
+        border-top: 1px solid #e3e8ee;
+        padding-top: 8px;
+    }
+</style>
+</head>
+<body>
+    <span class="eyebrow">Proposta</span>
+    <h1>{{ venue.name }}</h1>
+    <div class="meta">Preparada para {{ lead.customer_name|default:lead.customer_phone }} em {{ today|date:"d/m/Y" }}</div>
+    <hr class="rule">
+
+    <table class="details">
+        <tr>
+            <td class="label">Tipo de evento</td>
+            <td class="value">{{ lead.event_type.name|default:"A definir" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Data do evento</td>
+            <td class="value">{% if lead.event_date %}{{ lead.event_date|date:"d/m/Y" }}{% else %}A definir{% endif %}</td>
+        </tr>
+        <tr>
+            <td class="label">Convidados</td>
+            <td class="value">{{ lead.guest_count|default:"A definir" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Pacote</td>
+            <td class="value">{{ package.name }}</td>
+        </tr>
+    </table>
+
+    <table class="price-box">
+        <tr>
+            <td>
+                <div class="price-label">VALOR DA PROPOSTA</div>
+                <span class="price-value">R$ {{ price }}</span>
+            </td>
+        </tr>
+    </table>
+
+    {% if package.description %}
+    <div class="section-title">O que está incluso</div>
+    <p class="package-description">{{ package.description|linebreaksbr }}</p>
+    {% endif %}
+
+    {% if notes %}
+    <div class="section-title">Observações</div>
+    <table class="notes-box">
+        <tr><td>{{ notes|linebreaksbr }}</td></tr>
+    </table>
+    {% endif %}
+
+    <div id="footer_content" class="footer">
+        {{ venue.name }}{% if venue.address %} — {{ venue.address }}{% endif %}<br>
+        Gerado por Hevo
+    </div>
+</body>
+</html>

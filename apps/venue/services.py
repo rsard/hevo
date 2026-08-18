@@ -1,3 +1,6 @@
+from apps.core.utils import format_currency
+
+
 class KnowledgeBaseService:
     """Flattens a venue's knowledge base into plain text for an LLM system prompt.
 
@@ -18,7 +21,9 @@ class KnowledgeBaseService:
 
         packages = venue.package_set.select_related('event_type')
         if packages:
-            lines = [f'- {pkg.name}: R$ {pkg.base_price} - {pkg.description}' for pkg in packages]
+            lines = [
+                f'- {pkg.name}: {format_currency(pkg.base_price)} - {pkg.description}' for pkg in packages
+            ]
             sections.append('Packages:\n' + '\n'.join(lines))
 
         menus = venue.menu_set.prefetch_related('items')
@@ -31,7 +36,9 @@ class KnowledgeBaseService:
 
         decorations = venue.decorationoption_set.all()
         if decorations:
-            lines = [f'- {opt.name}: R$ {opt.price} - {opt.description}' for opt in decorations]
+            lines = [
+                f'- {opt.name}: {format_currency(opt.price)} - {opt.description}' for opt in decorations
+            ]
             sections.append('Decoration options:\n' + '\n'.join(lines))
 
         faqs = venue.faq_set.all()

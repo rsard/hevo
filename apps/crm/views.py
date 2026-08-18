@@ -1,6 +1,7 @@
 import json
 import logging
 from datetime import timedelta
+from decimal import Decimal, InvalidOperation
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Max, Q
@@ -8,6 +9,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from django.utils.formats import sanitize_separators
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
@@ -17,14 +19,15 @@ from apps.conversation.models import Message
 from apps.core.views import VenueScopedViewMixin
 from apps.crm.forms import LabelForm
 from apps.crm.models import Label, Lead, LeadActivity
-from apps.crm.services import CRMService, LeadExportService, SchedulingService
+from apps.crm.services import CRMService, LeadExportService, ProposalService, SchedulingService
 from apps.crm.tasks import send_escalation_notification
 from apps.user.services import get_active_venue
+from apps.venue.models import Package
 
 logger = logging.getLogger(__name__)
 
 STALE_THRESHOLD = timedelta(hours=24)
-RECENT_ACTIVITIES_COUNT = 5
+RECENT_ACTIVITIES_COUNT = 10
 
 
 def _recent_activities(lead):
@@ -202,6 +205,7 @@ def lead_detail(request, pk):
         "conversation_messages": lead.conversation.messages.all(),
         "activities": _recent_activities(lead),
         "unassigned_labels": Label.objects.filter(venue=venue).exclude(id__in=assigned_label_ids),
+        "packages": Package.objects.filter(venue=venue),
     }
     return render(request, "crm/lead_detail.html", context)
 
@@ -290,6 +294,63 @@ def lead_schedule_visit(request, pk):
     response = render(request, "crm/_visits_section.html", {"lead": lead, "error_msg": error_msg})
     if not error_msg:
         response = _with_toast(response, "Visita agendada com sucesso.")
+    return response
+
+
+def _proposal_price(request_data, package):
+    """Parses the posted/queried price, falling back to the package's base price
+    if it's missing or malformed. The price field is masked as Brazilian
+    currency client-side (17.500,00), so this un-localizes it before parsing."""
+    raw = request_data.get("price")
+    try:
+        return Decimal(sanitize_separators(raw)) if raw else package.base_price
+    except InvalidOperation:
+        return package.base_price
+
+
+@login_required
+def lead_proposal_preview(request, pk):
+    """Renders a live PDF preview of the proposal form's current values, without
+    saving or sending anything — lets the owner check it before committing."""
+    venue = get_active_venue(request.user)
+    if venue is None:
+        raise Http404("Nenhum espaço associado a este usuário.")
+
+    lead = get_object_or_404(Lead.objects.filter(venue=venue), pk=pk)
+    package = get_object_or_404(Package.objects.filter(venue=venue), pk=request.GET.get("package"))
+    price = _proposal_price(request.GET, package)
+    notes = request.GET.get("notes", "")
+
+    pdf_bytes = ProposalService.render_pdf(lead=lead, package=package, price=price, notes=notes)
+    return HttpResponse(pdf_bytes, content_type="application/pdf")
+
+
+@login_required
+@require_POST
+def lead_proposal_send(request, pk):
+    """Generates the final proposal PDF and sends it to the lead over WhatsApp."""
+    venue = get_active_venue(request.user)
+    if venue is None:
+        raise Http404("Nenhum espaço associado a este usuário.")
+
+    lead = get_object_or_404(Lead.objects.filter(venue=venue), pk=pk)
+    package = get_object_or_404(Package.objects.filter(venue=venue), pk=request.POST.get("package"))
+    price = _proposal_price(request.POST, package)
+    notes = request.POST.get("notes", "")
+
+    error_msg = None
+    try:
+        ProposalService.send(lead=lead, package=package, price=price, notes=notes)
+    except Exception:
+        logger.exception("Failed to send proposal for lead %s", lead.id)
+        error_msg = "Não foi possível enviar a proposta. Tente novamente."
+
+    lead.refresh_from_db()
+    response = render(request, "crm/_proposal_section.html", {
+        "lead": lead, "packages": Package.objects.filter(venue=venue), "error_msg": error_msg,
+    })
+    if not error_msg:
+        response = _with_toast(response, "Proposta enviada com sucesso.")
     return response
 
 

@@ -11,7 +11,25 @@
             <h2>{% if object %}Editar{% else %}Nova{% endif %} opção de decoração</h2>
             <form method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
+                {{ form.non_field_errors }}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {{ form.name.errors }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
+                    <div class="input-group">
+                        <span class="input-group-text">R$</span>
+                        {{ form.price }}
+                    </div>
+                    {{ form.price.errors }}
+                </div>
                 <button type="submit" class="btn btn-hevo">Salvar</button>
             </form>
         </div>

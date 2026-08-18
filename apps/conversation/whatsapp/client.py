@@ -100,3 +100,27 @@ class WhatsAppClient:
         response = requests.post(self._url, headers=self._headers, json=payload, timeout=10)
         response.raise_for_status()
         return response.json()
+
+    def upload_media(self, *, file_bytes, filename, mime_type):
+        """Uploads a file to WhatsApp's media storage, returning its media_id —
+        the first step to sending a document/image/etc, which can't be attached
+        to a message directly."""
+        url = f'{GRAPH_API_BASE}/{settings.WHATSAPP_API_VERSION}/{self.phone_number_id}/media'
+        headers = {'Authorization': f'Bearer {settings.WHATSAPP_ACCESS_TOKEN}'}
+        files = {'file': (filename, file_bytes, mime_type)}
+        data = {'messaging_product': 'whatsapp', 'type': mime_type}
+        response = requests.post(url, headers=headers, files=files, data=data, timeout=30)
+        response.raise_for_status()
+        return response.json()['id']
+
+    def send_document(self, *, to, media_id, filename, caption=''):
+        """Sends a previously uploaded file (see upload_media) as a document message."""
+        payload = {
+            'messaging_product': 'whatsapp',
+            'to': to,
+            'type': 'document',
+            'document': {'id': media_id, 'filename': filename, 'caption': caption},
+        }
+        response = requests.post(self._url, headers=self._headers, json=payload, timeout=10)
+        response.raise_for_status()
+        return response.json()

@@ -1,0 +1,74 @@
+<div id="proposal-section">
+    {% if error_msg %}
+    <p class="text-danger">{{ error_msg }}</p>
+    {% endif %}
+    {% if packages %}
+    <form
+        id="proposal-form"
+        data-preview-url="{% url "crm:lead-proposal-preview" lead.pk %}"
+        hx-post="{% url "crm:lead-proposal-send" lead.pk %}"
+        hx-target="#proposal-section"
+        hx-swap="outerHTML">
+        {% csrf_token %}
+        <div class="mb-2">
+            <label class="form-label" for="proposal-package">Pacote</label>
+            <select name="package" id="proposal-package" class="form-select">
+                {% for package in packages %}
+                <option
+                    value="{{ package.pk }}"
+                    data-price="{{ package.base_price }}"
+                    {% if package.event_type_id == lead.event_type_id %}selected{% endif %}>
+                    {{ package.name }} — R$ {{ package.base_price }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-2">
+            <label class="form-label" for="proposal-price">Valor</label>
+            <div class="input-group">
+                <span class="input-group-text">R$</span>
+                <input
+                    type="text"
+                    inputmode="decimal"
+                    placeholder="0,00"
+                    name="price"
+                    id="proposal-price"
+                    class="form-control"
+                    data-currency-mask>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="proposal-notes">Observações (opcional)</label>
+            <textarea name="notes" id="proposal-notes" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" id="proposal-preview-btn" class="btn btn-outline-secondary">
+                Pré-visualizar
+            </button>
+            <button type="submit" class="btn btn-hevo">Enviar por WhatsApp</button>
+        </div>
+    </form>
+    {% else %}
+    {% include "core/_empty_state.html" with icon="fa-file-invoice-dollar" title="Nenhum pacote cadastrado" %}
+    <p class="text-muted small">
+        Cadastre um pacote em Base de Conhecimento para poder gerar propostas.
+    </p>
+    {% endif %}
+
+    {% if lead.proposals.all %}
+    <h3 class="fs-6 mt-4">Propostas enviadas</h3>
+    <ul class="list-group list-group-flush">
+        {% for proposal in lead.proposals.all %}
+        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <span>
+                {{ proposal.package.name|default:"Pacote removido" }} — R$ {{ proposal.price }}
+                <span class="text-muted">({{ proposal.created_at|date:"d/m/Y H:i" }})</span>
+            </span>
+            {% if proposal.pdf %}
+            <a href="{{ proposal.pdf.url }}" target="_blank" class="small">Ver PDF</a>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>

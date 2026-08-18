@@ -3,6 +3,7 @@ from django.db import models
 
 from apps.core.fields import EncryptedTextField
 from apps.core.models import TenantModel, TimeStampedModel
+from apps.core.utils import format_currency
 
 
 class Label(TenantModel):
@@ -112,6 +113,25 @@ class LeadActivity(models.Model):
 
     def __str__(self):
         return f'{self.get_activity_type_display()} - {self.lead}'
+
+
+class Proposal(TenantModel):
+    """A pricing proposal generated for a lead and sent as a PDF over WhatsApp."""
+
+    lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='proposals')
+    package = models.ForeignKey(
+        'venue.Package', on_delete=models.SET_NULL, null=True, blank=True, related_name='proposals',
+    )
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    notes = models.TextField(blank=True)
+    pdf = models.FileField(upload_to='proposals/')
+    sent_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.lead} - {format_currency(self.price)}'
 
 
 class Visit(TenantModel):

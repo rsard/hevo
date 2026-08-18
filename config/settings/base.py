@@ -118,6 +118,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-br'
 
+# pt-br's locale data uses "." for thousands and "," for decimals (17.500,00) —
+# this makes every {{ value }} in templates render numbers that way automatically.
+USE_THOUSAND_SEPARATOR = True
+
 TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
