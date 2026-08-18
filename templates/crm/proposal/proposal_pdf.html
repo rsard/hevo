@@ -35,13 +35,7 @@
     .package-description { font-size: 10.5pt; line-height: 1.4; margin: 0; }
     table.notes-box { width: 100%; background-color: #f6f8fa; margin-bottom: 4px; }
     table.notes-box td { padding: 10px 12px; font-size: 10.5pt; vertical-align: middle; }
-    .footer {
-        font-size: 9pt;
-        color: #8792a2;
-        line-height: 1.5;
-        border-top: 1px solid #e3e8ee;
-        padding-top: 8px;
-    }
+    .footer { text-align: center; font-size: 9pt; color: #8792a2; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -91,8 +85,8 @@
     {% endif %}
 
     <div id="footer_content" class="footer">
-        {{ venue.name }}{% if venue.address %} — {{ venue.address }}{% endif %}<br>
-        Gerado por Hevo
+        Gerado por Hevo<br>
+        www.hevo.ia.br
     </div>
 </body>
 </html>
