@@ -23,7 +23,7 @@ class NotificationService:
             return
 
         who = lead.customer_name or lead.customer_phone
-        subject = f'[Hevo] Atendimento humano solicitado — {who}'
+        subject = f'Hevo - Atendimento humano solicitado — {who}'
         context = {
             'who': who,
             'lead': lead,
