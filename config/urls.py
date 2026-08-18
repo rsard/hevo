@@ -31,8 +31,8 @@ from apps.user.forms import HevoPasswordResetForm, HevoSetPasswordForm, LoginFor
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', LoginView.as_view(form_class=LoginForm), name='login'),
-    path('logout/', LogoutView.as_view(), name='logout'),
+    path('entrar/', LoginView.as_view(form_class=LoginForm), name='login'),
+    path('sair/', LogoutView.as_view(), name='logout'),
     path(
         'senha/resetar/',
         PasswordResetView.as_view(
@@ -58,7 +58,7 @@ urlpatterns = [
         PasswordResetCompleteView.as_view(),
         name='password_reset_complete',
     ),
-    path('conversation/', include('apps.conversation.urls')),
+    path('conversa/', include('apps.conversation.urls')),
     path('', include('apps.crm.urls')),
     path('base-conhecimento/', include('apps.venue.urls')),
     path('administracao/', include('apps.backoffice.urls')),
