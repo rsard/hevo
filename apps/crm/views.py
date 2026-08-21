@@ -31,8 +31,15 @@ RECENT_ACTIVITIES_COUNT = 10
 
 
 def _recent_activities(lead):
-    """Returns the lead's most recent activities, newest first."""
-    return lead.activities.order_by("-created_at")[:RECENT_ACTIVITIES_COUNT]
+    """Returns the lead's most recent activities, newest first.
+
+    Excludes ERROR entries: those are technical failure detail meant for the
+    Hevo team (see backoffice:error-log), not for the venue owner using the CRM.
+    """
+    return (
+        lead.activities.exclude(activity_type=LeadActivity.ActivityType.ERROR)
+        .order_by("-created_at")[:RECENT_ACTIVITIES_COUNT]
+    )
 
 
 def _with_toast(response, message):
