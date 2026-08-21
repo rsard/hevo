@@ -1,8 +1,12 @@
+import logging
+
 from celery import shared_task
 
 from apps.crm.models import Lead, LeadActivity
 from apps.crm.services import CRMService, FollowUpService, NotificationService, ReminderService
 from apps.venue.models import Venue
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task
@@ -12,11 +16,12 @@ def send_followups_for_all_venues():
         for lead in FollowUpService.leads_needing_followup(venue):
             try:
                 FollowUpService.send_followup(lead)
-            except Exception:
+            except Exception as exc:
+                logger.exception('Failed to send automated follow-up for lead %s', lead.pk)
                 CRMService.log_activity(
                     lead=lead,
-                    activity_type=LeadActivity.ActivityType.AI_ACTION,
-                    description='Falha ao enviar follow-up automático.',
+                    activity_type=LeadActivity.ActivityType.ERROR,
+                    description=f'Falha ao enviar follow-up automático: {exc}',
                 )
 
 
@@ -26,11 +31,12 @@ def send_escalation_notification(lead_id):
     lead = Lead.objects.select_related('venue').get(pk=lead_id)
     try:
         NotificationService.notify_escalation(lead)
-    except Exception:
+    except Exception as exc:
+        logger.exception('Failed to send escalation notification for lead %s', lead.pk)
         CRMService.log_activity(
             lead=lead,
-            activity_type=LeadActivity.ActivityType.AI_ACTION,
-            description='Falha ao enviar notificação de escalonamento.',
+            activity_type=LeadActivity.ActivityType.ERROR,
+            description=f'Falha ao enviar notificação de escalonamento: {exc}',
         )
 
 
@@ -42,11 +48,12 @@ def send_visit_reminders_for_all_venues():
         for visit in ReminderService.visits_needing_reminder(venue):
             try:
                 ReminderService.send_reminder(visit)
-            except Exception:
+            except Exception as exc:
+                logger.exception('Failed to send automated visit reminder for visit %s', visit.pk)
                 CRMService.log_activity(
                     lead=visit.lead,
-                    activity_type=LeadActivity.ActivityType.AI_ACTION,
-                    description='Falha ao enviar lembrete de visita automático.',
+                    activity_type=LeadActivity.ActivityType.ERROR,
+                    description=f'Falha ao enviar lembrete de visita automático: {exc}',
                 )
 
 

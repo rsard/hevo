@@ -43,12 +43,8 @@ class ReminderService:
             .replace('{{2}}', when)
         )
 
-        ConversationService.record_message(
-            conversation=conversation,
-            direction=Message.Direction.OUTBOUND,
-            sender_type=Message.SenderType.AI,
-            content=content,
-        )
+        # Send first: a message record should only exist once we know it actually
+        # went out, so a failed send doesn't show up as a phantom sent message.
         if conversation.channel == Conversation.Channel.WHATSAPP:
             WhatsAppClient(lead.venue.whatsapp_phone_number_id).send_template(
                 to=conversation.external_contact_id,
@@ -56,6 +52,12 @@ class ReminderService:
                 language_code=settings.WHATSAPP_VISIT_REMINDER_TEMPLATE_LANGUAGE,
                 body_params=[lead.venue.name, when],
             )
+        ConversationService.record_message(
+            conversation=conversation,
+            direction=Message.Direction.OUTBOUND,
+            sender_type=Message.SenderType.AI,
+            content=content,
+        )
 
         visit.reminder_sent_at = timezone.now()
         visit.save(update_fields=['reminder_sent_at'])

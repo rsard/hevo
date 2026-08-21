@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Erros - Hevo{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h1>Erros de automação</h1>
+            <p class="text-muted mb-0">
+                Falhas ao enviar follow-ups, lembretes e notificações automáticas,
+                em todos os clientes. Mostrando as últimas {{ limit }}.
+            </p>
+        </div>
+        <a href="{% url 'backoffice:dashboard' %}" class="btn btn-outline-secondary">
+            Voltar ao dashboard
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                {% for error in errors %}
+                <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                        <div>{{ error.description }}</div>
+                        <span class="text-muted small text-nowrap">{{ error.created_at|timesince }} atrás</span>
+                    </div>
+                    <span class="text-muted small">
+                        {{ error.lead.venue.name }} ·
+                        <a href="{% url 'crm:lead-detail' error.lead.pk %}">
+                            {{ error.lead.customer_name|default:error.lead.customer_phone }}
+                        </a>
+                    </span>
+                </li>
+                {% empty %}
+                <li class="list-group-item px-0">
+                    {% include "core/_empty_state.html" with icon="fa-circle-check" title="Nenhum erro registrado" subtitle="As automações estão rodando sem falhas." %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -71,17 +71,25 @@
             </div>
         </div>
         <div class="col">
-            <div class="card h-100{% if email_quota_pct >= 90 %} text-bg-hevo{% endif %}">
+            <div class="card h-100{% if email_quota_pct >= 90 %} text-bg-danger{% else %} text-bg-hevo{% endif %}">
                 <div class="card-body">
-                    <span class="small d-block">E-mails hoje (limite {{ email_daily_limit }})</span>
-                    <div class="meter">
-                        <div class="meter-track">
-                            <div class="meter-fill" style="width: {{ email_quota_pct }}%"></div>
-                        </div>
-                        <span class="meter-value fs-5">{{ emails_sent_today }}/{{ email_daily_limit }}</span>
-                    </div>
+                    <span class="fs-5 fw-bold d-block">{{ emails_sent_today }}/{{ email_daily_limit }}</span>
+                    <span class="small">E-mails enviados hoje</span>
                 </div>
             </div>
+        </div>
+        <div class="col">
+            <a
+                href="{% url 'backoffice:error-log' %}"
+                class="card h-100 text-decoration-none{% if errors_24h > 0 %} text-bg-danger{% endif %}">
+                <div class="card-body">
+                    <span class="fs-5 fw-bold d-block">{{ errors_24h }}</span>
+                    <span class="small">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        Erros de automação (24h)
+                    </span>
+                </div>
+            </a>
         </div>
     </div>
 

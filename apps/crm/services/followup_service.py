@@ -44,18 +44,20 @@ class FollowUpService:
         only a pre-approved template message is allowed, so this sends the
         configured template rather than AI-generated free text."""
         conversation = lead.conversation
-        message = ConversationService.record_message(
-            conversation=conversation,
-            direction=Message.Direction.OUTBOUND,
-            sender_type=Message.SenderType.AI,
-            content=settings.WHATSAPP_FOLLOWUP_TEMPLATE_TEXT,
-        )
+        # Send first: a message record should only exist once we know it actually
+        # went out, so a failed send doesn't show up as a phantom sent message.
         if conversation.channel == Conversation.Channel.WHATSAPP:
             WhatsAppClient(lead.venue.whatsapp_phone_number_id).send_template(
                 to=conversation.external_contact_id,
                 template_name=settings.WHATSAPP_FOLLOWUP_TEMPLATE_NAME,
                 language_code=settings.WHATSAPP_FOLLOWUP_TEMPLATE_LANGUAGE,
             )
+        message = ConversationService.record_message(
+            conversation=conversation,
+            direction=Message.Direction.OUTBOUND,
+            sender_type=Message.SenderType.AI,
+            content=settings.WHATSAPP_FOLLOWUP_TEMPLATE_TEXT,
+        )
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.AI_ACTION,

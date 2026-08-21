@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from apps.backoffice.forms import NewCustomerForm
 from apps.backoffice.models import Subscription
-from apps.crm.models import EmailLog, Lead
+from apps.crm.models import EmailLog, Lead, LeadActivity
 from apps.dashboard.views import WEEKS_TO_SHOW, _week_start, _weekly_series
 from apps.user.models import User, VenueMembership
 from apps.venue.models import Venue
@@ -41,6 +41,11 @@ def platform_dashboard(request):
         created_at__date=today,
     ).aggregate(total=Sum("recipient_count"))["total"] or 0
     email_quota_pct = round(min(emails_sent_today / EMAIL_DAILY_LIMIT, 1) * 100, 1)
+
+    errors_24h = LeadActivity.objects.filter(
+        activity_type=LeadActivity.ActivityType.ERROR,
+        created_at__gte=timezone.now() - timedelta(hours=24),
+    ).count()
 
     active_subscriptions = venues.filter(subscription__status=Subscription.Status.ACTIVE).count()
     new_venues_30d = venues.filter(created_at__date__gte=today - timedelta(days=30)).count()
@@ -80,8 +85,24 @@ def platform_dashboard(request):
         "emails_sent_today": emails_sent_today,
         "email_daily_limit": EMAIL_DAILY_LIMIT,
         "email_quota_pct": email_quota_pct,
+        "errors_24h": errors_24h,
     }
     return render(request, "backoffice/dashboard.html", context)
+
+
+ERROR_LOG_LIMIT = 200
+
+
+@staff_required
+def error_log(request):
+    """Staff-only view listing recent automation failures (failed WhatsApp
+    sends, notifications, etc.) across all venues, most recent first."""
+    errors = (
+        LeadActivity.objects.filter(activity_type=LeadActivity.ActivityType.ERROR)
+        .select_related("lead", "lead__venue")
+        .order_by("-created_at")[:ERROR_LOG_LIMIT]
+    )
+    return render(request, "backoffice/error_log.html", {"errors": errors, "limit": ERROR_LOG_LIMIT})
 
 
 @staff_required
