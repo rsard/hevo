@@ -27,13 +27,21 @@ window.fbAsyncInit = function () {
 }(document, 'script', 'facebook-jssdk'));
 
 window.addEventListener('message', (event) => {
+    // Temporary: log absolutely every message this window receives, before any
+    // filtering, so we can see the real origin/shape Meta's popup is using.
+    console.debug('[WA signup] RAW message, origin=' + event.origin + ', data=' + JSON.stringify(event.data));
+
     let origin;
     try {
         origin = new URL(event.origin).hostname;
     } catch {
+        console.debug('[WA signup] could not parse event.origin: ' + event.origin);
         return;
     }
-    if (!/\.facebook\.com$/.test(origin)) return;
+    if (!/\.facebook\.com$/.test(origin)) {
+        console.debug('[WA signup] ignoring message from non-facebook origin: ' + origin);
+        return;
+    }
 
     let data;
     try {
