@@ -59,6 +59,15 @@ MIDDLEWARE = [
     'django_htmx.middleware.HtmxMiddleware',
 ]
 
+# Django's SecurityMiddleware defaults to "same-origin", which severs
+# window.opener on any popup we open to another origin — including Meta's
+# WhatsApp Embedded Signup popup. That popup relies on window.opener.postMessage
+# to report back the connected WABA/phone number, so it silently can't
+# communicate with us under the stricter default. "same-origin-allow-popups"
+# keeps the same protection while still letting popups we open keep a live
+# opener reference.
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+
 AUTH_USER_MODEL = 'user.User'
 
 ROOT_URLCONF = 'config.urls'
