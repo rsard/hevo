@@ -39,10 +39,10 @@ window.addEventListener('message', (event) => {
     try {
         data = JSON.parse(event.data);
     } catch {
-        console.debug('[WA signup] non-JSON message from', origin, event.data);
+        console.debug('[WA signup] non-JSON message from ' + origin + ': ' + event.data);
         return; // Meta also posts non-JSON messages we don't care about
     }
-    console.debug('[WA signup] message from', origin, data);
+    console.debug('[WA signup] message from ' + origin + ': ' + JSON.stringify(data));
     if (data.type !== 'WA_EMBEDDED_SIGNUP') return;
 
     if (data.event === 'FINISH' || data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING') {
@@ -51,13 +51,13 @@ window.addEventListener('message', (event) => {
         // looks it up from the WABA instead of registering a new one.
         submitConnection(data.data.phone_number_id, data.data.waba_id);
     } else if (data.event === 'CANCEL' || data.event === 'ERROR') {
-        console.debug('[WA signup] cancel/error event', data);
+        console.debug('[WA signup] cancel/error event: ' + JSON.stringify(data));
         setStatus('Conexão cancelada ou interrompida. Tente novamente.', true);
     }
 });
 
 function submitConnection(phoneNumberId, wabaId) {
-    console.debug('[WA signup] submitConnection', { phoneNumberId, wabaId, code: embeddedSignupCode });
+    console.debug('[WA signup] submitConnection: ' + JSON.stringify({ phoneNumberId, wabaId, code: embeddedSignupCode }));
     setStatus('Conectando...', false);
     fetch(window.HEVO_WHATSAPP_CONNECT_URL, {
         method: 'POST',
@@ -73,7 +73,7 @@ function submitConnection(phoneNumberId, wabaId) {
     })
         .then((response) => response.json().then((body) => ({ ok: response.ok, body })))
         .then(({ ok, body }) => {
-            console.debug('[WA signup] connect response', { ok, body });
+            console.debug('[WA signup] connect response: ' + JSON.stringify({ ok, body }));
             if (ok) {
                 connectionSucceeded = true;
                 setStatus('WhatsApp conectado com sucesso! Recarregando...', false);
@@ -83,7 +83,7 @@ function submitConnection(phoneNumberId, wabaId) {
             }
         })
         .catch((err) => {
-            console.debug('[WA signup] connect request failed', err);
+            console.debug('[WA signup] connect request failed: ' + err);
             setStatus('Não foi possível concluir a conexão. Tente novamente.', true);
         });
 }
@@ -100,7 +100,7 @@ function launchWhatsAppEmbeddedSignup() {
     connectionSucceeded = false;
     FB.login(
         (response) => {
-            console.debug('[WA signup] FB.login callback', response);
+            console.debug('[WA signup] FB.login callback: ' + JSON.stringify(response));
             if (response.authResponse && response.authResponse.code) {
                 embeddedSignupCode = response.authResponse.code;
             } else if (!connectionSucceeded) {
