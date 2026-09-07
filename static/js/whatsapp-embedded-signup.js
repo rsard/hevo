@@ -22,7 +22,9 @@ window.fbAsyncInit = function () {
     const firstScript = doc.getElementsByTagName(tag)[0];
     const script = doc.createElement(tag);
     script.id = id;
-    script.src = 'https://connect.facebook.net/pt_BR/sdk.js';
+    // TEMP: en_US instead of pt_BR so Meta's popup is in English for the App
+    // Review screencast retake. Revert to pt_BR once the recording is done.
+    script.src = 'https://connect.facebook.net/en_US/sdk.js';
     firstScript.parentNode.insertBefore(script, firstScript);
 }(document, 'script', 'facebook-jssdk'));
 
