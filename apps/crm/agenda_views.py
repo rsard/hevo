@@ -64,7 +64,10 @@ def agenda(request):
         except RefreshError:
             # The stored refresh token no longer works (revoked access, or the
             # OAuth client's credentials were rotated after this connection was
-            # made) — the venue needs to reconnect, not just retry.
+            # made) — the venue needs to reconnect, not just retry. Delete the
+            # connection so Integrations settings stops showing it as active.
+            connection.delete()
+            connection = None
             error = (
                 "A conexão com o Google Calendar expirou ou foi revogada. "
                 "Reconecte em Configurações → Integrações."

@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 
+from google.auth.exceptions import RefreshError
+
 from apps.crm.calendar import GoogleCalendarProvider
 from apps.crm.models import Lead, Visit
 from apps.crm.services.crm_service import CRMService
@@ -36,9 +38,15 @@ class SchedulingService:
 
         connection = getattr(venue, 'calendar_connection', None)
         if connection:
-            events = GoogleCalendarProvider().list_events(
-                connection=connection, time_min=start, time_max=end,
-            )
+            try:
+                events = GoogleCalendarProvider().list_events(
+                    connection=connection, time_min=start, time_max=end,
+                )
+            except RefreshError:
+                # Dead connection — stop treating it as a source of conflicts,
+                # same as if the venue had never connected one.
+                connection.delete()
+                events = []
             for event in events:
                 if event['is_all_day']:
                     if event['start'] <= start.date() < event['end']:
@@ -103,15 +111,21 @@ class SchedulingService:
 
         connection = getattr(lead.venue, 'calendar_connection', None)
         if connection:
-            event_id = GoogleCalendarProvider().create_event(
-                connection=connection,
-                title=f'Visita - {lead.customer_name or lead.customer_phone}',
-                start=start,
-                end=start + VISIT_DURATION,
-                description=notes,
-            )
-            visit.calendar_event_id = event_id
-            visit.save(update_fields=['calendar_event_id'])
+            try:
+                event_id = GoogleCalendarProvider().create_event(
+                    connection=connection,
+                    title=f'Visita - {lead.customer_name or lead.customer_phone}',
+                    start=start,
+                    end=start + VISIT_DURATION,
+                    description=notes,
+                )
+            except RefreshError:
+                # Dead connection shouldn't block booking the visit itself —
+                # just leave it unsynced, same as a venue with no connection.
+                connection.delete()
+            else:
+                visit.calendar_event_id = event_id
+                visit.save(update_fields=['calendar_event_id'])
 
         CRMService.update_stage(lead=lead, stage=Lead.Stage.NEGOTIATION)
         return visit
