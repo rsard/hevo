@@ -252,7 +252,7 @@ def lead_stage_update(request, pk):
         response = render(request, "crm/_lead_stage_field.html", {"lead": lead, "stages": Lead.Stage.choices})
     else:
         response = render(request, "crm/_lead_card.html", {"lead": lead})
-    return _with_toast(response, f"Estágio atualizado com sucesso.")
+    return _with_toast(response, "Estágio atualizado com sucesso.")
 
 
 @login_required
@@ -272,7 +272,7 @@ def lead_urgency_update(request, pk):
     lead.save(update_fields=["urgency", "updated_at"])
 
     response = render(request, "crm/_lead_urgency_field.html", {"lead": lead, "urgencies": Lead.Urgency.choices})
-    return _with_toast(response, f"Urgência atualizada com sucesso.")
+    return _with_toast(response, "Urgência atualizada com sucesso.")
 
 
 @login_required
@@ -462,10 +462,10 @@ def lead_toggle_label(request, pk, label_id):
     label = get_object_or_404(Label.objects.filter(venue=venue), pk=label_id)
     if lead.labels.filter(pk=label.pk).exists():
         lead.labels.remove(label)
-        toast_message = f"Label removida com sucesso."
+        toast_message = "Label removida com sucesso."
     else:
         lead.labels.add(label)
-        toast_message = f"Label adicionada com sucesso."
+        toast_message = "Label adicionada com sucesso."
     assigned_label_ids = {label.id for label in lead.labels.all()}
     response = render(request, "crm/_label_picker.html", {
         "lead": lead,
