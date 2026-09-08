@@ -23,7 +23,6 @@ from apps.venue.forms import (
     DocumentForm,
     EventTypeForm,
     FAQForm,
-    ImageForm,
     MenuForm,
     MenuItemFormSet,
     OpeningHoursFormSet,
@@ -35,7 +34,6 @@ from apps.venue.models import (
     Document,
     EventType,
     FAQ,
-    Image,
     Menu,
     OpeningHours,
     Package,
@@ -296,33 +294,6 @@ class FAQDeleteView(VenueScopedViewMixin, DeleteView):
     model = FAQ
     template_name = "venue/confirm_delete.html"
     success_url = reverse_lazy("venue:faq-list")
-    extra_context = {"section_title": "Base de Conhecimento", "nav_template": "venue/_knowledge_base_nav.html"}
-
-
-class ImageListView(VenueScopedViewMixin, ListView):
-    model = Image
-    template_name = "venue/image_list.html"
-    context_object_name = "items"
-
-
-class ImageCreateView(VenueScopedViewMixin, CreateView):
-    model = Image
-    form_class = ImageForm
-    template_name = "venue/image_form.html"
-    success_url = reverse_lazy("venue:image-list")
-
-
-class ImageUpdateView(VenueScopedViewMixin, UpdateView):
-    model = Image
-    form_class = ImageForm
-    template_name = "venue/image_form.html"
-    success_url = reverse_lazy("venue:image-list")
-
-
-class ImageDeleteView(VenueScopedViewMixin, DeleteView):
-    model = Image
-    template_name = "venue/confirm_delete.html"
-    success_url = reverse_lazy("venue:image-list")
     extra_context = {"section_title": "Base de Conhecimento", "nav_template": "venue/_knowledge_base_nav.html"}
 
 

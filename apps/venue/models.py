@@ -149,17 +149,3 @@ class Document(TenantModel):
 
     def __str__(self):
         return self.title
-
-
-class Image(TenantModel):
-    """A photo uploaded for a venue's gallery."""
-
-    image = models.ImageField(upload_to='venue_images/')
-    caption = models.CharField(max_length=255, blank=True)
-    order = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        ordering = ['order']
-
-    def __str__(self):
-        return self.caption or f'Image {self.pk}'

@@ -34,11 +34,6 @@ urlpatterns = [
     path('perguntas-frequentes/<int:pk>/editar/', views.FAQUpdateView.as_view(), name='faq-update'),
     path('perguntas-frequentes/<int:pk>/excluir/', views.FAQDeleteView.as_view(), name='faq-delete'),
 
-    path('fotos/', views.ImageListView.as_view(), name='image-list'),
-    path('fotos/novo/', views.ImageCreateView.as_view(), name='image-create'),
-    path('fotos/<int:pk>/editar/', views.ImageUpdateView.as_view(), name='image-update'),
-    path('fotos/<int:pk>/excluir/', views.ImageDeleteView.as_view(), name='image-delete'),
-
     path('documentos/', views.DocumentListView.as_view(), name='document-list'),
     path('documentos/novo/', views.DocumentCreateView.as_view(), name='document-create'),
     path('documentos/<int:pk>/editar/', views.DocumentUpdateView.as_view(), name='document-update'),

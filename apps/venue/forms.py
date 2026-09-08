@@ -5,7 +5,6 @@ from apps.venue.models import (
     Document,
     EventType,
     FAQ,
-    Image,
     Menu,
     MenuItem,
     OpeningHours,
@@ -127,7 +126,6 @@ class MenuItemForm(BootstrapFormMixin, forms.ModelForm):
         model = MenuItem
         fields = ['name', 'description', 'category']
         labels = {'name': 'Nome', 'description': 'Descrição', 'category': 'Categoria'}
-        widgets = {'description': forms.Textarea(attrs={'rows': 3})}
 
 
 MenuItemFormSet = forms.inlineformset_factory(
@@ -157,13 +155,6 @@ class FAQForm(BootstrapFormMixin, forms.ModelForm):
         fields = ['question', 'answer', 'order']
         labels = {'question': 'Pergunta', 'answer': 'Resposta', 'order': 'Ordem'}
         widgets = {'answer': forms.Textarea(attrs={'rows': 3})}
-
-
-class ImageForm(BootstrapFormMixin, forms.ModelForm):
-    class Meta:
-        model = Image
-        fields = ['image', 'caption', 'order']
-        labels = {'image': 'Imagem', 'caption': 'Legenda', 'order': 'Ordem'}
 
 
 class DocumentForm(BootstrapFormMixin, forms.ModelForm):

@@ -5,7 +5,6 @@ from apps.venue.models import (
     Document,
     EventType,
     FAQ,
-    Image,
     Menu,
     MenuItem,
     OpeningHours,
@@ -83,12 +82,4 @@ class DocumentAdmin(admin.ModelAdmin):
     """Admin for Document records, filterable by venue."""
 
     list_display = ('title', 'venue')
-    list_filter = ('venue',)
-
-
-@admin.register(Image)
-class ImageAdmin(admin.ModelAdmin):
-    """Admin for Image records, filterable by venue."""
-
-    list_display = ('caption', 'venue', 'order')
     list_filter = ('venue',)
