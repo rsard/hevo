@@ -42,7 +42,9 @@ NON_TEXT_ESCALATION_ACK = (
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=30)
-def process_inbound_whatsapp_message(self, *, phone_number_id, from_wa_id, message_id, text):
+def process_inbound_whatsapp_message(
+    self, *, phone_number_id, from_wa_id, message_id, text, contact_name='',
+):
     """Generates and sends the AI reply to an inbound WhatsApp message.
 
     Creates/updates the lead, skips replying if escalated to a human, and retries
@@ -71,7 +73,9 @@ def process_inbound_whatsapp_message(self, *, phone_number_id, from_wa_id, messa
             # A redelivered webhook for a message we've already fully handled.
             return
 
-    lead = CRMService.get_or_create_lead(conversation=conversation, customer_phone=from_wa_id)
+    lead = CRMService.get_or_create_lead(
+        conversation=conversation, customer_phone=from_wa_id, customer_name=contact_name,
+    )
     CRMService.touch_interaction(lead)
 
     if lead.escalated_at:

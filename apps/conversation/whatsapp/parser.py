@@ -1,11 +1,16 @@
 def extract_messages(payload):
-    """Yields (phone_number_id, from_wa_id, message_id, text) for each inbound text
-    message in a WhatsApp Cloud API webhook payload. Non-text messages (image,
-    audio, etc.) are handled separately by extract_non_text_messages."""
+    """Yields (phone_number_id, from_wa_id, message_id, text, contact_name) for each
+    inbound text message in a WhatsApp Cloud API webhook payload. contact_name is the
+    sender's WhatsApp display name (empty string if Meta didn't include one). Non-text
+    messages (image, audio, etc.) are handled separately by extract_non_text_messages."""
     for entry in payload.get('entry', []):
         for change in entry.get('changes', []):
             value = change.get('value', {})
             phone_number_id = value.get('metadata', {}).get('phone_number_id')
+            names_by_wa_id = {
+                contact['wa_id']: contact.get('profile', {}).get('name', '')
+                for contact in value.get('contacts', [])
+            }
             for message in value.get('messages', []):
                 if message.get('type') != 'text':
                     continue
@@ -14,6 +19,7 @@ def extract_messages(payload):
                     message['from'],
                     message['id'],
                     message['text']['body'],
+                    names_by_wa_id.get(message['from'], ''),
                 )
 
 

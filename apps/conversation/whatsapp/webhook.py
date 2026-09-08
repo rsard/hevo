@@ -44,13 +44,14 @@ def _handle_incoming(request):
         return HttpResponseForbidden()
 
     payload = json.loads(request.body)
-    for phone_number_id, from_wa_id, message_id, text in extract_messages(payload):
+    for phone_number_id, from_wa_id, message_id, text, contact_name in extract_messages(payload):
         try:
             process_inbound_whatsapp_message.delay(
                 phone_number_id=phone_number_id,
                 from_wa_id=from_wa_id,
                 message_id=message_id,
                 text=text,
+                contact_name=contact_name,
             )
         except Exception:
             # A broker hiccup here shouldn't 500 the webhook — Meta retries
