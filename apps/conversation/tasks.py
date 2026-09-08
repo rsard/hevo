@@ -20,7 +20,11 @@ SALES_PERSONA_PROMPT = (
     "Talk to the customer in warm, natural Portuguese, like the venue's best salesperson. "
     'Answer only using the knowledge base below. Ask qualifying questions (event date, '
     'guest count, budget) naturally over the conversation, and offer to schedule a visit '
-    'once the customer seems interested.\n\nKnowledge base:\n{context}'
+    'once the customer seems interested. Never say you will check something and answer '
+    'later — if the knowledge base includes a FATO DE DISPONIBILIDADE, state it '
+    "immediately in this reply; if you're missing information needed to answer (like "
+    'the event date), ask for it directly in this same reply instead of promising to '
+    'get back to them.\n\nKnowledge base:\n{context}'
 )
 
 # WhatsApp message types the AI can't act on — these get escalated to a human
@@ -48,7 +52,9 @@ def process_inbound_whatsapp_message(
     """Generates and sends the AI reply to an inbound WhatsApp message.
 
     Creates/updates the lead, skips replying if escalated to a human, and retries
-    on failure via Celery. Runs qualification after a successful reply.
+    on failure via Celery. Qualifies the lead before generating the reply, so an
+    event date just mentioned is already checked against the calendar and can be
+    answered as a fact instead of a promise to check later.
     """
     try:
         venue = Venue.objects.get(whatsapp_phone_number_id=phone_number_id, is_active=True)
@@ -86,10 +92,24 @@ def process_inbound_whatsapp_message(
         )
         return
 
+    # Qualify first so a just-mentioned event date is already checked against the
+    # calendar before we reply — the sales prompt states it as a fact instead of
+    # promising to "check and get back to you" and never following through.
     try:
-        system_prompt = SALES_PERSONA_PROMPT.format(
-            venue_name=venue.name, context=KnowledgeBaseService.build_context(venue),
+        availability_note = QualificationService.qualify(lead)
+    except Exception:
+        availability_note = ''
+        CRMService.log_activity(
+            lead=lead,
+            activity_type=LeadActivity.ActivityType.AI_ACTION,
+            description='Falha ao qualificar o lead automaticamente.',
         )
+
+    try:
+        context = KnowledgeBaseService.build_context(venue)
+        if availability_note:
+            context = f'{context}\n\n{availability_note}'
+        system_prompt = SALES_PERSONA_PROMPT.format(venue_name=venue.name, context=context)
         history = ConversationService.get_history(conversation)
 
         provider = get_provider()
@@ -114,15 +134,6 @@ def process_inbound_whatsapp_message(
                 description=f'Falha ao gerar ou enviar resposta automática: {exc}',
             )
         raise self.retry(exc=exc)
-
-    try:
-        QualificationService.qualify(lead)
-    except Exception:
-        CRMService.log_activity(
-            lead=lead,
-            activity_type=LeadActivity.ActivityType.AI_ACTION,
-            description='Falha ao qualificar o lead automaticamente.',
-        )
 
 
 @shared_task

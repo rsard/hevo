@@ -4,9 +4,7 @@ from datetime import date
 from django.utils import timezone
 
 from apps.ai.services import get_provider, log_usage
-from apps.conversation.models import Conversation, Message
 from apps.conversation.services import ConversationService
-from apps.conversation.whatsapp.client import WhatsAppClient
 from apps.crm.models import Lead, LeadActivity
 from apps.crm.services.crm_service import CRMService
 from apps.crm.services.scheduling_service import SchedulingService
@@ -40,11 +38,13 @@ class QualificationService:
 
     @staticmethod
     def qualify(lead):
-        """Runs the AI qualification prompt on the conversation and applies the result."""
+        """Runs the AI qualification prompt on the conversation, applies the result, and
+        returns an availability_note for the caller to fold into the same-turn sales
+        reply — empty if there's no event date yet or nothing changed about it."""
         conversation = lead.conversation
         history = ConversationService.get_history(conversation, limit=50)
         if not history:
-            return lead
+            return ''
 
         provider = get_provider()
         response = provider.generate(system_prompt=SYSTEM_PROMPT, messages=history, temperature=0.2)
@@ -58,14 +58,14 @@ class QualificationService:
                 activity_type=LeadActivity.ActivityType.AI_ACTION,
                 description='Qualification failed: AI did not return valid JSON.',
             )
-            return lead
+            return ''
 
-        QualificationService._apply(lead, data)
-        return lead
+        return QualificationService._apply(lead, data)
 
     @staticmethod
     def _apply(lead, data):
-        """Updates lead fields from AI output and advances stage/escalation as needed."""
+        """Updates lead fields from AI output and advances stage/escalation as needed.
+        Returns an availability_note (see qualify) for the caller to use."""
         event_type_name = data.get('event_type')
         if event_type_name:
             lead.event_type = EventType.objects.filter(
@@ -128,47 +128,37 @@ class QualificationService:
             )
 
         if lead.event_date and lead.event_date != previous_event_date:
-            QualificationService._notify_if_date_unavailable(lead)
+            return QualificationService._availability_note(lead)
+        return ''
 
     @staticmethod
-    def _notify_if_date_unavailable(lead):
-        """If the AI just picked up a new (or changed) event date and the venue
-        is already booked for it, proactively suggests the nearest open dates
-        instead of letting the customer find out the hard way later."""
+    def _availability_note(lead):
+        """Checks the venue's availability for the lead's event date and returns a
+        fact for the sales prompt to use in the same reply — instead of a separate
+        message — so the customer gets one answer, not two back to back."""
         if SchedulingService.is_event_date_available(
             venue=lead.venue, date=lead.event_date, exclude_lead=lead,
         ):
-            return
+            return (
+                f'FATO DE DISPONIBILIDADE: o dia {lead.event_date.strftime("%d/%m/%Y")} '
+                'está livre na nossa agenda. Confirme isso ao cliente imediatamente, '
+                'sem dizer que vai verificar — você já sabe a resposta.'
+            )
 
         alternatives = SchedulingService.suggest_alternative_event_dates(
             venue=lead.venue, after=lead.event_date, exclude_lead=lead,
         )
-        if not alternatives:
-            return
-
         dates_text = ', '.join(d.strftime('%d/%m') for d in alternatives)
-        content = (
-            f'Notei que o dia {lead.event_date.strftime("%d/%m")} já está reservado '
-            f'para outro evento em nosso espaço. Mas ainda temos essas datas '
-            f'disponíveis por perto: {dates_text}. Alguma delas funcionaria pra você?'
-        )
-
-        conversation = lead.conversation
-        if conversation.channel == Conversation.Channel.WHATSAPP:
-            WhatsAppClient(lead.venue.whatsapp_phone_number_id).send_text(
-                to=conversation.external_contact_id, body=content,
-            )
-        ConversationService.record_message(
-            conversation=conversation,
-            direction=Message.Direction.OUTBOUND,
-            sender_type=Message.SenderType.AI,
-            content=content,
-        )
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.AI_ACTION,
             description=(
                 f'Data {lead.event_date.strftime("%d/%m/%Y")} indisponível — '
-                'sugeri datas alternativas automaticamente.'
+                'sugeri datas alternativas na resposta.'
             ),
+        )
+        return (
+            f'FATO DE DISPONIBILIDADE: o dia {lead.event_date.strftime("%d/%m/%Y")} '
+            f'já está reservado para outro evento. Datas próximas livres: {dates_text or "nenhuma nos próximos dias"}. '
+            'Avise o cliente disso imediatamente, sem dizer que vai verificar — você já sabe a resposta.'
         )
