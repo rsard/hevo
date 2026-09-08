@@ -65,6 +65,19 @@ def _strip_markdown_links(text):
     return MARKDOWN_LINK_RE.sub(lambda m: m.group(2), text)
 
 
+VISIT_CTA_LOOKBACK = 3
+
+
+def _recent_visit_cta(history, lookback=VISIT_CTA_LOOKBACK):
+    """Whether the AI already invited the customer to schedule a visit in one of
+    its last few replies. The prompt alone doesn't reliably stop the model
+    repeating that invitation every single message, so this turns "don't do it
+    if you already did" into a fact about the actual conversation instead of a
+    rule the model has to remember unprompted."""
+    recent_replies = [m['content'] for m in history if m['role'] == 'assistant'][-lookback:]
+    return any('visita' in reply.lower() for reply in recent_replies)
+
+
 @shared_task(bind=True, max_retries=3, default_retry_delay=30)
 def process_inbound_whatsapp_message(
     self, *, phone_number_id, from_wa_id, message_id, text, contact_name='',
@@ -126,11 +139,18 @@ def process_inbound_whatsapp_message(
         )
 
     try:
+        history = ConversationService.get_history(conversation)
+
         context = KnowledgeBaseService.build_context(venue)
         if availability_note:
             context = f'{context}\n\n{availability_note}'
+        if _recent_visit_cta(history):
+            context = (
+                f'{context}\n\nNOTA: você já convidou o cliente para agendar uma visita '
+                'recentemente nesta conversa. Não repita esse convite nesta resposta — só '
+                'traga o assunto de novo se o cliente pedir explicitamente.'
+            )
         system_prompt = SALES_PERSONA_PROMPT.format(venue_name=venue.name, context=context)
-        history = ConversationService.get_history(conversation)
 
         provider = get_provider()
         # Lower than the 0.7 default: this prompt has several formatting/behavior
