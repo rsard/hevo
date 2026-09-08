@@ -101,6 +101,19 @@ class WhatsAppClient:
         response.raise_for_status()
         return response.json()
 
+    def send_image(self, *, to, link):
+        """Sends an image by URL — link must be reachable by Meta's servers (an S3
+        presigned URL works fine; it only needs to stay valid long enough to fetch)."""
+        payload = {
+            'messaging_product': 'whatsapp',
+            'to': to,
+            'type': 'image',
+            'image': {'link': link},
+        }
+        response = requests.post(self._url, headers=self._headers, json=payload, timeout=10)
+        response.raise_for_status()
+        return response.json()
+
     def upload_media(self, *, file_bytes, filename, mime_type):
         """Uploads a file to WhatsApp's media storage, returning its media_id —
         the first step to sending a document/image/etc, which can't be attached

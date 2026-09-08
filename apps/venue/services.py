@@ -46,6 +46,15 @@ class KnowledgeBaseService:
             lines = [f'Q: {faq.question}\nA: {faq.answer}' for faq in faqs]
             sections.append('FAQs:\n' + '\n'.join(lines))
 
+        photos = venue.image_set.exclude(caption='')
+        if photos:
+            lines = [f'- {photo.caption}' for photo in photos]
+            sections.append(
+                'Available photos (send one by tagging [FOTO: <exact caption>] in your '
+                'reply when the customer asks to see something these match — use the '
+                'caption exactly as written here, nothing else):\n' + '\n'.join(lines)
+            )
+
         if venue.payment_policy:
             sections.append(f'Payment policy: {venue.payment_policy}')
         if venue.cancellation_policy:
