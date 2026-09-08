@@ -18,6 +18,9 @@ logger = logging.getLogger(__name__)
 
 PHOTO_MARKER_RE = re.compile(r'\[FOTO:\s*(.+?)\]')
 
+PHOTO_REQUEST_KEYWORDS = ('foto', 'fotos', 'imagem', 'imagens')
+CAPTION_STOPWORDS = {'de', 'da', 'do', 'das', 'dos', 'com', 'para', 'a', 'o', 'e', 'em', 'um', 'uma'}
+
 SALES_PERSONA_PROMPT = (
     "You are the AI sales assistant for {venue_name}, a wedding/event venue in Brazil. "
     "Talk to the customer in warm, natural Portuguese, like the venue's best salesperson. "
@@ -63,6 +66,28 @@ def _extract_photo_markers(text):
     captions = PHOTO_MARKER_RE.findall(text)
     remaining = PHOTO_MARKER_RE.sub('', text).strip()
     return remaining, captions
+
+
+def _fallback_photo_captions(*, venue, customer_text, reply_text):
+    """Safety net for when the customer clearly asked for a photo and the AI's own
+    reply names one it has — but forgot the [FOTO: ...] tag, which happens often
+    enough on this model that relying on the tag alone isn't reliable. Matches by
+    keyword rather than exact caption text, since the AI tends to paraphrase
+    ("espaço com toldo" for a caption of "Opção com toldo")."""
+    lowered_customer = customer_text.lower()
+    if not any(keyword in lowered_customer for keyword in PHOTO_REQUEST_KEYWORDS):
+        return []
+
+    lowered_reply = reply_text.lower()
+    matches = []
+    for image in Image.objects.filter(venue=venue).exclude(caption=''):
+        keywords = [
+            word for word in re.findall(r'\w+', image.caption.lower())
+            if word not in CAPTION_STOPWORDS and len(word) > 3
+        ]
+        if any(keyword in lowered_reply for keyword in keywords):
+            matches.append(image.caption)
+    return matches
 
 
 def _send_photo(*, venue, phone_number_id, to, conversation, caption):
@@ -160,6 +185,10 @@ def process_inbound_whatsapp_message(
         log_usage(venue=venue, response=response, conversation=conversation)
 
         reply_text, photo_captions = _extract_photo_markers(response.content)
+        if not photo_captions:
+            photo_captions = _fallback_photo_captions(
+                venue=venue, customer_text=text, reply_text=reply_text,
+            )
 
         # Send before recording: if the send raises, no outbound row exists, so a
         # retry correctly starts over instead of the already_replied check above
