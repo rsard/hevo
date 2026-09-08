@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from apps.venue.models import (
     DecorationOption,
-    Document,
     EventType,
     FAQ,
     Menu,
@@ -74,12 +73,4 @@ class FAQAdmin(admin.ModelAdmin):
     """Admin for FAQ records, filterable by venue."""
 
     list_display = ('question', 'venue', 'order')
-    list_filter = ('venue',)
-
-
-@admin.register(Document)
-class DocumentAdmin(admin.ModelAdmin):
-    """Admin for Document records, filterable by venue."""
-
-    list_display = ('title', 'venue')
     list_filter = ('venue',)

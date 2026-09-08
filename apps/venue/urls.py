@@ -33,9 +33,4 @@ urlpatterns = [
     path('perguntas-frequentes/novo/', views.FAQCreateView.as_view(), name='faq-create'),
     path('perguntas-frequentes/<int:pk>/editar/', views.FAQUpdateView.as_view(), name='faq-update'),
     path('perguntas-frequentes/<int:pk>/excluir/', views.FAQDeleteView.as_view(), name='faq-delete'),
-
-    path('documentos/', views.DocumentListView.as_view(), name='document-list'),
-    path('documentos/novo/', views.DocumentCreateView.as_view(), name='document-create'),
-    path('documentos/<int:pk>/editar/', views.DocumentUpdateView.as_view(), name='document-update'),
-    path('documentos/<int:pk>/excluir/', views.DocumentDeleteView.as_view(), name='document-delete'),
 ]

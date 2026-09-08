@@ -139,13 +139,3 @@ class FAQ(TenantModel):
 
     def __str__(self):
         return self.question
-
-
-class Document(TenantModel):
-    """A file (e.g. contract, brochure) uploaded for a venue."""
-
-    title = models.CharField(max_length=255)
-    file = models.FileField(upload_to='venue_documents/')
-
-    def __str__(self):
-        return self.title

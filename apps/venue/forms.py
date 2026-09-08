@@ -2,7 +2,6 @@ from django import forms
 
 from apps.venue.models import (
     DecorationOption,
-    Document,
     EventType,
     FAQ,
     Menu,
@@ -155,10 +154,3 @@ class FAQForm(BootstrapFormMixin, forms.ModelForm):
         fields = ['question', 'answer', 'order']
         labels = {'question': 'Pergunta', 'answer': 'Resposta', 'order': 'Ordem'}
         widgets = {'answer': forms.Textarea(attrs={'rows': 3})}
-
-
-class DocumentForm(BootstrapFormMixin, forms.ModelForm):
-    class Meta:
-        model = Document
-        fields = ['title', 'file']
-        labels = {'title': 'Título', 'file': 'Arquivo'}

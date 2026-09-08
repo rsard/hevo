@@ -20,7 +20,6 @@ from apps.core.views import VenueScopedViewMixin
 from apps.user.services import get_active_venue
 from apps.venue.forms import (
     DecorationOptionForm,
-    DocumentForm,
     EventTypeForm,
     FAQForm,
     MenuForm,
@@ -31,7 +30,6 @@ from apps.venue.forms import (
 )
 from apps.venue.models import (
     DecorationOption,
-    Document,
     EventType,
     FAQ,
     Menu,
@@ -294,33 +292,6 @@ class FAQDeleteView(VenueScopedViewMixin, DeleteView):
     model = FAQ
     template_name = "venue/confirm_delete.html"
     success_url = reverse_lazy("venue:faq-list")
-    extra_context = {"section_title": "Base de Conhecimento", "nav_template": "venue/_knowledge_base_nav.html"}
-
-
-class DocumentListView(VenueScopedViewMixin, ListView):
-    model = Document
-    template_name = "venue/document_list.html"
-    context_object_name = "items"
-
-
-class DocumentCreateView(VenueScopedViewMixin, CreateView):
-    model = Document
-    form_class = DocumentForm
-    template_name = "venue/document_form.html"
-    success_url = reverse_lazy("venue:document-list")
-
-
-class DocumentUpdateView(VenueScopedViewMixin, UpdateView):
-    model = Document
-    form_class = DocumentForm
-    template_name = "venue/document_form.html"
-    success_url = reverse_lazy("venue:document-list")
-
-
-class DocumentDeleteView(VenueScopedViewMixin, DeleteView):
-    model = Document
-    template_name = "venue/confirm_delete.html"
-    success_url = reverse_lazy("venue:document-list")
     extra_context = {"section_title": "Base de Conhecimento", "nav_template": "venue/_knowledge_base_nav.html"}
 
 
