@@ -17,6 +17,9 @@ class Venue(TimeStampedModel):
     timezone = models.CharField(max_length=64, default='America/Sao_Paulo')
     description = models.TextField(blank=True)
     address = models.CharField(max_length=255, blank=True)
+    # Instagram, site, etc. — where the AI points customers who ask for photos,
+    # instead of trying to send photos itself in the WhatsApp conversation.
+    photos_url = models.URLField(blank=True)
     parking_info = models.TextField(blank=True)
     payment_policy = models.TextField(blank=True)
     cancellation_policy = models.TextField(blank=True)

@@ -1,5 +1,4 @@
 import logging
-import re
 
 from celery import shared_task
 from django.utils import timezone
@@ -11,15 +10,10 @@ from apps.conversation.whatsapp.client import WhatsAppClient
 from apps.crm.models import LeadActivity
 from apps.crm.services import CRMService, QualificationService
 from apps.crm.tasks import send_escalation_notification
-from apps.venue.models import Image, Venue
+from apps.venue.models import Venue
 from apps.venue.services import KnowledgeBaseService
 
 logger = logging.getLogger(__name__)
-
-PHOTO_MARKER_RE = re.compile(r'\[FOTO:\s*(.+?)\]')
-
-PHOTO_REQUEST_KEYWORDS = ('foto', 'fotos', 'imagem', 'imagens')
-CAPTION_STOPWORDS = {'de', 'da', 'do', 'das', 'dos', 'com', 'para', 'a', 'o', 'e', 'em', 'um', 'uma'}
 
 SALES_PERSONA_PROMPT = (
     "You are the AI sales assistant for {venue_name}, a wedding/event venue in Brazil. "
@@ -34,11 +28,9 @@ SALES_PERSONA_PROMPT = (
     "- Never say you'll check something and answer later. If the knowledge base has a "
     "FATO DE DISPONIBILIDADE, state it immediately. If you're missing info needed to "
     "answer (like the event date), ask for it directly in this same reply.\n"
-    "- If the customer asks to see something (a photo, what it looks like) and it matches "
-    "a caption under 'Available photos' below, put [FOTO: <exact caption>] in your reply "
-    "instead of just describing it in text — even if the knowledge base also has a text "
-    "description of that same thing. Use the caption exactly as listed, never invent one, "
-    "and never say you have no photo of something without checking that list first.\n\n"
+    "- You can't send photos in this chat. If the customer asks to see photos and the "
+    "knowledge base has a Photos link, share that link and invite them to take a look — "
+    "never claim to be sending or attaching a photo yourself.\n\n"
     "Knowledge base:\n{context}"
 )
 
@@ -58,56 +50,6 @@ NON_TEXT_ESCALATION_ACK = (
     'Recebi o que você mandou, mas ainda não consigo abrir esse tipo de arquivo por '
     'aqui — já chamei alguém da nossa equipe pra te ajudar com isso, só um momento!'
 )
-
-
-def _extract_photo_markers(text):
-    """Pulls [FOTO: caption] tags out of an AI reply, returning the remaining text
-    and the list of requested captions, in the order they appeared."""
-    captions = PHOTO_MARKER_RE.findall(text)
-    remaining = PHOTO_MARKER_RE.sub('', text).strip()
-    return remaining, captions
-
-
-def _fallback_photo_captions(*, venue, customer_text, reply_text):
-    """Safety net for when the customer clearly asked for a photo and the AI's own
-    reply names one it has — but forgot the [FOTO: ...] tag, which happens often
-    enough on this model that relying on the tag alone isn't reliable. Matches by
-    keyword rather than exact caption text, since the AI tends to paraphrase
-    ("espaço com toldo" for a caption of "Opção com toldo")."""
-    lowered_customer = customer_text.lower()
-    if not any(keyword in lowered_customer for keyword in PHOTO_REQUEST_KEYWORDS):
-        return []
-
-    lowered_reply = reply_text.lower()
-    matches = []
-    for image in Image.objects.filter(venue=venue).exclude(caption=''):
-        keywords = [
-            word for word in re.findall(r'\w+', image.caption.lower())
-            if word not in CAPTION_STOPWORDS and len(word) > 3
-        ]
-        if any(keyword in lowered_reply for keyword in keywords):
-            matches.append(image.caption)
-    return matches
-
-
-def _send_photo(*, venue, phone_number_id, to, conversation, caption):
-    """Sends one venue photo by caption. Best-effort: the AI naming a caption that
-    doesn't exist, or a failed WhatsApp send, shouldn't break the conversation —
-    it should just mean no photo went out this time."""
-    try:
-        image = Image.objects.filter(venue=venue, caption__iexact=caption.strip()).first()
-        if image is None:
-            logger.warning('AI referenced unknown photo caption %r for venue %s', caption, venue.id)
-            return
-        WhatsAppClient(phone_number_id).send_image(to=to, link=image.image.url)
-        ConversationService.record_message(
-            conversation=conversation,
-            direction=Message.Direction.OUTBOUND,
-            sender_type=Message.SenderType.AI,
-            content=f'[Foto enviada: {image.caption}]',
-        )
-    except Exception:
-        logger.exception('Failed to send photo %r for venue %s', caption, venue.id)
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=30)
@@ -179,28 +121,21 @@ def process_inbound_whatsapp_message(
 
         provider = get_provider()
         # Lower than the 0.7 default: this prompt has several formatting/behavior
-        # rules (FATO DE DISPONIBILIDADE, [FOTO: ...], no boilerplate sign-off) that
-        # a more "creative" temperature makes the model follow less reliably.
+        # rules (FATO DE DISPONIBILIDADE, no boilerplate sign-off) that a more
+        # "creative" temperature makes the model follow less reliably.
         response = provider.generate(system_prompt=system_prompt, messages=history, temperature=0.4)
         log_usage(venue=venue, response=response, conversation=conversation)
-
-        reply_text, photo_captions = _extract_photo_markers(response.content)
-        if not photo_captions:
-            photo_captions = _fallback_photo_captions(
-                venue=venue, customer_text=text, reply_text=reply_text,
-            )
 
         # Send before recording: if the send raises, no outbound row exists, so a
         # retry correctly starts over instead of the already_replied check above
         # mistaking "we saved a reply" for "we actually delivered one".
-        if reply_text:
-            WhatsAppClient(phone_number_id).send_text(to=from_wa_id, body=reply_text)
-            ConversationService.record_message(
-                conversation=conversation,
-                direction=Message.Direction.OUTBOUND,
-                sender_type=Message.SenderType.AI,
-                content=reply_text,
-            )
+        WhatsAppClient(phone_number_id).send_text(to=from_wa_id, body=response.content)
+        ConversationService.record_message(
+            conversation=conversation,
+            direction=Message.Direction.OUTBOUND,
+            sender_type=Message.SenderType.AI,
+            content=response.content,
+        )
     except Exception as exc:
         if self.request.retries >= self.max_retries:
             CRMService.log_activity(
@@ -209,15 +144,6 @@ def process_inbound_whatsapp_message(
                 description=f'Falha ao gerar ou enviar resposta automática: {exc}',
             )
         raise self.retry(exc=exc)
-
-    # Outside the retry above and best-effort: an unknown caption or a failed
-    # send here shouldn't re-trigger the whole reply (a new LLM call, possibly
-    # resending the text above) just to retry a photo.
-    for caption in photo_captions:
-        _send_photo(
-            venue=venue, phone_number_id=phone_number_id, to=from_wa_id,
-            conversation=conversation, caption=caption,
-        )
 
 
 @shared_task
