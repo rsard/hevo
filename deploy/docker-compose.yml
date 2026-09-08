@@ -1,5 +1,6 @@
-# Deployed as /opt/hevo/docker-compose.yml on the DEV instance.
-# Postgres runs as a local container here (no RDS) to keep dev cheap.
+# Deployed as /opt/hevo/docker-compose.yml on the app.hevo.ia.br instance.
+# Postgres runs as a local container here (no RDS) — the only environment
+# Hevo runs today, so this is the config, not a cost-cutting dev variant.
 
 services:
   db:
