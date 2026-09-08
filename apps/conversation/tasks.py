@@ -1,4 +1,5 @@
 import logging
+import re
 
 from celery import shared_task
 from django.utils import timezone
@@ -15,6 +16,8 @@ from apps.venue.services import KnowledgeBaseService
 
 logger = logging.getLogger(__name__)
 
+MARKDOWN_LINK_RE = re.compile(r'\[([^\]]+)\]\((https?://[^\s)]+)\)')
+
 SALES_PERSONA_PROMPT = (
     "You are the AI sales assistant for {venue_name}, a wedding/event venue in Brazil. "
     "Talk to the customer in warm, natural Portuguese, like the venue's best salesperson. "
@@ -30,7 +33,10 @@ SALES_PERSONA_PROMPT = (
     "answer (like the event date), ask for it directly in this same reply.\n"
     "- You can't send photos in this chat. If the customer asks to see photos and the "
     "knowledge base has a Photos link, share that link and invite them to take a look — "
-    "never claim to be sending or attaching a photo yourself.\n\n"
+    "never claim to be sending or attaching a photo yourself.\n"
+    "- This is WhatsApp, not a webpage: it doesn't render Markdown links. Never write a "
+    "link as [text](url) — paste the raw URL by itself (e.g. https://example.com), plain "
+    "text, so it stays clickable.\n\n"
     "Knowledge base:\n{context}"
 )
 
@@ -50,6 +56,13 @@ NON_TEXT_ESCALATION_ACK = (
     'Recebi o que você mandou, mas ainda não consigo abrir esse tipo de arquivo por '
     'aqui — já chamei alguém da nossa equipe pra te ajudar com isso, só um momento!'
 )
+
+
+def _strip_markdown_links(text):
+    """WhatsApp shows [text](url) literally instead of rendering it as a link —
+    the prompt says not to write it that way, but the model does it often enough
+    that collapsing it down to the raw URL here is worth doing regardless."""
+    return MARKDOWN_LINK_RE.sub(lambda m: m.group(2), text)
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=30)
@@ -125,16 +138,17 @@ def process_inbound_whatsapp_message(
         # "creative" temperature makes the model follow less reliably.
         response = provider.generate(system_prompt=system_prompt, messages=history, temperature=0.4)
         log_usage(venue=venue, response=response, conversation=conversation)
+        reply_text = _strip_markdown_links(response.content)
 
         # Send before recording: if the send raises, no outbound row exists, so a
         # retry correctly starts over instead of the already_replied check above
         # mistaking "we saved a reply" for "we actually delivered one".
-        WhatsAppClient(phone_number_id).send_text(to=from_wa_id, body=response.content)
+        WhatsAppClient(phone_number_id).send_text(to=from_wa_id, body=reply_text)
         ConversationService.record_message(
             conversation=conversation,
             direction=Message.Direction.OUTBOUND,
             sender_type=Message.SenderType.AI,
-            content=response.content,
+            content=reply_text,
         )
     except Exception as exc:
         if self.request.retries >= self.max_retries:
