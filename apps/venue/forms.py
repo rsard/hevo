@@ -127,6 +127,7 @@ class MenuItemForm(BootstrapFormMixin, forms.ModelForm):
         model = MenuItem
         fields = ['name', 'description', 'category']
         labels = {'name': 'Nome', 'description': 'Descrição', 'category': 'Categoria'}
+        widgets = {'description': forms.Textarea(attrs={'rows': 3})}
 
 
 MenuItemFormSet = forms.inlineformset_factory(
