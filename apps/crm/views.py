@@ -218,6 +218,22 @@ def lead_detail(request, pk):
 
 
 @login_required
+def lead_messages(request, pk):
+    """Renders just the conversation messages — polled every 10s from lead_detail
+    to show new WhatsApp exchanges without reloading the whole page."""
+    venue = get_active_venue(request.user)
+    if venue is None:
+        raise Http404("Nenhum espaço associado a este usuário.")
+
+    lead = get_object_or_404(
+        Lead.objects.filter(venue=venue).select_related("conversation"), pk=pk,
+    )
+    return render(request, "crm/_lead_messages.html", {
+        "conversation_messages": lead.conversation.messages.all(),
+    })
+
+
+@login_required
 @require_POST
 def lead_stage_update(request, pk):
     """Updates a lead's funnel stage from a POSTed value."""

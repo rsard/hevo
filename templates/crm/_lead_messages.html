@@ -1,0 +1,22 @@
+{% for message in conversation_messages %}
+<div
+    class="message-bubble p-2 rounded-3
+        {% if message.direction == "outbound" %}
+        align-self-end bg-hevo text-white
+        {% else %}
+        align-self-start bg-light
+        {% endif %}">
+    <div
+        class="message-bubble-content small"
+    >{{ message.content|collapse_blank_lines }}</div>
+    <div
+        class="small mt-1
+            {% if message.direction == "outbound" %}text-white-50
+            {% else %}text-muted{% endif %}">
+        {{ message.get_sender_type_display }} ·
+        {{ message.created_at|date:"d/m H:i" }}
+    </div>
+</div>
+{% empty %}
+<p class="text-muted">Nenhuma mensagem ainda.</p>
+{% endfor %}
