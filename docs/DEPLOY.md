@@ -1,21 +1,23 @@
 # Deploy na AWS
 
-Runbook manual (sem Terraform) pra provisionar dev e prod e ligar o deploy
-automático via GitHub Actions. Execute uma vez por ambiente; depois disso,
-todo push em `develop` (dev) ou `main` (prod) builda a imagem e reimplanta
-sozinho.
+Runbook manual (sem Terraform) do único ambiente do Hevo hoje:
+**app.hevo.ia.br**. Depois do setup inicial abaixo (já feito), todo push
+em `main` builda a imagem e reimplanta sozinho — não tem outro branch nem
+outro ambiente disparando deploy.
 
-Arquitetura: 1 instância EC2 por ambiente rodando Docker Compose (web +
-celery worker + celery beat + redis + Caddy pra HTTPS). Prod usa RDS Postgres
-gerenciado; dev roda Postgres em container pra economizar. Domínios:
-`app.hevo.ia.br` (prod) e `dev.hevo.ia.br` (dev).
+Arquitetura: 1 instância EC2 rodando Docker Compose (web + celery worker +
+celery beat + redis + Postgres em container + Caddy pra HTTPS). Um único
+domínio: `app.hevo.ia.br`.
 
-Substitua `<ACCOUNT_ID>` pelo seu AWS Account ID em todos os comandos abaixo.
-Região: `us-east-2`.
+> Existiu um ambiente `dev.hevo.ia.br` separado até setembro/2026 — foi
+> aposentado e a mesma instância EC2 virou o `app.hevo.ia.br` atual (troca
+> de domínio/config via SSH, sem provisionar máquina nova). Se você vir
+> referências a `hevo-dev`/`hevo-dev-sg`/`hevo:dev` em tags ou nomes de
+> recurso na AWS, é sobra cosmética dessa migração — não há mais nada
+> rodando neles.
 
-**Fase atual: só dev.** Os passos marcados "(prod)" ficam pra depois — não
-provisionar RDS/EC2 de prod nem mergear `develop` em `main` ainda, pra não
-gerar custo de prod antes da hora.
+Substitua `<ACCOUNT_ID>` pelo seu AWS Account ID em todos os comandos
+abaixo. Região: `us-east-2`.
 
 ## 1. ECR — repositório de imagens
 
@@ -103,11 +105,11 @@ aws iam put-role-policy --role-name github-actions-hevo \
 ```
 
 Guarde o ARN da role (`arn:aws:iam::<ACCOUNT_ID>:role/github-actions-hevo`) —
-vai virar o secret `AWS_ROLE_ARN` no GitHub (passo 12).
+vai virar o secret `AWS_ROLE_ARN` no GitHub (passo 9).
 
 ## 3. IAM role pra EC2 puxar do ECR
 
-As instâncias usam uma instance profile em vez de chaves fixas:
+A instância usa uma instance profile em vez de chaves fixas:
 
 ```bash
 aws iam create-role --role-name hevo-ec2-ecr-pull \
@@ -130,23 +132,22 @@ aws iam add-role-to-instance-profile \
 
 ## 4. S3
 
-Ambos os buckets já existem (`hevo-develop` e `hevo-prod`), nada a criar
-aqui. Só confirme que o IAM user cujas chaves vão pro `.env` tem acesso aos
-dois — senão, adicione `hevo-prod` à policy dele quando chegar a hora do
-prod.
+Bucket `hevo-prod`, usado pra media (propostas em PDF, etc). Confirme que o
+IAM user cujas chaves vão pro `.env` (as credenciais S3-only do app, não a
+sua conta pessoal) tem acesso a ele.
 
-## 5. Security groups
+## 5. Security group
 
 ```bash
-aws ec2 create-security-group --group-name hevo-dev-sg \
-  --description "Hevo dev" --vpc-id <VPC_ID>
+aws ec2 create-security-group --group-name hevo-prod-sg \
+  --description "Hevo app.hevo.ia.br" --vpc-id <VPC_ID>
 
 # 80/443 abertos, 22 aberto pra internet
-aws ec2 authorize-security-group-ingress --group-id <DEV_SG_ID> \
+aws ec2 authorize-security-group-ingress --group-id <SG_ID> \
   --protocol tcp --port 80 --cidr 0.0.0.0/0
-aws ec2 authorize-security-group-ingress --group-id <DEV_SG_ID> \
+aws ec2 authorize-security-group-ingress --group-id <SG_ID> \
   --protocol tcp --port 443 --cidr 0.0.0.0/0
-aws ec2 authorize-security-group-ingress --group-id <DEV_SG_ID> \
+aws ec2 authorize-security-group-ingress --group-id <SG_ID> \
   --protocol tcp --port 22 --cidr 0.0.0.0/0
 ```
 
@@ -155,27 +156,17 @@ a partir de IPs dinâmicos dos runners — não dá pra restringir por CIDR fixo
 Autenticação continua só por chave (sem senha, padrão do AL2023), então o
 risco prático é baixo, mas é bom saber que está exposto.
 
-(prod, mais tarde) mesma coisa com `hevo-prod-sg`, mais uma
-`hevo-prod-rds-sg` liberando 5432 só a partir da `hevo-prod-sg`:
-
-```bash
-aws ec2 create-security-group --group-name hevo-prod-sg \
-  --description "Hevo prod" --vpc-id <VPC_ID>
-aws ec2 create-security-group --group-name hevo-prod-rds-sg \
-  --description "Hevo prod RDS" --vpc-id <VPC_ID>
-aws ec2 authorize-security-group-ingress --group-id <RDS_SG_ID> \
-  --protocol tcp --port 5432 --source-group <PROD_SG_ID>
-```
-
-## 6. Instância EC2 (dev)
+## 6. Instância EC2
 
 Amazon Linux 2023 (arm64), Docker + Compose instalados via user-data.
 `t4g.micro` (2 vCPU, 1GB RAM) — `t4g.nano` seria mais barato mas essa conta
 está restrita a tipos elegíveis pro Free Tier (`describe-instance-types
 --filters Name=free-tier-eligible,Values=true` mostra quais); `t4g.micro`
-está na lista, `t4g.nano` não. Mesmo assim, com Django + Redis + 2 processos
-Celery, 1GB é justo — o user-data já sobe um swapfile pra evitar OOM kill em
-picos:
+está na lista, `t4g.nano` não. Com Django + Redis + 2 processos Celery,
+1GB é justo — o user-data já sobe um swapfile pra evitar OOM kill em picos.
+Se começar a faltar memória mesmo com swap, o próximo degrau é `t4g.small`
+(2GB, ~$12/mês — `stop` → `modify-instance-attribute` → `start`, sem
+recriar nada).
 
 `user-data.sh`:
 
@@ -200,48 +191,23 @@ echo '/swapfile none swap sw 0 0' >> /etc/fstab
 ```bash
 aws ec2 run-instances --image-id <AL2023_ARM64_AMI_ID> \
   --instance-type t4g.micro --key-name <SEU_KEY_PAIR> \
-  --security-group-ids <DEV_SG_ID> \
+  --security-group-ids <SG_ID> \
   --iam-instance-profile Name=hevo-ec2-ecr-pull \
   --user-data file://user-data.sh \
-  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=hevo-dev}]'
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=hevo-prod}]'
 ```
 
 Aloque um Elastic IP (`aws ec2 allocate-address` + `associate-address`) pra
 o IP não mudar em um restart.
 
-(prod, mais tarde) mesma instância, trocando `<DEV_SG_ID>` por
-`<PROD_SG_ID>` e o tag `hevo-dev` por `hevo-prod`. Comece também em
-`t4g.small` ou maior — prod atende clientes reais, `micro` é aceitável só
-pra dev. Redimensiona depois se precisar (`stop` → `modify-instance-attribute`
-→ `start`), sem tocar em mais nada.
-
-## 7. RDS (prod, mais tarde)
-
-```bash
-aws rds create-db-instance \
-  --db-instance-identifier hevo-prod \
-  --engine postgres --engine-version 16 \
-  --db-instance-class db.t4g.micro \
-  --allocated-storage 20 --storage-type gp3 \
-  --master-username hevo --master-user-password <SENHA_FORTE> \
-  --db-name hevo \
-  --vpc-security-group-ids <RDS_SG_ID> \
-  --no-multi-az --no-publicly-accessible \
-  --backup-retention-period 7
-```
-
-Anote o endpoint (`aws rds describe-db-instances`) pro `DATABASE_URL` do
-`.env` de prod.
-
-## 8. DNS
+## 7. DNS
 
 `hevo.ia.br` provavelmente está no Registro.br (não Route53) — não é preciso
-criar hosted zone paga. Onde o DNS estiver hoje, crie:
+criar hosted zone paga. Crie:
 
-- `A dev.hevo.ia.br` → Elastic IP da instância dev
-- (prod, mais tarde) `A app.hevo.ia.br` → Elastic IP da instância prod
+- `A app.hevo.ia.br` → Elastic IP da instância
 
-## 9. Configurar o servidor (dev)
+## 8. Configurar o servidor
 
 Via SSH:
 
@@ -252,14 +218,12 @@ sudo mkdir -p /opt/hevo && sudo chown ec2-user:ec2-user /opt/hevo
 
 Copie do repo pra `/opt/hevo/` (via `scp` local):
 
-- `deploy/docker-compose.dev.yml` → `/opt/hevo/docker-compose.yml`
+- `deploy/docker-compose.yml` → `/opt/hevo/docker-compose.yml`
 - `deploy/Caddyfile` → `/opt/hevo/Caddyfile`
 - `deploy/deploy.sh` → `/opt/hevo/deploy.sh` (já vem com +x, confira depois do scp)
 
 Crie `/opt/hevo/.env` a partir de `deploy/.env.example`, preenchendo os
-valores reais de dev (ver comentários no arquivo).
-
-(prod, mais tarde) mesma coisa, usando `deploy/docker-compose.prod.yml`.
+valores reais (ver comentários no arquivo).
 
 Primeiro `up` manual, pra não depender do pipeline logo de cara:
 
@@ -274,42 +238,40 @@ docker compose up -d
 ```
 
 O Caddy provisiona o certificado TLS sozinho no primeiro boot, desde que o
-DNS (passo 8) já esteja apontando pro IP e as portas 80/443 estejam
+DNS (passo 7) já esteja apontando pro IP e as portas 80/443 estejam
 liberadas.
 
-## 10. GitHub — secrets e environments
+## 9. GitHub — secrets e environment
 
 Em Settings → Secrets and variables → Actions:
 
 - Secret de repositório: `AWS_ROLE_ARN` (do passo 2)
 
-Em Settings → Environments, criar `development` com:
+Em Settings → Environments, criar `production` com:
 
-- `SSH_HOST` — Elastic IP da instância dev
+- `SSH_HOST` — Elastic IP da instância
 - `SSH_USER` — `ec2-user`
 - `SSH_KEY` — chave privada do key pair usado no `run-instances`
 
-(prod, mais tarde) criar também `production` com os mesmos três secrets
-apontando pra instância prod. Recomendado marcar "Required reviewers" nela,
-pra exigir aprovação manual antes do deploy ir pro ar.
+Recomendado marcar "Required reviewers" nela, pra exigir aprovação manual
+antes de um deploy ir pro ar — não está configurado hoje.
 
-## 11. Primeiro deploy automático
+## 10. Primeiro deploy automático
 
 ```bash
-git push origin develop   # builda, publica hevo:dev, reimplanta dev
+git push origin main   # builda, publica hevo:prod, reimplanta
 ```
 
-Acompanhe em Actions → Deploy. Não dar push em `main` ainda — isso fica pra
-quando decidirmos subir prod.
+Acompanhe em Actions → Deploy.
 
-## 12. Rollback
+## 11. Rollback
 
-As tags `hevo:dev`/`hevo:prod` são mutáveis — cada deploy sobrescreve. Pra
-voltar uma versão: Actions → Deploy → ache o run do commit anterior → "Re-run
-all jobs". Isso rebuilda aquele commit e sobrescreve a tag de novo,
+A tag `hevo:prod` é mutável — cada deploy sobrescreve. Pra voltar uma
+versão: Actions → Deploy → ache o run do commit anterior → "Re-run all
+jobs". Isso rebuilda aquele commit e sobrescreve a tag de novo,
 reimplantando a versão antiga.
 
-## 13. E-mail (pendente)
+## 12. E-mail (pendente)
 
 `EMAIL_BACKEND` em produção é `smtp.EmailBackend`, mas o `deploy/.env.example`
 deixa `EMAIL_HOST` em branco — sem configurar, cai no default `localhost:25`,
@@ -336,9 +298,7 @@ credenciais SMTP válidas nesses quatro campos.
 
 ## Custos estimados (us-east-2)
 
-Fase atual — só dev:
-
-| Item | Dev |
+| Item | Custo |
 |---|---|
 | EC2 t4g.micro | ~$6 |
 | EBS 20GB | ~$2 |
@@ -346,8 +306,10 @@ Fase atual — só dev:
 | ECR (uso baixo) | ~$1 |
 | **Total** | **~$10/mês** |
 
-Quando prod entrar (t4g.small + RDS db.t4g.micro): mais ~$30-33/mês. Sem
-custo de Route53 (DNS fica no Registro.br) nem de domínio novo.
+## Upgrade futuro (não é o plano ativo hoje)
 
-Se o Django/Celery começarem a OOM mesmo com swap, o próximo degrau é
-`t4g.small` (2GB, ~$12/mês).
+Se o volume de clientes reais justificar, os próximos degraus de robustez
+seriam RDS Postgres gerenciado (backup automático, sem depender do volume
+Docker) e uma instância maior (`t4g.small`+) com um ambiente `production`
+protegido por "Required reviewers". Nenhum dos dois está sendo provisionado
+agora — por enquanto é essa única instância mesmo.
