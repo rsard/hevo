@@ -115,6 +115,21 @@ def whatsapp_connect(request):
     return JsonResponse({"status": "connected"})
 
 
+@login_required
+def whatsapp_disconnect(request):
+    """Removes the venue's WhatsApp connection (local only — doesn't revoke
+    anything on Meta's side, same as calendar_disconnect for Google Calendar)."""
+    venue = get_active_venue(request.user)
+    if venue is None:
+        raise Http404("Nenhum espaço associado a este usuário.")
+    if request.method == "POST":
+        venue.whatsapp_phone_number_id = None
+        venue.whatsapp_business_account_id = ""
+        venue.save(update_fields=["whatsapp_phone_number_id", "whatsapp_business_account_id"])
+        messages.success(request, "WhatsApp desconectado.")
+    return redirect("crm:integration-settings")
+
+
 def _ensure_default_templates(waba_id):
     """Creates the templates Hevo depends on (follow-ups, visit reminders) on a
     newly connected WABA. Best-effort — a template that already exists (e.g. a

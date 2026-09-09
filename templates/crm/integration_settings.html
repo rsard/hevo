@@ -11,7 +11,10 @@
         <div class="card-body">
             <h2>Google Calendar</h2>
             {% if connection %}
-            <p>Conectado</p>
+            <p class="text-success mb-2">
+                <i class="fa-solid fa-circle-check"></i>
+                Conectado.
+            </p>
             <p class="text-muted">Conectado em {{ connection.created_at|date:"d/m/Y" }}</p>
             <form method="post" action="{% url "crm:calendar-disconnect" %}">
                 {% csrf_token %}
@@ -31,13 +34,14 @@
         <div class="card-body">
             <h2>WhatsApp</h2>
             {% if venue.whatsapp_phone_number_id and venue.whatsapp_business_account_id %}
-            <p class="text-success mb-3">
+            <p class="text-success mb-2">
                 <i class="fa-solid fa-circle-check"></i>
                 Conectado.
             </p>
-            <button type="button" id="whatsapp-connect-btn" class="btn btn-outline-secondary btn-sm">
-                Reconectar
-            </button>
+            <form method="post" action="{% url "venue:whatsapp-disconnect" %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger">Desconectar</button>
+            </form>
             {% else %}
             <p class="text-muted">
                 Conecte o WhatsApp Business do seu espaço pra IA poder responder seus clientes.
