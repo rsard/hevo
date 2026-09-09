@@ -9,7 +9,7 @@ from django.utils import timezone
 
 AUTHORIZATION_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 TOKEN_URL = 'https://oauth2.googleapis.com/token'
-SCOPE = 'https://www.googleapis.com/auth/calendar'
+SCOPE = 'https://www.googleapis.com/auth/calendar.events'
 
 
 def generate_state():
