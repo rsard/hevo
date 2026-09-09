@@ -11,14 +11,13 @@
         <div class="card-body">
             <h2>Google Calendar</h2>
             {% if connection %}
-            <p class="text-success mb-2">
+            <p class="text-success">
                 <i class="fa-solid fa-circle-check"></i>
                 Conectado.
             </p>
-            <p class="text-muted">Conectado em {{ connection.created_at|date:"d/m/Y" }}</p>
             <form method="post" action="{% url "crm:calendar-disconnect" %}">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-outline-danger">Desconectar</button>
+                <button type="submit" class="btn btn-outline-danger btn-sm">Desconectar</button>
             </form>
             {% else %}
             <p class="text-muted">
@@ -34,13 +33,13 @@
         <div class="card-body">
             <h2>WhatsApp</h2>
             {% if venue.whatsapp_phone_number_id and venue.whatsapp_business_account_id %}
-            <p class="text-success mb-2">
+            <p class="text-success">
                 <i class="fa-solid fa-circle-check"></i>
                 Conectado.
             </p>
             <form method="post" action="{% url "venue:whatsapp-disconnect" %}">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-outline-danger">Desconectar</button>
+                <button type="submit" class="btn btn-outline-danger btn-sm">Desconectar</button>
             </form>
             {% else %}
             <p class="text-muted">

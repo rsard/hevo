@@ -92,7 +92,7 @@ class QualificationService:
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.AI_ACTION,
-            description='AI updated qualification data from the conversation.',
+            description='IA atualizou a qualificação baseado na conversa.',
         )
 
         if data.get('wants_human') and lead.escalated_at is None:
