@@ -7,7 +7,7 @@ from xhtml2pdf import pisa
 
 from apps.conversation.models import Conversation, Message
 from apps.conversation.services import ConversationService
-from apps.conversation.whatsapp.client import WhatsAppClient
+from apps.conversation.whatsapp.client import WhatsAppClient, extract_message_id
 from apps.core.utils import format_currency
 from apps.crm.models import LeadActivity, Proposal
 from apps.crm.services.crm_service import CRMService
@@ -44,17 +44,19 @@ class ProposalService:
         proposal.pdf.save(filename, ContentFile(pdf_bytes), save=False)
 
         conversation = lead.conversation
+        wamid = ""
         if conversation.channel == Conversation.Channel.WHATSAPP:
             client = WhatsAppClient(lead.venue.whatsapp_phone_number_id)
             media_id = client.upload_media(
                 file_bytes=pdf_bytes, filename=filename, mime_type="application/pdf",
             )
-            client.send_document(
+            send_response = client.send_document(
                 to=conversation.external_contact_id,
                 media_id=media_id,
                 filename=filename,
                 caption="Segue nossa proposta! Qualquer dúvida, é só chamar.",
             )
+            wamid = extract_message_id(send_response)
 
         proposal.sent_at = timezone.now()
         proposal.save(update_fields=["pdf", "sent_at"])
@@ -64,6 +66,7 @@ class ProposalService:
             direction=Message.Direction.OUTBOUND,
             sender_type=Message.SenderType.HUMAN,
             content=f"[Proposta enviada: {package.name} — {format_currency(price)}]",
+            external_message_id=wamid,
         )
         CRMService.log_activity(
             lead=lead,

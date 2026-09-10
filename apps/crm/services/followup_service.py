@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from apps.conversation.models import Conversation, Message
 from apps.conversation.services import ConversationService
-from apps.conversation.whatsapp.client import WhatsAppClient
+from apps.conversation.whatsapp.client import WhatsAppClient, extract_message_id
 from apps.crm.models import Lead, LeadActivity, Visit
 from apps.crm.services.crm_service import CRMService
 
@@ -46,17 +46,20 @@ class FollowUpService:
         conversation = lead.conversation
         # Send first: a message record should only exist once we know it actually
         # went out, so a failed send doesn't show up as a phantom sent message.
+        wamid = ""
         if conversation.channel == Conversation.Channel.WHATSAPP:
-            WhatsAppClient(lead.venue.whatsapp_phone_number_id).send_template(
+            send_response = WhatsAppClient(lead.venue.whatsapp_phone_number_id).send_template(
                 to=conversation.external_contact_id,
                 template_name=settings.WHATSAPP_FOLLOWUP_TEMPLATE_NAME,
                 language_code=settings.WHATSAPP_FOLLOWUP_TEMPLATE_LANGUAGE,
             )
+            wamid = extract_message_id(send_response)
         message = ConversationService.record_message(
             conversation=conversation,
             direction=Message.Direction.OUTBOUND,
             sender_type=Message.SenderType.AI,
             content=settings.WHATSAPP_FOLLOWUP_TEMPLATE_TEXT,
+            external_message_id=wamid,
         )
         CRMService.log_activity(
             lead=lead,

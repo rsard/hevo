@@ -17,6 +17,12 @@
         {{ message.get_sender_type_display }} ·
         {{ message.created_at|date:"d/m H:i" }}
     </div>
+    {% if message.status == "failed" %}
+    <div class="small mt-1 text-danger" title="{{ message.error_detail }}">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Não entregue{% if message.error_detail %}: {{ message.error_detail }}{% endif %}
+    </div>
+    {% endif %}
 </div>
 {% empty %}
 <p class="text-muted">Nenhuma mensagem ainda.</p>

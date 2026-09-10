@@ -37,11 +37,22 @@ class Message(models.Model):
         AI = "ai", "IA"
         HUMAN = "human", "Humano"
 
+    class Status(models.TextChoices):
+        """Delivery status for outbound messages, from WhatsApp's status
+        webhooks. Meaningless for inbound messages — default is fine there."""
+
+        SENT = "sent", "Enviada"
+        DELIVERED = "delivered", "Entregue"
+        READ = "read", "Lida"
+        FAILED = "failed", "Falhou"
+
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages")
     direction = models.CharField(max_length=10, choices=Direction.choices)
     sender_type = models.CharField(max_length=10, choices=SenderType.choices)
     content = models.TextField()
     external_message_id = models.CharField(max_length=128, blank=True)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.SENT)
+    error_detail = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

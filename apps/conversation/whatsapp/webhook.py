@@ -11,8 +11,13 @@ from django.views.decorators.http import require_http_methods
 from apps.conversation.tasks import (
     process_inbound_non_text_whatsapp_message,
     process_inbound_whatsapp_message,
+    process_whatsapp_status_update,
 )
-from apps.conversation.whatsapp.parser import extract_messages, extract_non_text_messages
+from apps.conversation.whatsapp.parser import (
+    extract_messages,
+    extract_non_text_messages,
+    extract_statuses,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +74,14 @@ def _handle_incoming(request):
             )
         except Exception:
             logger.exception("Failed to queue inbound non-text WhatsApp message %s", message_id)
+
+    for wamid, status, error_detail in extract_statuses(payload):
+        try:
+            process_whatsapp_status_update.delay(
+                wamid=wamid, status=status, error_detail=error_detail,
+            )
+        except Exception:
+            logger.exception("Failed to queue WhatsApp status update %s", wamid)
 
     return JsonResponse({"status": "received"})
 

@@ -7,7 +7,7 @@ from django.utils import timezone
 from apps.ai.services import get_provider, log_usage
 from apps.conversation.models import Message
 from apps.conversation.services import ConversationService
-from apps.conversation.whatsapp.client import WhatsAppClient
+from apps.conversation.whatsapp.client import WhatsAppClient, extract_message_id
 from apps.crm.models import LeadActivity
 from apps.crm.services import CRMService, QualificationService
 from apps.crm.tasks import send_escalation_notification
@@ -163,12 +163,13 @@ def process_inbound_whatsapp_message(
         # Send before recording: if the send raises, no outbound row exists, so a
         # retry correctly starts over instead of the already_replied check above
         # mistaking "we saved a reply" for "we actually delivered one".
-        WhatsAppClient(phone_number_id).send_text(to=from_wa_id, body=reply_text)
+        send_response = WhatsAppClient(phone_number_id).send_text(to=from_wa_id, body=reply_text)
         ConversationService.record_message(
             conversation=conversation,
             direction=Message.Direction.OUTBOUND,
             sender_type=Message.SenderType.AI,
             content=reply_text,
+            external_message_id=extract_message_id(send_response),
         )
     except Exception as exc:
         if self.request.retries >= self.max_retries:
@@ -227,12 +228,56 @@ def process_inbound_non_text_whatsapp_message(*, phone_number_id, from_wa_id, me
         logger.exception("Failed to queue escalation notification for lead %s", lead.id)
 
     try:
-        WhatsAppClient(phone_number_id).send_text(to=from_wa_id, body=NON_TEXT_ESCALATION_ACK)
+        send_response = WhatsAppClient(phone_number_id).send_text(
+            to=from_wa_id, body=NON_TEXT_ESCALATION_ACK,
+        )
         ConversationService.record_message(
             conversation=conversation,
             direction=Message.Direction.OUTBOUND,
             sender_type=Message.SenderType.AI,
             content=NON_TEXT_ESCALATION_ACK,
+            external_message_id=extract_message_id(send_response),
         )
     except Exception:
         logger.exception("Failed to send escalation ack to %s", from_wa_id)
+
+
+@shared_task
+def process_whatsapp_status_update(*, wamid, status, error_detail):
+    """Updates a previously-sent message's delivery status from a WhatsApp
+    status webhook (sent/delivered/read/failed). A failed delivery also logs
+    an activity on the lead, so it's visible instead of the message just
+    looking permanently "sent" while never actually reaching the customer."""
+    status_map = {
+        "sent": Message.Status.SENT,
+        "delivered": Message.Status.DELIVERED,
+        "read": Message.Status.READ,
+        "failed": Message.Status.FAILED,
+    }
+    our_status = status_map.get(status)
+    if our_status is None:
+        return
+
+    try:
+        message = Message.objects.get(external_message_id=wamid)
+    except Message.DoesNotExist:
+        return
+    except Message.MultipleObjectsReturned:
+        logger.warning("Multiple messages found for wamid %s", wamid)
+        return
+
+    message.status = our_status
+    message.error_detail = error_detail
+    message.save(update_fields=["status", "error_detail"])
+
+    if our_status == Message.Status.FAILED:
+        lead = getattr(message.conversation, "lead", None)
+        if lead is not None:
+            CRMService.log_activity(
+                lead=lead,
+                activity_type=LeadActivity.ActivityType.ERROR,
+                description=(
+                    f"Mensagem não entregue pelo WhatsApp: "
+                    f"{error_detail or 'motivo não informado'}."
+                ),
+            )

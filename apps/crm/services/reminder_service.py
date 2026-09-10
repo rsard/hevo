@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from apps.conversation.models import Conversation, Message
 from apps.conversation.services import ConversationService
-from apps.conversation.whatsapp.client import WhatsAppClient
+from apps.conversation.whatsapp.client import WhatsAppClient, extract_message_id
 from apps.crm.models import LeadActivity, Visit
 from apps.crm.services.crm_service import CRMService
 
@@ -45,18 +45,21 @@ class ReminderService:
 
         # Send first: a message record should only exist once we know it actually
         # went out, so a failed send doesn't show up as a phantom sent message.
+        wamid = ""
         if conversation.channel == Conversation.Channel.WHATSAPP:
-            WhatsAppClient(lead.venue.whatsapp_phone_number_id).send_template(
+            send_response = WhatsAppClient(lead.venue.whatsapp_phone_number_id).send_template(
                 to=conversation.external_contact_id,
                 template_name=settings.WHATSAPP_VISIT_REMINDER_TEMPLATE_NAME,
                 language_code=settings.WHATSAPP_VISIT_REMINDER_TEMPLATE_LANGUAGE,
                 body_params=[lead.venue.name, when],
             )
+            wamid = extract_message_id(send_response)
         ConversationService.record_message(
             conversation=conversation,
             direction=Message.Direction.OUTBOUND,
             sender_type=Message.SenderType.AI,
             content=content,
+            external_message_id=wamid,
         )
 
         visit.reminder_sent_at = timezone.now()

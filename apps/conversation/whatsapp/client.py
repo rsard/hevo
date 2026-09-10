@@ -34,6 +34,15 @@ def get_phone_number_display(phone_number_id):
         return ""
 
 
+def extract_message_id(response):
+    """Pulls the Meta-assigned wamid out of a send_* response, so callers can
+    record it as external_message_id — that's what a later delivery-status
+    webhook references, and it's the only way to match one back to a Message.
+    Returns '' if the response doesn't have one."""
+    messages = response.get("messages") or []
+    return messages[0]["id"] if messages else ""
+
+
 def create_message_template(waba_id, *, name, category, language, body_text, body_example=None):
     """Creates a message template on a WABA.
 
