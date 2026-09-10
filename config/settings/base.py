@@ -19,44 +19,44 @@ from celery.schedules import crontab
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env = environ.Env()
-environ.Env.read_env(BASE_DIR / '.env')
+environ.Env.read_env(BASE_DIR / ".env")
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-change-me-in-production')
+SECRET_KEY = env("SECRET_KEY", default="django-insecure-change-me-in-production")
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     # Required for FORM_RENDERER = TemplatesSetting to find Django's own
     # default widget templates (django/forms/widgets/*.html).
-    'django.forms',
-    'django_htmx',
-    'apps.core',
-    'apps.venue',
-    'apps.user',
-    'apps.ai',
-    'apps.conversation',
-    'apps.crm',
-    'apps.dashboard',
-    'apps.backoffice',
+    "django.forms",
+    "django_htmx",
+    "apps.core",
+    "apps.venue",
+    "apps.user",
+    "apps.ai",
+    "apps.conversation",
+    "apps.crm",
+    "apps.dashboard",
+    "apps.backoffice",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 # Django's SecurityMiddleware defaults to "same-origin", which severs
@@ -66,40 +66,40 @@ MIDDLEWARE = [
 # communicate with us under the stricter default. "same-origin-allow-popups"
 # keeps the same protection while still letting popups we open keep a live
 # opener reference.
-SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
-AUTH_USER_MODEL = 'user.User'
+AUTH_USER_MODEL = "user.User"
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'apps.user.context_processors.active_venue',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "apps.user.context_processors.active_venue",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = "config.wsgi.application"
 
 # Lets form field templates be overridden from the project templates/ dir
 # (the default renderer only looks at each app's own templates/ directory).
-FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db('DATABASE_URL'),
+    "default": env.db("DATABASE_URL"),
 }
 
 
@@ -108,16 +108,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -125,13 +125,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'pt-br'
+LANGUAGE_CODE = "pt-br"
 
 # pt-br's locale data uses "." for thousands and "," for decimals (17.500,00) —
 # this makes every {{ value }} in templates render numbers that way automatically.
 USE_THOUSAND_SEPARATOR = True
 
-TIME_ZONE = 'America/Sao_Paulo'
+TIME_ZONE = "America/Sao_Paulo"
 
 USE_I18N = True
 
@@ -139,71 +139,71 @@ USE_TZ = True
 
 # Overrides Django's default pt-br date formats (a long "1 de março de 2024"
 # style) with dd/mm/yyyy everywhere dates render without an explicit format.
-FORMAT_MODULE_PATH = 'config.formats'
+FORMAT_MODULE_PATH = "config.formats"
 
 
 # Authentication
 
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard:home'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "dashboard:home"
+LOGOUT_REDIRECT_URL = "login"
 
 # Maps Django's default message tag names to Bootstrap's alert-* classes.
 from django.contrib.messages import constants as message_constants  # noqa: E402
 
 MESSAGE_TAGS = {
-    message_constants.ERROR: 'danger',
+    message_constants.ERROR: "danger",
 }
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
-AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default='')
-AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default='')
-AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='')
-AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='us-east-2')
-AWS_S3_ENDPOINT_URL = f'https://s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
+AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="")
+AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="us-east-2")
+AWS_S3_ENDPOINT_URL = f"https://s3.{AWS_S3_REGION_NAME}.amazonaws.com"
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 
 
 # Third-party service credentials
 
-FIELD_ENCRYPTION_KEY = env('FIELD_ENCRYPTION_KEY', default='')
-OPENAI_API_KEY = env('OPENAI_API_KEY', default='')
-GOOGLE_OAUTH_CLIENT_ID = env('GOOGLE_OAUTH_CLIENT_ID', default='')
-GOOGLE_OAUTH_CLIENT_SECRET = env('GOOGLE_OAUTH_CLIENT_SECRET', default='')
+FIELD_ENCRYPTION_KEY = env("FIELD_ENCRYPTION_KEY", default="")
+OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
+GOOGLE_OAUTH_CLIENT_ID = env("GOOGLE_OAUTH_CLIENT_ID", default="")
+GOOGLE_OAUTH_CLIENT_SECRET = env("GOOGLE_OAUTH_CLIENT_SECRET", default="")
 
-WHATSAPP_API_VERSION = env('WHATSAPP_API_VERSION', default='v21.0')
-WHATSAPP_ACCESS_TOKEN = env('WHATSAPP_ACCESS_TOKEN', default='')
-WHATSAPP_APP_SECRET = env('WHATSAPP_APP_SECRET', default='')
-WHATSAPP_VERIFY_TOKEN = env('WHATSAPP_VERIFY_TOKEN', default='')
+WHATSAPP_API_VERSION = env("WHATSAPP_API_VERSION", default="v21.0")
+WHATSAPP_ACCESS_TOKEN = env("WHATSAPP_ACCESS_TOKEN", default="")
+WHATSAPP_APP_SECRET = env("WHATSAPP_APP_SECRET", default="")
+WHATSAPP_VERIFY_TOKEN = env("WHATSAPP_VERIFY_TOKEN", default="")
 
 # Embedded Signup: lets a venue connect their own WhatsApp Business number to
 # Hevo (Meta Tech Provider flow) instead of Hevo owning the number. FACEBOOK_
 # APP_ID is the Meta app's ID (used by the JS SDK); CONFIG_ID identifies the
 # Embedded Signup configuration created in that app's dashboard.
-FACEBOOK_APP_ID = env('FACEBOOK_APP_ID', default='')
-WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID = env('WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID', default='')
+FACEBOOK_APP_ID = env("FACEBOOK_APP_ID", default="")
+WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID = env("WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID", default="")
 
 # Name/language of the Meta-approved template used for inactivity follow-ups
 # (must exist in the venue's WhatsApp Business Account). TEMPLATE_TEXT is only
 # used locally for the conversation history/UI, not sent to the API.
-WHATSAPP_FOLLOWUP_TEMPLATE_NAME = env('WHATSAPP_FOLLOWUP_TEMPLATE_NAME', default='lead_followup')
-WHATSAPP_FOLLOWUP_TEMPLATE_LANGUAGE = env('WHATSAPP_FOLLOWUP_TEMPLATE_LANGUAGE', default='pt_BR')
+WHATSAPP_FOLLOWUP_TEMPLATE_NAME = env("WHATSAPP_FOLLOWUP_TEMPLATE_NAME", default="lead_followup")
+WHATSAPP_FOLLOWUP_TEMPLATE_LANGUAGE = env("WHATSAPP_FOLLOWUP_TEMPLATE_LANGUAGE", default="pt_BR")
 WHATSAPP_FOLLOWUP_TEMPLATE_TEXT = env(
-    'WHATSAPP_FOLLOWUP_TEMPLATE_TEXT',
+    "WHATSAPP_FOLLOWUP_TEMPLATE_TEXT",
     default=(
-        'Notamos que você não respondeu recentemente. Ainda tem interesse em seu '
-        'evento? Estamos à disposição para ajudar!'
+        "Notamos que você não respondeu recentemente. Ainda tem interesse em seu "
+        "evento? Estamos à disposição para ajudar!"
     ),
 )
 
@@ -211,37 +211,37 @@ WHATSAPP_FOLLOWUP_TEMPLATE_TEXT = env(
 # exist in the venue's WhatsApp Business Account). Sent HOURS_BEFORE a
 # scheduled visit, to leads that haven't opted out (Cancelled/Completed).
 WHATSAPP_VISIT_REMINDER_TEMPLATE_NAME = env(
-    'WHATSAPP_VISIT_REMINDER_TEMPLATE_NAME', default='visit_reminder',
+    "WHATSAPP_VISIT_REMINDER_TEMPLATE_NAME", default="visit_reminder",
 )
 WHATSAPP_VISIT_REMINDER_TEMPLATE_LANGUAGE = env(
-    'WHATSAPP_VISIT_REMINDER_TEMPLATE_LANGUAGE', default='pt_BR',
+    "WHATSAPP_VISIT_REMINDER_TEMPLATE_LANGUAGE", default="pt_BR",
 )
-WHATSAPP_VISIT_REMINDER_HOURS_BEFORE = env.int('WHATSAPP_VISIT_REMINDER_HOURS_BEFORE', default=24)
+WHATSAPP_VISIT_REMINDER_HOURS_BEFORE = env.int("WHATSAPP_VISIT_REMINDER_HOURS_BEFORE", default=24)
 WHATSAPP_VISIT_REMINDER_TEMPLATE_BODY = env(
-    'WHATSAPP_VISIT_REMINDER_TEMPLATE_BODY',
-    default='Lembrete: sua visita ao {{1}} é dia {{2}}. Te esperamos!',
+    "WHATSAPP_VISIT_REMINDER_TEMPLATE_BODY",
+    default="Lembrete: sua visita ao {{1}} é dia {{2}}. Te esperamos!",
 )
 
 
 # Email
 
-EMAIL_HOST = env('EMAIL_HOST', default='localhost')
-EMAIL_PORT = env.int('EMAIL_PORT', default=25)
-EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='no-reply@hevo.app')
+EMAIL_HOST = env("EMAIL_HOST", default="localhost")
+EMAIL_PORT = env.int("EMAIL_PORT", default=25)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@hevo.app")
 
 # Base URL used to build absolute links in emails (no request context in Celery).
-SITE_URL = env('SITE_URL', default='http://localhost:8000')
+SITE_URL = env("SITE_URL", default="http://localhost:8000")
 
 
 # Celery
 
-CELERY_BROKER_URL = env('REDIS_URL', default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = env('REDIS_URL', default='redis://localhost:6379/0')
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
+CELERY_BROKER_URL = env("REDIS_URL", default="redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = env("REDIS_URL", default="redis://localhost:6379/0")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 
 # Every .delay() call is fire-and-forget — nothing in the codebase ever reads
@@ -252,16 +252,16 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_IGNORE_RESULT = True
 
 CELERY_BEAT_SCHEDULE = {
-    'send-followups-hourly': {
-        'task': 'apps.crm.tasks.send_followups_for_all_venues',
-        'schedule': crontab(minute=0),
+    "send-followups-hourly": {
+        "task": "apps.crm.tasks.send_followups_for_all_venues",
+        "schedule": crontab(minute=0),
     },
-    'send-visit-reminders-hourly': {
-        'task': 'apps.crm.tasks.send_visit_reminders_for_all_venues',
-        'schedule': crontab(minute=15),
+    "send-visit-reminders-hourly": {
+        "task": "apps.crm.tasks.send_visit_reminders_for_all_venues",
+        "schedule": crontab(minute=15),
     },
-    'mark-inactive-leads-lost-daily': {
-        'task': 'apps.crm.tasks.mark_inactive_leads_as_lost',
-        'schedule': crontab(hour=3, minute=0),
+    "mark-inactive-leads-lost-daily": {
+        "task": "apps.crm.tasks.mark_inactive_leads_as_lost",
+        "schedule": crontab(hour=3, minute=0),
     },
 }

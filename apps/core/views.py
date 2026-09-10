@@ -15,7 +15,7 @@ class VenueScopedViewMixin(LoginRequiredMixin):
         """Resolve the user's active venue or 404 if they have none."""
         self.venue = get_active_venue(request.user)
         if self.venue is None:
-            raise Http404('Nenhum espaço associado a este usuário.')
+            raise Http404("Nenhum espaço associado a este usuário.")
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -24,12 +24,12 @@ class VenueScopedViewMixin(LoginRequiredMixin):
 
     def form_valid(self, form):
         """Stamp the current venue onto the form instance before saving."""
-        if hasattr(form, 'instance'):
+        if hasattr(form, "instance"):
             form.instance.venue = self.venue
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         """Add the current venue to the template context."""
         context = super().get_context_data(**kwargs)
-        context['venue'] = self.venue
+        context["venue"] = self.venue
         return context

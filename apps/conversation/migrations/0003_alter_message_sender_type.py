@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('conversation', '0002_message_unique_external_message_id_per_conversation'),
+        ("conversation", "0002_message_unique_external_message_id_per_conversation"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='message',
-            name='sender_type',
-            field=models.CharField(choices=[('customer', 'Cliente'), ('ai', 'IA'), ('human', 'Humano')], max_length=10),
+            model_name="message",
+            name="sender_type",
+            field=models.CharField(choices=[("customer", "Cliente"), ("ai", "IA"), ("human", "Humano")], max_length=10),
         ),
     ]

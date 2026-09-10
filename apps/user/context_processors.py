@@ -5,7 +5,7 @@ def active_venue(request):
     """Expose the logged-in user's active venue, and its active lead count for
     the sidebar summary, to every template."""
     if not request.user.is_authenticated:
-        return {'active_venue': None, 'active_venue_lead_count': None}
+        return {"active_venue": None, "active_venue_lead_count": None}
 
     venue = get_active_venue(request.user)
     lead_count = None
@@ -18,4 +18,4 @@ def active_venue(request):
             .count()
         )
 
-    return {'active_venue': venue, 'active_venue_lead_count': lead_count}
+    return {"active_venue": venue, "active_venue_lead_count": lead_count}

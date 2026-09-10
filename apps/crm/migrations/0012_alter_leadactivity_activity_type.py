@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crm', '0011_proposal'),
+        ("crm", "0011_proposal"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='leadactivity',
-            name='activity_type',
-            field=models.CharField(choices=[('note', 'Nota'), ('stage_change', 'Mudança de Estágio'), ('ai_action', 'Ação da IA'), ('human_action', 'Ação Humana'), ('escalation', 'Escalonamento'), ('error', 'Erro')], max_length=20),
+            model_name="leadactivity",
+            name="activity_type",
+            field=models.CharField(choices=[("note", "Nota"), ("stage_change", "Mudança de Estágio"), ("ai_action", "Ação da IA"), ("human_action", "Ação Humana"), ("escalation", "Escalonamento"), ("error", "Erro")], max_length=20),
         ),
     ]

@@ -8,10 +8,10 @@ from apps.crm.calendar.oauth import (
 )
 
 __all__ = [
-    'CalendarProvider',
-    'GoogleCalendarProvider',
-    'build_authorization_url',
-    'exchange_code',
-    'fetch_account_email',
-    'generate_state',
+    "CalendarProvider",
+    "GoogleCalendarProvider",
+    "build_authorization_url",
+    "exchange_code",
+    "fetch_account_email",
+    "generate_state",
 ]

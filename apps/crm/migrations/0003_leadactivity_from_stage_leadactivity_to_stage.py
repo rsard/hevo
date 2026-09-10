@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crm', '0002_alter_calendarconnection_access_token_and_more'),
+        ("crm", "0002_alter_calendarconnection_access_token_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='leadactivity',
-            name='from_stage',
-            field=models.CharField(blank=True, choices=[('new', 'New Lead'), ('contacted', 'Contacted'), ('qualified', 'Qualified'), ('visit_scheduled', 'Visit Scheduled'), ('proposal_sent', 'Proposal Sent'), ('negotiation', 'Negotiation'), ('won', 'Won'), ('lost', 'Lost')], max_length=20),
+            model_name="leadactivity",
+            name="from_stage",
+            field=models.CharField(blank=True, choices=[("new", "New Lead"), ("contacted", "Contacted"), ("qualified", "Qualified"), ("visit_scheduled", "Visit Scheduled"), ("proposal_sent", "Proposal Sent"), ("negotiation", "Negotiation"), ("won", "Won"), ("lost", "Lost")], max_length=20),
         ),
         migrations.AddField(
-            model_name='leadactivity',
-            name='to_stage',
-            field=models.CharField(blank=True, choices=[('new', 'New Lead'), ('contacted', 'Contacted'), ('qualified', 'Qualified'), ('visit_scheduled', 'Visit Scheduled'), ('proposal_sent', 'Proposal Sent'), ('negotiation', 'Negotiation'), ('won', 'Won'), ('lost', 'Lost')], max_length=20),
+            model_name="leadactivity",
+            name="to_stage",
+            field=models.CharField(blank=True, choices=[("new", "New Lead"), ("contacted", "Contacted"), ("qualified", "Qualified"), ("visit_scheduled", "Visit Scheduled"), ("proposal_sent", "Proposal Sent"), ("negotiation", "Negotiation"), ("won", "Won"), ("lost", "Lost")], max_length=20),
         ),
     ]

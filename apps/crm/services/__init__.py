@@ -8,6 +8,6 @@ from apps.crm.services.reminder_service import ReminderService
 from apps.crm.services.scheduling_service import SchedulingService
 
 __all__ = [
-    'CRMService', 'FollowUpService', 'LeadExportService', 'NotificationService',
-    'ProposalService', 'QualificationService', 'ReminderService', 'SchedulingService',
+    "CRMService", "FollowUpService", "LeadExportService", "NotificationService",
+    "ProposalService", "QualificationService", "ReminderService", "SchedulingService",
 ]

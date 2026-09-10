@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('venue', '0004_venue_whatsapp_business_account_id'),
+        ("venue", "0004_venue_whatsapp_business_account_id"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='venue',
-            name='photos_url',
+            model_name="venue",
+            name="photos_url",
             field=models.URLField(blank=True),
         ),
     ]

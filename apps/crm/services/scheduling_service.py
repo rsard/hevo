@@ -36,7 +36,7 @@ class SchedulingService:
         if conflicts.exists():
             return False
 
-        connection = getattr(venue, 'calendar_connection', None)
+        connection = getattr(venue, "calendar_connection", None)
         if connection:
             try:
                 events = GoogleCalendarProvider().list_events(
@@ -48,10 +48,10 @@ class SchedulingService:
                 connection.delete()
                 events = []
             for event in events:
-                if event['is_all_day']:
-                    if event['start'] <= start.date() < event['end']:
+                if event["is_all_day"]:
+                    if event["start"] <= start.date() < event["end"]:
                         return False
-                elif event['end'] > start and event['start'] < end:
+                elif event["end"] > start and event["start"] < end:
                     return False
 
         return True
@@ -101,20 +101,20 @@ class SchedulingService:
         return suggestions
 
     @staticmethod
-    def schedule_visit(*, lead, start, notes=''):
+    def schedule_visit(*, lead, start, notes=""):
         """Books a visit for the lead, creates the calendar event if connected, and
         advances the lead to Visit Scheduled."""
         if not SchedulingService.is_available(venue=lead.venue, start=start):
-            raise ValueError('Requested time is not available.')
+            raise ValueError("Requested time is not available.")
 
         visit = Visit.objects.create(venue=lead.venue, lead=lead, scheduled_at=start, notes=notes)
 
-        connection = getattr(lead.venue, 'calendar_connection', None)
+        connection = getattr(lead.venue, "calendar_connection", None)
         if connection:
             try:
                 event_id = GoogleCalendarProvider().create_event(
                     connection=connection,
-                    title=f'Visita - {lead.customer_name or lead.customer_phone}',
+                    title=f"Visita - {lead.customer_name or lead.customer_phone}",
                     start=start,
                     end=start + VISIT_DURATION,
                     description=notes,
@@ -125,7 +125,7 @@ class SchedulingService:
                 connection.delete()
             else:
                 visit.calendar_event_id = event_id
-                visit.save(update_fields=['calendar_event_id'])
+                visit.save(update_fields=["calendar_event_id"])
 
         CRMService.update_stage(lead=lead, stage=Lead.Stage.NEGOTIATION)
         return visit

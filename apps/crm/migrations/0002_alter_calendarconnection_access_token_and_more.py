@@ -7,18 +7,18 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crm', '0001_initial'),
+        ("crm", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='calendarconnection',
-            name='access_token',
+            model_name="calendarconnection",
+            name="access_token",
             field=apps.core.fields.EncryptedTextField(),
         ),
         migrations.AlterField(
-            model_name='calendarconnection',
-            name='refresh_token',
+            model_name="calendarconnection",
+            name="refresh_token",
             field=apps.core.fields.EncryptedTextField(),
         ),
     ]

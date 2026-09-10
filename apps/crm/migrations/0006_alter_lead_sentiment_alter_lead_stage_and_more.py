@@ -6,38 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crm', '0005_lead_escalated_at_alter_leadactivity_activity_type_and_more'),
+        ("crm", "0005_lead_escalated_at_alter_leadactivity_activity_type_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='lead',
-            name='sentiment',
-            field=models.CharField(blank=True, choices=[('positive', 'Positivo'), ('neutral', 'Neutro'), ('negative', 'Negativo')], max_length=10),
+            model_name="lead",
+            name="sentiment",
+            field=models.CharField(blank=True, choices=[("positive", "Positivo"), ("neutral", "Neutro"), ("negative", "Negativo")], max_length=10),
         ),
         migrations.AlterField(
-            model_name='lead',
-            name='stage',
-            field=models.CharField(choices=[('new', 'Novo Lead'), ('contacted', 'Contatado'), ('qualified', 'Qualificado'), ('visit_scheduled', 'Visita Agendada'), ('proposal_sent', 'Proposta Enviada'), ('negotiation', 'Negociação'), ('won', 'Ganho'), ('lost', 'Perdido')], default='new', max_length=20),
+            model_name="lead",
+            name="stage",
+            field=models.CharField(choices=[("new", "Novo Lead"), ("contacted", "Contatado"), ("qualified", "Qualificado"), ("visit_scheduled", "Visita Agendada"), ("proposal_sent", "Proposta Enviada"), ("negotiation", "Negociação"), ("won", "Ganho"), ("lost", "Perdido")], default="new", max_length=20),
         ),
         migrations.AlterField(
-            model_name='leadactivity',
-            name='activity_type',
-            field=models.CharField(choices=[('note', 'Nota'), ('stage_change', 'Mudança de Estágio'), ('ai_action', 'Ação da IA'), ('human_action', 'Ação Humana'), ('escalation', 'Escalonamento')], max_length=20),
+            model_name="leadactivity",
+            name="activity_type",
+            field=models.CharField(choices=[("note", "Nota"), ("stage_change", "Mudança de Estágio"), ("ai_action", "Ação da IA"), ("human_action", "Ação Humana"), ("escalation", "Escalonamento")], max_length=20),
         ),
         migrations.AlterField(
-            model_name='leadactivity',
-            name='from_stage',
-            field=models.CharField(blank=True, choices=[('new', 'Novo Lead'), ('contacted', 'Contatado'), ('qualified', 'Qualificado'), ('visit_scheduled', 'Visita Agendada'), ('proposal_sent', 'Proposta Enviada'), ('negotiation', 'Negociação'), ('won', 'Ganho'), ('lost', 'Perdido')], max_length=20),
+            model_name="leadactivity",
+            name="from_stage",
+            field=models.CharField(blank=True, choices=[("new", "Novo Lead"), ("contacted", "Contatado"), ("qualified", "Qualificado"), ("visit_scheduled", "Visita Agendada"), ("proposal_sent", "Proposta Enviada"), ("negotiation", "Negociação"), ("won", "Ganho"), ("lost", "Perdido")], max_length=20),
         ),
         migrations.AlterField(
-            model_name='leadactivity',
-            name='to_stage',
-            field=models.CharField(blank=True, choices=[('new', 'Novo Lead'), ('contacted', 'Contatado'), ('qualified', 'Qualificado'), ('visit_scheduled', 'Visita Agendada'), ('proposal_sent', 'Proposta Enviada'), ('negotiation', 'Negociação'), ('won', 'Ganho'), ('lost', 'Perdido')], max_length=20),
+            model_name="leadactivity",
+            name="to_stage",
+            field=models.CharField(blank=True, choices=[("new", "Novo Lead"), ("contacted", "Contatado"), ("qualified", "Qualificado"), ("visit_scheduled", "Visita Agendada"), ("proposal_sent", "Proposta Enviada"), ("negotiation", "Negociação"), ("won", "Ganho"), ("lost", "Perdido")], max_length=20),
         ),
         migrations.AlterField(
-            model_name='visit',
-            name='status',
-            field=models.CharField(choices=[('scheduled', 'Agendada'), ('confirmed', 'Confirmada'), ('completed', 'Concluída'), ('cancelled', 'Cancelada'), ('no_show', 'Não Compareceu')], default='scheduled', max_length=20),
+            model_name="visit",
+            name="status",
+            field=models.CharField(choices=[("scheduled", "Agendada"), ("confirmed", "Confirmada"), ("completed", "Concluída"), ("cancelled", "Cancelada"), ("no_show", "Não Compareceu")], default="scheduled", max_length=20),
         ),
     ]

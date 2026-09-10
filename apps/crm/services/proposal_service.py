@@ -20,13 +20,13 @@ class ProposalService:
     def render_pdf(*, lead, package, price, notes):
         """Renders the proposal template to PDF bytes. Used both for the owner's
         in-browser preview and for the file that actually gets sent."""
-        html = render_to_string('crm/proposal/proposal_pdf.html', {
-            'lead': lead,
-            'venue': lead.venue,
-            'package': package,
-            'price': price,
-            'notes': notes,
-            'today': timezone.localdate(),
+        html = render_to_string("crm/proposal/proposal_pdf.html", {
+            "lead": lead,
+            "venue": lead.venue,
+            "package": package,
+            "price": price,
+            "notes": notes,
+            "today": timezone.localdate(),
         })
         buffer = BytesIO()
         pisa.CreatePDF(html, dest=buffer)
@@ -40,34 +40,34 @@ class ProposalService:
         proposal = Proposal.objects.create(
             venue=lead.venue, lead=lead, package=package, price=price, notes=notes,
         )
-        filename = f'proposta-{lead.pk}-{proposal.pk}.pdf'
+        filename = f"proposta-{lead.pk}-{proposal.pk}.pdf"
         proposal.pdf.save(filename, ContentFile(pdf_bytes), save=False)
 
         conversation = lead.conversation
         if conversation.channel == Conversation.Channel.WHATSAPP:
             client = WhatsAppClient(lead.venue.whatsapp_phone_number_id)
             media_id = client.upload_media(
-                file_bytes=pdf_bytes, filename=filename, mime_type='application/pdf',
+                file_bytes=pdf_bytes, filename=filename, mime_type="application/pdf",
             )
             client.send_document(
                 to=conversation.external_contact_id,
                 media_id=media_id,
                 filename=filename,
-                caption='Segue nossa proposta! Qualquer dúvida, é só chamar.',
+                caption="Segue nossa proposta! Qualquer dúvida, é só chamar.",
             )
 
         proposal.sent_at = timezone.now()
-        proposal.save(update_fields=['pdf', 'sent_at'])
+        proposal.save(update_fields=["pdf", "sent_at"])
 
         ConversationService.record_message(
             conversation=conversation,
             direction=Message.Direction.OUTBOUND,
             sender_type=Message.SenderType.HUMAN,
-            content=f'[Proposta enviada: {package.name} — {format_currency(price)}]',
+            content=f"[Proposta enviada: {package.name} — {format_currency(price)}]",
         )
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.HUMAN_ACTION,
-            description=f'Proposta enviada: {package.name}, {format_currency(price)}.',
+            description=f"Proposta enviada: {package.name}, {format_currency(price)}.",
         )
         return proposal

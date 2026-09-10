@@ -19,7 +19,7 @@ class TenantModel(TimeStampedModel):
     has no default manager enforcing the scoping."""
 
     venue = models.ForeignKey(
-        'venue.Venue', on_delete=models.CASCADE, related_name='%(class)s_set',
+        "venue.Venue", on_delete=models.CASCADE, related_name="%(class)s_set",
     )
 
     class Meta:

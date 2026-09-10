@@ -8,6 +8,6 @@ def format_currency(value):
     automatically — this is for the places that build a string in plain
     Python (WhatsApp message bodies, model __str__, AI prompt context)."""
     if value is None:
-        return ''
-    formatted = django_number_format(value, decimal_pos=2, decimal_sep=',', grouping=3, thousand_sep='.')
-    return f'R$ {formatted}'
+        return ""
+    formatted = django_number_format(value, decimal_pos=2, decimal_sep=",", grouping=3, thousand_sep=".")
+    return f"R$ {formatted}"

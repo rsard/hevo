@@ -3,7 +3,7 @@ from openai import OpenAI
 
 from apps.ai.providers.base import LLMProvider, LLMResponse
 
-DEFAULT_MODEL = 'gpt-4o-mini'
+DEFAULT_MODEL = "gpt-4o-mini"
 
 
 class OpenAIProvider(LLMProvider):
@@ -19,7 +19,7 @@ class OpenAIProvider(LLMProvider):
         response = self._client.chat.completions.create(
             model=self.model_name,
             temperature=temperature,
-            messages=[{'role': 'system', 'content': system_prompt}, *messages],
+            messages=[{"role": "system", "content": system_prompt}, *messages],
         )
         choice = response.choices[0]
         return LLMResponse(

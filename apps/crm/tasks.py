@@ -17,26 +17,26 @@ def send_followups_for_all_venues():
             try:
                 FollowUpService.send_followup(lead)
             except Exception as exc:
-                logger.exception('Failed to send automated follow-up for lead %s', lead.pk)
+                logger.exception("Failed to send automated follow-up for lead %s", lead.pk)
                 CRMService.log_activity(
                     lead=lead,
                     activity_type=LeadActivity.ActivityType.ERROR,
-                    description=f'Falha ao enviar follow-up automático: {exc}',
+                    description=f"Falha ao enviar follow-up automático: {exc}",
                 )
 
 
 @shared_task
 def send_escalation_notification(lead_id):
     """Celery task: notifies venue staff that a lead requested human attention."""
-    lead = Lead.objects.select_related('venue').get(pk=lead_id)
+    lead = Lead.objects.select_related("venue").get(pk=lead_id)
     try:
         NotificationService.notify_escalation(lead)
     except Exception as exc:
-        logger.exception('Failed to send escalation notification for lead %s', lead.pk)
+        logger.exception("Failed to send escalation notification for lead %s", lead.pk)
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.ERROR,
-            description=f'Falha ao enviar notificação de escalonamento: {exc}',
+            description=f"Falha ao enviar notificação de escalonamento: {exc}",
         )
 
 
@@ -49,11 +49,11 @@ def send_visit_reminders_for_all_venues():
             try:
                 ReminderService.send_reminder(visit)
             except Exception as exc:
-                logger.exception('Failed to send automated visit reminder for visit %s', visit.pk)
+                logger.exception("Failed to send automated visit reminder for visit %s", visit.pk)
                 CRMService.log_activity(
                     lead=visit.lead,
                     activity_type=LeadActivity.ActivityType.ERROR,
-                    description=f'Falha ao enviar lembrete de visita automático: {exc}',
+                    description=f"Falha ao enviar lembrete de visita automático: {exc}",
                 )
 
 

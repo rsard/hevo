@@ -10,5 +10,5 @@ admin.site.register(User, UserAdmin)
 class VenueMembershipAdmin(admin.ModelAdmin):
     """Admin list view for venue memberships, filterable by venue and role."""
 
-    list_display = ('user', 'venue', 'role', 'is_active')
-    list_filter = ('venue', 'role')
+    list_display = ("user", "venue", "role", "is_active")
+    list_filter = ("venue", "role")

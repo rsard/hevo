@@ -10,21 +10,21 @@ class Label(TenantModel):
     """A colored tag venues can attach to leads for organization."""
 
     class Color(models.TextChoices):
-        BLUE = 'blue', 'Azul'
-        GREEN = 'green', 'Verde'
-        MAGENTA = 'magenta', 'Magenta'
-        YELLOW = 'yellow', 'Amarelo'
-        AQUA = 'aqua', 'Água'
-        ORANGE = 'orange', 'Laranja'
-        VIOLET = 'violet', 'Violeta'
-        RED = 'red', 'Vermelho'
+        BLUE = "blue", "Azul"
+        GREEN = "green", "Verde"
+        MAGENTA = "magenta", "Magenta"
+        YELLOW = "yellow", "Amarelo"
+        AQUA = "aqua", "Água"
+        ORANGE = "orange", "Laranja"
+        VIOLET = "violet", "Violeta"
+        RED = "red", "Vermelho"
 
     name = models.CharField(max_length=50)
     color = models.CharField(max_length=10, choices=Color.choices, default=Color.BLUE)
 
     class Meta:
-        unique_together = ('venue', 'name')
-        ordering = ['name']
+        unique_together = ("venue", "name")
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
@@ -34,31 +34,31 @@ class Lead(TenantModel):
     """A prospective customer conversation tracked through the sales funnel."""
 
     class Stage(models.TextChoices):
-        NEW = 'new', 'Novo Lead'
-        CONTACTED = 'contacted', 'Contatado'
-        QUALIFIED = 'qualified', 'Qualificado'
-        NEGOTIATION = 'negotiation', 'Em Negociação'
-        WON = 'won', 'Concluído'
-        LOST = 'lost', 'Arquivado'
+        NEW = "new", "Novo Lead"
+        CONTACTED = "contacted", "Contatado"
+        QUALIFIED = "qualified", "Qualificado"
+        NEGOTIATION = "negotiation", "Em Negociação"
+        WON = "won", "Concluído"
+        LOST = "lost", "Arquivado"
 
     class Sentiment(models.TextChoices):
-        POSITIVE = 'positive', 'Positivo'
-        NEUTRAL = 'neutral', 'Neutro'
-        NEGATIVE = 'negative', 'Negativo'
+        POSITIVE = "positive", "Positivo"
+        NEUTRAL = "neutral", "Neutro"
+        NEGATIVE = "negative", "Negativo"
 
     class Urgency(models.TextChoices):
-        LOW = 'low', 'Baixa'
-        MEDIUM = 'medium', 'Média'
-        HIGH = 'high', 'Alta'
-        URGENT = 'urgent', 'Urgente'
+        LOW = "low", "Baixa"
+        MEDIUM = "medium", "Média"
+        HIGH = "high", "Alta"
+        URGENT = "urgent", "Urgente"
 
     conversation = models.OneToOneField(
-        'conversation.Conversation', on_delete=models.CASCADE, related_name='lead',
+        "conversation.Conversation", on_delete=models.CASCADE, related_name="lead",
     )
     customer_name = models.CharField(max_length=255, blank=True)
     customer_phone = models.CharField(max_length=20)
     event_type = models.ForeignKey(
-        'venue.EventType', on_delete=models.SET_NULL, null=True, blank=True, related_name='leads',
+        "venue.EventType", on_delete=models.SET_NULL, null=True, blank=True, related_name="leads",
     )
     event_date = models.DateField(null=True, blank=True)
     guest_count = models.PositiveIntegerField(null=True, blank=True)
@@ -73,11 +73,11 @@ class Lead(TenantModel):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='assigned_leads',
+        related_name="assigned_leads",
     )
     last_interaction_at = models.DateTimeField(null=True, blank=True)
     escalated_at = models.DateTimeField(null=True, blank=True)
-    labels = models.ManyToManyField(Label, blank=True, related_name='leads')
+    labels = models.ManyToManyField(Label, blank=True, related_name="leads")
 
     def __str__(self):
         return self.customer_name or self.customer_phone
@@ -87,14 +87,14 @@ class LeadActivity(models.Model):
     """An audit log entry recording a note, stage change, or action on a lead."""
 
     class ActivityType(models.TextChoices):
-        NOTE = 'note', 'Nota'
-        STAGE_CHANGE = 'stage_change', 'Mudança de Estágio'
-        AI_ACTION = 'ai_action', 'Ação da IA'
-        HUMAN_ACTION = 'human_action', 'Ação Humana'
-        ESCALATION = 'escalation', 'Escalonamento'
-        ERROR = 'error', 'Erro'
+        NOTE = "note", "Nota"
+        STAGE_CHANGE = "stage_change", "Mudança de Estágio"
+        AI_ACTION = "ai_action", "Ação da IA"
+        HUMAN_ACTION = "human_action", "Ação Humana"
+        ESCALATION = "escalation", "Escalonamento"
+        ERROR = "error", "Erro"
 
-    lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='activities')
+    lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name="activities")
     activity_type = models.CharField(max_length=20, choices=ActivityType.choices)
     description = models.TextField()
     from_stage = models.CharField(max_length=20, choices=Lead.Stage.choices, blank=True)
@@ -104,48 +104,48 @@ class LeadActivity(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='+',
+        related_name="+",
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['created_at']
-        verbose_name_plural = 'lead activities'
+        ordering = ["created_at"]
+        verbose_name_plural = "lead activities"
 
     def __str__(self):
-        return f'{self.get_activity_type_display()} - {self.lead}'
+        return f"{self.get_activity_type_display()} - {self.lead}"
 
 
 class Proposal(TenantModel):
     """A pricing proposal generated for a lead and sent as a PDF over WhatsApp."""
 
-    lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='proposals')
+    lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name="proposals")
     package = models.ForeignKey(
-        'venue.Package', on_delete=models.SET_NULL, null=True, blank=True, related_name='proposals',
+        "venue.Package", on_delete=models.SET_NULL, null=True, blank=True, related_name="proposals",
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
     notes = models.TextField(blank=True)
-    pdf = models.FileField(upload_to='proposals/')
+    pdf = models.FileField(upload_to="proposals/")
     sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     def __str__(self):
-        return f'{self.lead} - {format_currency(self.price)}'
+        return f"{self.lead} - {format_currency(self.price)}"
 
 
 class Visit(TenantModel):
     """A scheduled venue visit for a lead, optionally synced to an external calendar."""
 
     class Status(models.TextChoices):
-        SCHEDULED = 'scheduled', 'Agendada'
-        CONFIRMED = 'confirmed', 'Confirmada'
-        COMPLETED = 'completed', 'Concluída'
-        CANCELLED = 'cancelled', 'Cancelada'
-        NO_SHOW = 'no_show', 'Não Compareceu'
+        SCHEDULED = "scheduled", "Agendada"
+        CONFIRMED = "confirmed", "Confirmada"
+        COMPLETED = "completed", "Concluída"
+        CANCELLED = "cancelled", "Cancelada"
+        NO_SHOW = "no_show", "Não Compareceu"
 
-    lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='visits')
+    lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name="visits")
     scheduled_at = models.DateTimeField()
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.SCHEDULED)
     calendar_event_id = models.CharField(max_length=255, blank=True)
@@ -153,20 +153,20 @@ class Visit(TenantModel):
     reminder_sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        ordering = ['scheduled_at']
+        ordering = ["scheduled_at"]
 
     def __str__(self):
-        return f'{self.lead} - {self.scheduled_at}'
+        return f"{self.lead} - {self.scheduled_at}"
 
 
 class CalendarConnection(TimeStampedModel):
     """Stores a venue's OAuth connection to an external calendar provider."""
 
     class Provider(models.TextChoices):
-        GOOGLE = 'google', 'Google Calendar'
+        GOOGLE = "google", "Google Calendar"
 
     venue = models.OneToOneField(
-        'venue.Venue', on_delete=models.CASCADE, related_name='calendar_connection',
+        "venue.Venue", on_delete=models.CASCADE, related_name="calendar_connection",
     )
     provider = models.CharField(max_length=20, choices=Provider.choices, default=Provider.GOOGLE)
     calendar_id = models.CharField(max_length=255)
@@ -178,7 +178,7 @@ class CalendarConnection(TimeStampedModel):
     token_expires_at = models.DateTimeField()
 
     def __str__(self):
-        return f'{self.venue} - {self.get_provider_display()}'
+        return f"{self.venue} - {self.get_provider_display()}"
 
 
 class EmailLog(TenantModel):
@@ -189,4 +189,4 @@ class EmailLog(TenantModel):
     recipient_count = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return f'{self.subject} - {self.venue}'
+        return f"{self.subject} - {self.venue}"

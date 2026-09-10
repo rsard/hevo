@@ -7,5 +7,5 @@ from apps.backoffice.models import Subscription
 class SubscriptionAdmin(admin.ModelAdmin):
     """Admin list view for subscriptions."""
 
-    list_display = ('venue', 'plan_name', 'monthly_price', 'status', 'started_at')
-    list_filter = ('status',)
+    list_display = ("venue", "plan_name", "monthly_price", "status", "started_at")
+    list_filter = ("status",)

@@ -8,24 +8,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user', '0001_initial'),
-        ('venue', '0001_initial'),
+        ("user", "0001_initial"),
+        ("venue", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='VenueMembership',
+            name="VenueMembership",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('role', models.CharField(choices=[('owner', 'Owner'), ('manager', 'Manager'), ('salesperson', 'Salesperson')], max_length=20)),
-                ('is_active', models.BooleanField(default=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='venue_memberships', to=settings.AUTH_USER_MODEL)),
-                ('venue', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='memberships', to='venue.venue')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("role", models.CharField(choices=[("owner", "Owner"), ("manager", "Manager"), ("salesperson", "Salesperson")], max_length=20)),
+                ("is_active", models.BooleanField(default=True)),
+                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="venue_memberships", to=settings.AUTH_USER_MODEL)),
+                ("venue", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="memberships", to="venue.venue")),
             ],
             options={
-                'unique_together': {('user', 'venue')},
+                "unique_together": {("user", "venue")},
             },
         ),
     ]

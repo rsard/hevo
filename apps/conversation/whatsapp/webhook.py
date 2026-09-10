@@ -18,20 +18,20 @@ logger = logging.getLogger(__name__)
 
 
 @csrf_exempt
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(["GET", "POST"])
 def whatsapp_webhook(request):
     """WhatsApp Cloud API webhook: verification handshake on GET, messages on POST."""
-    if request.method == 'GET':
+    if request.method == "GET":
         return _handle_verification(request)
     return _handle_incoming(request)
 
 
 def _handle_verification(request):
     """Responds to Meta's webhook verification handshake with the challenge if valid."""
-    mode = request.GET.get('hub.mode')
-    token = request.GET.get('hub.verify_token')
-    challenge = request.GET.get('hub.challenge', '')
-    if mode == 'subscribe' and token == settings.WHATSAPP_VERIFY_TOKEN:
+    mode = request.GET.get("hub.mode")
+    token = request.GET.get("hub.verify_token")
+    challenge = request.GET.get("hub.challenge", "")
+    if mode == "subscribe" and token == settings.WHATSAPP_VERIFY_TOKEN:
         return HttpResponse(challenge)
     return HttpResponseForbidden()
 
@@ -57,7 +57,7 @@ def _handle_incoming(request):
             # A broker hiccup here shouldn't 500 the webhook — Meta retries
             # failed deliveries, but repeated 5xx responses risk it disabling
             # the subscription, and would also abandon the rest of this batch.
-            logger.exception('Failed to queue inbound WhatsApp message %s', message_id)
+            logger.exception("Failed to queue inbound WhatsApp message %s", message_id)
 
     for phone_number_id, from_wa_id, message_id, message_type in extract_non_text_messages(payload):
         try:
@@ -68,19 +68,19 @@ def _handle_incoming(request):
                 message_type=message_type,
             )
         except Exception:
-            logger.exception('Failed to queue inbound non-text WhatsApp message %s', message_id)
+            logger.exception("Failed to queue inbound non-text WhatsApp message %s", message_id)
 
-    return JsonResponse({'status': 'received'})
+    return JsonResponse({"status": "received"})
 
 
 def _valid_signature(request):
     """Verifies the payload's HMAC-SHA256 signature against the configured app secret."""
     if not settings.WHATSAPP_APP_SECRET:
         return False
-    signature = request.headers.get('X-Hub-Signature-256', '')
-    if not signature.startswith('sha256='):
+    signature = request.headers.get("X-Hub-Signature-256", "")
+    if not signature.startswith("sha256="):
         return False
     expected = hmac.new(
         settings.WHATSAPP_APP_SECRET.encode(), request.body, hashlib.sha256,
     ).hexdigest()
-    return hmac.compare_digest(signature.removeprefix('sha256='), expected)
+    return hmac.compare_digest(signature.removeprefix("sha256="), expected)

@@ -7,23 +7,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crm', '0008_merge_visit_proposal_stages'),
-        ('venue', '0004_venue_whatsapp_business_account_id'),
+        ("crm", "0008_merge_visit_proposal_stages"),
+        ("venue", "0004_venue_whatsapp_business_account_id"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='EmailLog',
+            name="EmailLog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('subject', models.CharField(blank=True, max_length=255)),
-                ('recipient_count', models.PositiveIntegerField(default=1)),
-                ('venue', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)s_set', to='venue.venue')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("subject", models.CharField(blank=True, max_length=255)),
+                ("recipient_count", models.PositiveIntegerField(default=1)),
+                ("venue", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="%(class)s_set", to="venue.venue")),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

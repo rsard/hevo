@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crm', '0006_alter_lead_sentiment_alter_lead_stage_and_more'),
+        ("crm", "0006_alter_lead_sentiment_alter_lead_stage_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='lead',
-            name='urgency',
-            field=models.CharField(choices=[('low', 'Baixa'), ('medium', 'Média'), ('high', 'Alta'), ('urgent', 'Urgente')], default='medium', max_length=10),
+            model_name="lead",
+            name="urgency",
+            field=models.CharField(choices=[("low", "Baixa"), ("medium", "Média"), ("high", "Alta"), ("urgent", "Urgente")], default="medium", max_length=10),
         ),
     ]

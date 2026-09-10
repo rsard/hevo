@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crm', '0009_emaillog'),
+        ("crm", "0009_emaillog"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='visit',
-            name='reminder_sent_at',
+            model_name="visit",
+            name="reminder_sent_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

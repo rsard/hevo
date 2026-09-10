@@ -4,14 +4,14 @@ register = template.Library()
 
 # Bootstrap's contextual colors, used as a fixed deterministic palette for
 # avatars, kanban accents, and calendar events instead of hand-rolled CSS.
-BOOTSTRAP_COLORS = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'dark']
+BOOTSTRAP_COLORS = ["primary", "secondary", "success", "danger", "warning", "info", "dark"]
 
 
 @register.filter
 def initials(name):
     """First two letters of a single name, or first+last initial for a full name."""
     if not name:
-        return '?'
+        return "?"
     parts = name.strip().split()
     if len(parts) == 1:
         return parts[0][:2].upper()

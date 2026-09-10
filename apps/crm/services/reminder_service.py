@@ -36,11 +36,11 @@ class ReminderService:
         — this sends the pre-approved template rather than AI-generated text."""
         lead = visit.lead
         conversation = lead.conversation
-        when = timezone.localtime(visit.scheduled_at).strftime('%d/%m às %H:%M')
+        when = timezone.localtime(visit.scheduled_at).strftime("%d/%m às %H:%M")
         content = (
             settings.WHATSAPP_VISIT_REMINDER_TEMPLATE_BODY
-            .replace('{{1}}', lead.venue.name)
-            .replace('{{2}}', when)
+            .replace("{{1}}", lead.venue.name)
+            .replace("{{2}}", when)
         )
 
         # Send first: a message record should only exist once we know it actually
@@ -60,11 +60,11 @@ class ReminderService:
         )
 
         visit.reminder_sent_at = timezone.now()
-        visit.save(update_fields=['reminder_sent_at'])
+        visit.save(update_fields=["reminder_sent_at"])
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.AI_ACTION,
-            description=f'Sent automated visit reminder for {when}.',
+            description=f"Sent automated visit reminder for {when}.",
         )
         CRMService.touch_interaction(lead)
         return visit

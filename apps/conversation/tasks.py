@@ -16,7 +16,7 @@ from apps.venue.services import KnowledgeBaseService
 
 logger = logging.getLogger(__name__)
 
-MARKDOWN_LINK_RE = re.compile(r'\[([^\]]+)\]\((https?://[^\s)]+)\)')
+MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)\]\((https?://[^\s)]+)\)")
 
 SALES_PERSONA_PROMPT = (
     "You are the AI sales assistant for {venue_name}, a wedding/event venue in Brazil. "
@@ -43,18 +43,18 @@ SALES_PERSONA_PROMPT = (
 # WhatsApp message types the AI can't act on — these get escalated to a human
 # instead of silently dropped.
 NON_TEXT_MESSAGE_LABELS = {
-    'image': 'uma imagem',
-    'audio': 'um áudio',
-    'video': 'um vídeo',
-    'document': 'um documento',
-    'sticker': 'uma figurinha',
-    'location': 'uma localização',
-    'contacts': 'um contato',
+    "image": "uma imagem",
+    "audio": "um áudio",
+    "video": "um vídeo",
+    "document": "um documento",
+    "sticker": "uma figurinha",
+    "location": "uma localização",
+    "contacts": "um contato",
 }
 
 NON_TEXT_ESCALATION_ACK = (
-    'Recebi o que você mandou, mas ainda não consigo abrir esse tipo de arquivo por '
-    'aqui — já chamei alguém da nossa equipe pra te ajudar com isso, só um momento!'
+    "Recebi o que você mandou, mas ainda não consigo abrir esse tipo de arquivo por "
+    "aqui — já chamei alguém da nossa equipe pra te ajudar com isso, só um momento!"
 )
 
 
@@ -74,13 +74,13 @@ def _recent_visit_cta(history, lookback=VISIT_CTA_LOOKBACK):
     repeating that invitation every single message, so this turns "don't do it
     if you already did" into a fact about the actual conversation instead of a
     rule the model has to remember unprompted."""
-    recent_replies = [m['content'] for m in history if m['role'] == 'assistant'][-lookback:]
-    return any('visita' in reply.lower() for reply in recent_replies)
+    recent_replies = [m["content"] for m in history if m["role"] == "assistant"][-lookback:]
+    return any("visita" in reply.lower() for reply in recent_replies)
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=30)
 def process_inbound_whatsapp_message(
-    self, *, phone_number_id, from_wa_id, message_id, text, contact_name='',
+    self, *, phone_number_id, from_wa_id, message_id, text, contact_name="",
 ):
     """Generates and sends the AI reply to an inbound WhatsApp message.
 
@@ -121,7 +121,7 @@ def process_inbound_whatsapp_message(
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.NOTE,
-            description='Nova mensagem recebida durante escalonamento; resposta automática pausada.',
+            description="Nova mensagem recebida durante escalonamento; resposta automática pausada.",
         )
         return
 
@@ -131,11 +131,11 @@ def process_inbound_whatsapp_message(
     try:
         availability_note = QualificationService.qualify(lead)
     except Exception:
-        availability_note = ''
+        availability_note = ""
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.AI_ACTION,
-            description='Falha ao qualificar o lead automaticamente.',
+            description="Falha ao qualificar o lead automaticamente.",
         )
 
     try:
@@ -143,12 +143,12 @@ def process_inbound_whatsapp_message(
 
         context = KnowledgeBaseService.build_context(venue)
         if availability_note:
-            context = f'{context}\n\n{availability_note}'
+            context = f"{context}\n\n{availability_note}"
         if _recent_visit_cta(history):
             context = (
-                f'{context}\n\nNOTA: você já convidou o cliente para agendar uma visita '
-                'recentemente nesta conversa. Não repita esse convite nesta resposta — só '
-                'traga o assunto de novo se o cliente pedir explicitamente.'
+                f"{context}\n\nNOTA: você já convidou o cliente para agendar uma visita "
+                "recentemente nesta conversa. Não repita esse convite nesta resposta — só "
+                "traga o assunto de novo se o cliente pedir explicitamente."
             )
         system_prompt = SALES_PERSONA_PROMPT.format(venue_name=venue.name, context=context)
 
@@ -175,7 +175,7 @@ def process_inbound_whatsapp_message(
             CRMService.log_activity(
                 lead=lead,
                 activity_type=LeadActivity.ActivityType.AI_ACTION,
-                description=f'Falha ao gerar ou enviar resposta automática: {exc}',
+                description=f"Falha ao gerar ou enviar resposta automática: {exc}",
             )
         raise self.retry(exc=exc)
 
@@ -194,11 +194,11 @@ def process_inbound_non_text_whatsapp_message(*, phone_number_id, from_wa_id, me
         venue=venue, external_contact_id=from_wa_id,
     )
 
-    label = NON_TEXT_MESSAGE_LABELS.get(message_type, 'um arquivo')
+    label = NON_TEXT_MESSAGE_LABELS.get(message_type, "um arquivo")
     _, created = ConversationService.get_or_create_inbound_message(
         conversation=conversation,
         sender_type=Message.SenderType.CUSTOMER,
-        content=f'[Cliente enviou {label} — tipo não suportado pela IA: {message_type}]',
+        content=f"[Cliente enviou {label} — tipo não suportado pela IA: {message_type}]",
         external_message_id=message_id,
     )
     if not created:
@@ -214,17 +214,17 @@ def process_inbound_non_text_whatsapp_message(*, phone_number_id, from_wa_id, me
         return
 
     lead.escalated_at = timezone.now()
-    lead.save(update_fields=['escalated_at', 'updated_at'])
+    lead.save(update_fields=["escalated_at", "updated_at"])
     CRMService.log_activity(
         lead=lead,
         activity_type=LeadActivity.ActivityType.ESCALATION,
-        description=f'Escalonado automaticamente: cliente enviou {label}, que a IA não consegue processar.',
+        description=f"Escalonado automaticamente: cliente enviou {label}, que a IA não consegue processar.",
     )
 
     try:
         send_escalation_notification.delay(lead.id)
     except Exception:
-        logger.exception('Failed to queue escalation notification for lead %s', lead.id)
+        logger.exception("Failed to queue escalation notification for lead %s", lead.id)
 
     try:
         WhatsAppClient(phone_number_id).send_text(to=from_wa_id, body=NON_TEXT_ESCALATION_ACK)
@@ -235,4 +235,4 @@ def process_inbound_non_text_whatsapp_message(*, phone_number_id, from_wa_id, me
             content=NON_TEXT_ESCALATION_ACK,
         )
     except Exception:
-        logger.exception('Failed to send escalation ack to %s', from_wa_id)
+        logger.exception("Failed to send escalation ack to %s", from_wa_id)

@@ -9,27 +9,27 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('conversation', '0001_initial'),
-        ('venue', '0001_initial'),
+        ("conversation", "0001_initial"),
+        ("venue", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AIUsageLog',
+            name="AIUsageLog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('provider', models.CharField(default='openai', max_length=50)),
-                ('model_name', models.CharField(max_length=100)),
-                ('prompt_tokens', models.PositiveIntegerField(default=0)),
-                ('completion_tokens', models.PositiveIntegerField(default=0)),
-                ('latency_ms', models.PositiveIntegerField(blank=True, null=True)),
-                ('conversation', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ai_usage_logs', to='conversation.conversation')),
-                ('venue', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)s_set', to='venue.venue')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("provider", models.CharField(default="openai", max_length=50)),
+                ("model_name", models.CharField(max_length=100)),
+                ("prompt_tokens", models.PositiveIntegerField(default=0)),
+                ("completion_tokens", models.PositiveIntegerField(default=0)),
+                ("latency_ms", models.PositiveIntegerField(blank=True, null=True)),
+                ("conversation", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name="ai_usage_logs", to="conversation.conversation")),
+                ("venue", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="%(class)s_set", to="venue.venue")),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

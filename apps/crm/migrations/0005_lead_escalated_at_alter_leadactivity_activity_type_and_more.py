@@ -7,39 +7,39 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crm', '0004_backfill_stage_transitions'),
-        ('venue', '0003_alter_menuitem_category_alter_openinghours_weekday'),
+        ("crm", "0004_backfill_stage_transitions"),
+        ("venue", "0003_alter_menuitem_category_alter_openinghours_weekday"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='lead',
-            name='escalated_at',
+            model_name="lead",
+            name="escalated_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='leadactivity',
-            name='activity_type',
-            field=models.CharField(choices=[('note', 'Note'), ('stage_change', 'Stage Change'), ('ai_action', 'AI Action'), ('human_action', 'Human Action'), ('escalation', 'Escalonamento')], max_length=20),
+            model_name="leadactivity",
+            name="activity_type",
+            field=models.CharField(choices=[("note", "Note"), ("stage_change", "Stage Change"), ("ai_action", "AI Action"), ("human_action", "Human Action"), ("escalation", "Escalonamento")], max_length=20),
         ),
         migrations.CreateModel(
-            name='Label',
+            name="Label",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(max_length=50)),
-                ('color', models.CharField(choices=[('blue', 'Azul'), ('green', 'Verde'), ('magenta', 'Magenta'), ('yellow', 'Amarelo'), ('aqua', 'Água'), ('orange', 'Laranja'), ('violet', 'Violeta'), ('red', 'Vermelho')], default='blue', max_length=10)),
-                ('venue', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)s_set', to='venue.venue')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("name", models.CharField(max_length=50)),
+                ("color", models.CharField(choices=[("blue", "Azul"), ("green", "Verde"), ("magenta", "Magenta"), ("yellow", "Amarelo"), ("aqua", "Água"), ("orange", "Laranja"), ("violet", "Violeta"), ("red", "Vermelho")], default="blue", max_length=10)),
+                ("venue", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="%(class)s_set", to="venue.venue")),
             ],
             options={
-                'ordering': ['name'],
-                'unique_together': {('venue', 'name')},
+                "ordering": ["name"],
+                "unique_together": {("venue", "name")},
             },
         ),
         migrations.AddField(
-            model_name='lead',
-            name='labels',
-            field=models.ManyToManyField(blank=True, related_name='leads', to='crm.label'),
+            model_name="lead",
+            name="labels",
+            field=models.ManyToManyField(blank=True, related_name="leads", to="crm.label"),
         ),
     ]

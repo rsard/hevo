@@ -5,8 +5,8 @@ from django.db import migrations, models
 
 def merge_stages_forward(apps, schema_editor):
     """Folds existing Visita Agendada / Proposta Enviada leads into Negociação."""
-    Lead = apps.get_model('crm', 'Lead')
-    Lead.objects.filter(stage__in=['visit_scheduled', 'proposal_sent']).update(stage='negotiation')
+    Lead = apps.get_model("crm", "Lead")
+    Lead.objects.filter(stage__in=["visit_scheduled", "proposal_sent"]).update(stage="negotiation")
 
 
 def merge_stages_backward(apps, schema_editor):
@@ -16,24 +16,24 @@ def merge_stages_backward(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crm', '0007_lead_urgency'),
+        ("crm", "0007_lead_urgency"),
     ]
 
     operations = [
         migrations.RunPython(merge_stages_forward, merge_stages_backward),
         migrations.AlterField(
-            model_name='lead',
-            name='stage',
-            field=models.CharField(choices=[('new', 'Novo Lead'), ('contacted', 'Contatado'), ('qualified', 'Qualificado'), ('negotiation', 'Em Negociação'), ('won', 'Concluído'), ('lost', 'Arquivado')], default='new', max_length=20),
+            model_name="lead",
+            name="stage",
+            field=models.CharField(choices=[("new", "Novo Lead"), ("contacted", "Contatado"), ("qualified", "Qualificado"), ("negotiation", "Em Negociação"), ("won", "Concluído"), ("lost", "Arquivado")], default="new", max_length=20),
         ),
         migrations.AlterField(
-            model_name='leadactivity',
-            name='from_stage',
-            field=models.CharField(blank=True, choices=[('new', 'Novo Lead'), ('contacted', 'Contatado'), ('qualified', 'Qualificado'), ('negotiation', 'Em Negociação'), ('won', 'Concluído'), ('lost', 'Arquivado')], max_length=20),
+            model_name="leadactivity",
+            name="from_stage",
+            field=models.CharField(blank=True, choices=[("new", "Novo Lead"), ("contacted", "Contatado"), ("qualified", "Qualificado"), ("negotiation", "Em Negociação"), ("won", "Concluído"), ("lost", "Arquivado")], max_length=20),
         ),
         migrations.AlterField(
-            model_name='leadactivity',
-            name='to_stage',
-            field=models.CharField(blank=True, choices=[('new', 'Novo Lead'), ('contacted', 'Contatado'), ('qualified', 'Qualificado'), ('negotiation', 'Em Negociação'), ('won', 'Concluído'), ('lost', 'Arquivado')], max_length=20),
+            model_name="leadactivity",
+            name="to_stage",
+            field=models.CharField(blank=True, choices=[("new", "Novo Lead"), ("contacted", "Contatado"), ("qualified", "Qualificado"), ("negotiation", "Em Negociação"), ("won", "Concluído"), ("lost", "Arquivado")], max_length=20),
         ),
     ]

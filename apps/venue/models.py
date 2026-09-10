@@ -18,7 +18,7 @@ class Venue(TimeStampedModel):
     # fetched from the Graph API at connect time — shown in Integrations.
     # Independent of whatsapp_number above, which the venue types in by hand.
     whatsapp_connected_number = models.CharField(max_length=32, blank=True)
-    timezone = models.CharField(max_length=64, default='America/Sao_Paulo')
+    timezone = models.CharField(max_length=64, default="America/Sao_Paulo")
     description = models.TextField(blank=True)
     address = models.CharField(max_length=255, blank=True)
     # Instagram, site, etc. — where the AI points customers who ask for photos,
@@ -37,26 +37,26 @@ class OpeningHours(TimeStampedModel):
     """A venue's opening hours for a single weekday."""
 
     class Weekday(models.IntegerChoices):
-        MONDAY = 0, 'Segunda-feira'
-        TUESDAY = 1, 'Terça-feira'
-        WEDNESDAY = 2, 'Quarta-feira'
-        THURSDAY = 3, 'Quinta-feira'
-        FRIDAY = 4, 'Sexta-feira'
-        SATURDAY = 5, 'Sábado'
-        SUNDAY = 6, 'Domingo'
+        MONDAY = 0, "Segunda-feira"
+        TUESDAY = 1, "Terça-feira"
+        WEDNESDAY = 2, "Quarta-feira"
+        THURSDAY = 3, "Quinta-feira"
+        FRIDAY = 4, "Sexta-feira"
+        SATURDAY = 5, "Sábado"
+        SUNDAY = 6, "Domingo"
 
-    venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='opening_hours')
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name="opening_hours")
     weekday = models.IntegerField(choices=Weekday.choices)
     opens_at = models.TimeField(null=True, blank=True)
     closes_at = models.TimeField(null=True, blank=True)
     is_closed = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('venue', 'weekday')
-        ordering = ['weekday']
+        unique_together = ("venue", "weekday")
+        ordering = ["weekday"]
 
     def __str__(self):
-        return f'{self.venue} - {self.get_weekday_display()}'
+        return f"{self.venue} - {self.get_weekday_display()}"
 
 
 class EventType(TenantModel):
@@ -67,7 +67,7 @@ class EventType(TenantModel):
     max_guests = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
-        unique_together = ('venue', 'name')
+        unique_together = ("venue", "name")
 
     def __str__(self):
         return self.name
@@ -80,7 +80,7 @@ class Package(TenantModel):
     description = models.TextField(blank=True)
     base_price = models.DecimalField(max_digits=10, decimal_places=2)
     event_type = models.ForeignKey(
-        EventType, on_delete=models.SET_NULL, null=True, blank=True, related_name='packages',
+        EventType, on_delete=models.SET_NULL, null=True, blank=True, related_name="packages",
     )
 
     def __str__(self):
@@ -104,12 +104,12 @@ class MenuItem(models.Model):
     """A single dish or drink belonging to a Menu."""
 
     class Category(models.TextChoices):
-        STARTER = 'starter', 'Entrada'
-        MAIN = 'main', 'Prato principal'
-        DESSERT = 'dessert', 'Sobremesa'
-        DRINK = 'drink', 'Bebida'
+        STARTER = "starter", "Entrada"
+        MAIN = "main", "Prato principal"
+        DESSERT = "dessert", "Sobremesa"
+        DRINK = "drink", "Bebida"
 
-    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name='items')
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name="items")
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     category = models.CharField(max_length=20, choices=Category.choices)
@@ -137,9 +137,9 @@ class FAQ(TenantModel):
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ['order']
-        verbose_name = 'FAQ'
-        verbose_name_plural = 'FAQs'
+        ordering = ["order"]
+        verbose_name = "FAQ"
+        verbose_name_plural = "FAQs"
 
     def __str__(self):
         return self.question

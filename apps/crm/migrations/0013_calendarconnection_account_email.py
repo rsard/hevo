@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crm', '0012_alter_leadactivity_activity_type'),
+        ("crm", "0012_alter_leadactivity_activity_type"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='calendarconnection',
-            name='account_email',
+            model_name="calendarconnection",
+            name="account_email",
             field=models.EmailField(blank=True, max_length=254),
         ),
     ]

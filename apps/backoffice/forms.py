@@ -21,7 +21,7 @@ class NewCustomerForm(forms.Form):
     plan_name = forms.CharField(label="Plano", max_length=100)
     monthly_price = forms.DecimalField(
         label="Valor mensal (R$)", max_digits=10, decimal_places=2, localize=True,
-        widget=forms.TextInput(attrs={'data-currency-mask': ''}),
+        widget=forms.TextInput(attrs={"data-currency-mask": ""}),
     )
     status = forms.ChoiceField(
         label="Status", choices=Subscription.Status.choices, initial=Subscription.Status.TRIALING,

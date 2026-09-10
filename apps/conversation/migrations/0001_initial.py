@@ -9,39 +9,39 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('venue', '0001_initial'),
+        ("venue", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Conversation',
+            name="Conversation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('channel', models.CharField(choices=[('whatsapp', 'WhatsApp')], default='whatsapp', max_length=20)),
-                ('external_contact_id', models.CharField(max_length=64)),
-                ('status', models.CharField(choices=[('active', 'Active'), ('closed', 'Closed')], default='active', max_length=20)),
-                ('last_message_at', models.DateTimeField(blank=True, null=True)),
-                ('venue', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)s_set', to='venue.venue')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("channel", models.CharField(choices=[("whatsapp", "WhatsApp")], default="whatsapp", max_length=20)),
+                ("external_contact_id", models.CharField(max_length=64)),
+                ("status", models.CharField(choices=[("active", "Active"), ("closed", "Closed")], default="active", max_length=20)),
+                ("last_message_at", models.DateTimeField(blank=True, null=True)),
+                ("venue", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="%(class)s_set", to="venue.venue")),
             ],
             options={
-                'unique_together': {('venue', 'channel', 'external_contact_id')},
+                "unique_together": {("venue", "channel", "external_contact_id")},
             },
         ),
         migrations.CreateModel(
-            name='Message',
+            name="Message",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('direction', models.CharField(choices=[('inbound', 'Inbound'), ('outbound', 'Outbound')], max_length=10)),
-                ('sender_type', models.CharField(choices=[('customer', 'Customer'), ('ai', 'AI'), ('human', 'Human')], max_length=10)),
-                ('content', models.TextField()),
-                ('external_message_id', models.CharField(blank=True, max_length=128)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('conversation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='conversation.conversation')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("direction", models.CharField(choices=[("inbound", "Inbound"), ("outbound", "Outbound")], max_length=10)),
+                ("sender_type", models.CharField(choices=[("customer", "Customer"), ("ai", "AI"), ("human", "Human")], max_length=10)),
+                ("content", models.TextField()),
+                ("external_message_id", models.CharField(blank=True, max_length=128)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("conversation", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="messages", to="conversation.conversation")),
             ],
             options={
-                'ordering': ['created_at'],
+                "ordering": ["created_at"],
             },
         ),
     ]

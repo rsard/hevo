@@ -5,7 +5,7 @@ class CalendarProvider(ABC):
     """Abstract interface for external calendar providers (e.g. Google Calendar)."""
 
     @abstractmethod
-    def create_event(self, *, connection, title, start, end, description=''):
+    def create_event(self, *, connection, title, start, end, description=""):
         """Creates an event on the external calendar and returns its event id."""
 
     @abstractmethod

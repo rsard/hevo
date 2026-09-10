@@ -7,27 +7,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('crm', '0010_visit_reminder_sent_at'),
-        ('venue', '0004_venue_whatsapp_business_account_id'),
+        ("crm", "0010_visit_reminder_sent_at"),
+        ("venue", "0004_venue_whatsapp_business_account_id"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Proposal',
+            name="Proposal",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('notes', models.TextField(blank=True)),
-                ('pdf', models.FileField(upload_to='proposals/')),
-                ('sent_at', models.DateTimeField(blank=True, null=True)),
-                ('lead', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='proposals', to='crm.lead')),
-                ('package', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='proposals', to='venue.package')),
-                ('venue', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='%(class)s_set', to='venue.venue')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("price", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("notes", models.TextField(blank=True)),
+                ("pdf", models.FileField(upload_to="proposals/")),
+                ("sent_at", models.DateTimeField(blank=True, null=True)),
+                ("lead", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="proposals", to="crm.lead")),
+                ("package", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name="proposals", to="venue.package")),
+                ("venue", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="%(class)s_set", to="venue.venue")),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
     ]

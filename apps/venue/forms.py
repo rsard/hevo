@@ -20,54 +20,54 @@ class BootstrapFormMixin:
         for field in self.fields.values():
             widget = field.widget
             if isinstance(widget, forms.CheckboxInput):
-                widget.attrs['class'] = 'form-check-input'
+                widget.attrs["class"] = "form-check-input"
             elif isinstance(widget, (forms.Select, forms.SelectMultiple)):
-                widget.attrs['class'] = 'form-select'
+                widget.attrs["class"] = "form-select"
             else:
-                widget.attrs['class'] = 'form-control'
+                widget.attrs["class"] = "form-control"
 
 
 class VenueProfileForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Venue
         fields = [
-            'name',
-            'description',
-            'address',
-            'whatsapp_number',
-            'timezone',
-            'photos_url',
-            'parking_info',
-            'payment_policy',
-            'cancellation_policy',
+            "name",
+            "description",
+            "address",
+            "whatsapp_number",
+            "timezone",
+            "photos_url",
+            "parking_info",
+            "payment_policy",
+            "cancellation_policy",
         ]
         labels = {
-            'name': 'Nome',
-            'description': 'Descrição',
-            'address': 'Endereço',
-            'whatsapp_number': 'Número do WhatsApp',
-            'timezone': 'Fuso horário',
-            'photos_url': 'Link de fotos (Instagram, site, etc.)',
-            'parking_info': 'Informações de estacionamento',
-            'payment_policy': 'Política de pagamento',
-            'cancellation_policy': 'Política de cancelamento',
+            "name": "Nome",
+            "description": "Descrição",
+            "address": "Endereço",
+            "whatsapp_number": "Número do WhatsApp",
+            "timezone": "Fuso horário",
+            "photos_url": "Link de fotos (Instagram, site, etc.)",
+            "parking_info": "Informações de estacionamento",
+            "payment_policy": "Política de pagamento",
+            "cancellation_policy": "Política de cancelamento",
         }
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
-            'parking_info': forms.Textarea(attrs={'rows': 2}),
-            'payment_policy': forms.Textarea(attrs={'rows': 3}),
-            'cancellation_policy': forms.Textarea(attrs={'rows': 3}),
+            "description": forms.Textarea(attrs={"rows": 3}),
+            "parking_info": forms.Textarea(attrs={"rows": 2}),
+            "payment_policy": forms.Textarea(attrs={"rows": 3}),
+            "cancellation_policy": forms.Textarea(attrs={"rows": 3}),
         }
 
 
 class OpeningHoursForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = OpeningHours
-        fields = ['is_closed', 'opens_at', 'closes_at']
-        labels = {'is_closed': 'Fechado', 'opens_at': 'Abre', 'closes_at': 'Fecha'}
+        fields = ["is_closed", "opens_at", "closes_at"]
+        labels = {"is_closed": "Fechado", "opens_at": "Abre", "closes_at": "Fecha"}
         widgets = {
-            'opens_at': forms.TimeInput(attrs={'type': 'time'}),
-            'closes_at': forms.TimeInput(attrs={'type': 'time'}),
+            "opens_at": forms.TimeInput(attrs={"type": "time"}),
+            "closes_at": forms.TimeInput(attrs={"type": "time"}),
         }
 
 
@@ -79,52 +79,52 @@ OpeningHoursFormSet = forms.modelformset_factory(
 class EventTypeForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = EventType
-        fields = ['name', 'min_guests', 'max_guests']
+        fields = ["name", "min_guests", "max_guests"]
         labels = {
-            'name': 'Nome',
-            'min_guests': 'Mínimo de convidados',
-            'max_guests': 'Máximo de convidados',
+            "name": "Nome",
+            "min_guests": "Mínimo de convidados",
+            "max_guests": "Máximo de convidados",
         }
 
 
 class PackageForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Package
-        fields = ['name', 'description', 'base_price', 'event_type']
+        fields = ["name", "description", "base_price", "event_type"]
         labels = {
-            'name': 'Nome',
-            'description': 'Descrição',
-            'base_price': 'Preço base',
-            'event_type': 'Tipo de evento',
+            "name": "Nome",
+            "description": "Descrição",
+            "base_price": "Preço base",
+            "event_type": "Tipo de evento",
         }
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
-            'base_price': forms.TextInput(attrs={'data-currency-mask': ''}),
+            "description": forms.Textarea(attrs={"rows": 3}),
+            "base_price": forms.TextInput(attrs={"data-currency-mask": ""}),
         }
-        localized_fields = ['base_price']
+        localized_fields = ["base_price"]
 
 
 class MenuForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Menu
-        fields = ['name', 'description', 'price_per_person']
+        fields = ["name", "description", "price_per_person"]
         labels = {
-            'name': 'Nome',
-            'description': 'Descrição',
-            'price_per_person': 'Preço por pessoa',
+            "name": "Nome",
+            "description": "Descrição",
+            "price_per_person": "Preço por pessoa",
         }
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 2}),
-            'price_per_person': forms.TextInput(attrs={'data-currency-mask': ''}),
+            "description": forms.Textarea(attrs={"rows": 2}),
+            "price_per_person": forms.TextInput(attrs={"data-currency-mask": ""}),
         }
-        localized_fields = ['price_per_person']
+        localized_fields = ["price_per_person"]
 
 
 class MenuItemForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = MenuItem
-        fields = ['name', 'description', 'category']
-        labels = {'name': 'Nome', 'description': 'Descrição', 'category': 'Categoria'}
+        fields = ["name", "description", "category"]
+        labels = {"name": "Nome", "description": "Descrição", "category": "Categoria"}
 
 
 MenuItemFormSet = forms.inlineformset_factory(
@@ -139,18 +139,18 @@ MenuItemFormSet = forms.inlineformset_factory(
 class DecorationOptionForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = DecorationOption
-        fields = ['name', 'description', 'price']
-        labels = {'name': 'Nome', 'description': 'Descrição', 'price': 'Preço'}
+        fields = ["name", "description", "price"]
+        labels = {"name": "Nome", "description": "Descrição", "price": "Preço"}
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 2}),
-            'price': forms.TextInput(attrs={'data-currency-mask': ''}),
+            "description": forms.Textarea(attrs={"rows": 2}),
+            "price": forms.TextInput(attrs={"data-currency-mask": ""}),
         }
-        localized_fields = ['price']
+        localized_fields = ["price"]
 
 
 class FAQForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = FAQ
-        fields = ['question', 'answer', 'order']
-        labels = {'question': 'Pergunta', 'answer': 'Resposta', 'order': 'Ordem'}
-        widgets = {'answer': forms.Textarea(attrs={'rows': 3})}
+        fields = ["question", "answer", "order"]
+        labels = {"question": "Pergunta", "answer": "Resposta", "order": "Ordem"}
+        widgets = {"answer": forms.Textarea(attrs={"rows": 3})}

@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('venue', '0002_venue_whatsapp_phone_number_id'),
+        ("venue", "0002_venue_whatsapp_phone_number_id"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='menuitem',
-            name='category',
-            field=models.CharField(choices=[('starter', 'Entrada'), ('main', 'Prato principal'), ('dessert', 'Sobremesa'), ('drink', 'Bebida')], max_length=20),
+            model_name="menuitem",
+            name="category",
+            field=models.CharField(choices=[("starter", "Entrada"), ("main", "Prato principal"), ("dessert", "Sobremesa"), ("drink", "Bebida")], max_length=20),
         ),
         migrations.AlterField(
-            model_name='openinghours',
-            name='weekday',
-            field=models.IntegerField(choices=[(0, 'Segunda-feira'), (1, 'Terça-feira'), (2, 'Quarta-feira'), (3, 'Quinta-feira'), (4, 'Sexta-feira'), (5, 'Sábado'), (6, 'Domingo')]),
+            model_name="openinghours",
+            name="weekday",
+            field=models.IntegerField(choices=[(0, "Segunda-feira"), (1, "Terça-feira"), (2, "Quarta-feira"), (3, "Quinta-feira"), (4, "Sexta-feira"), (5, "Sábado"), (6, "Domingo")]),
         ),
     ]

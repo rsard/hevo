@@ -8,11 +8,11 @@ class LabelForm(forms.ModelForm):
 
     class Meta:
         model = Label
-        fields = ['name', 'color']
-        labels = {'name': 'Nome', 'color': 'Cor'}
+        fields = ["name", "color"]
+        labels = {"name": "Nome", "color": "Cor"}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             is_select = isinstance(field.widget, forms.Select)
-            field.widget.attrs['class'] = 'form-select' if is_select else 'form-control'
+            field.widget.attrs["class"] = "form-select" if is_select else "form-control"

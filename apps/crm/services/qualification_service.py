@@ -44,7 +44,7 @@ class QualificationService:
         conversation = lead.conversation
         history = ConversationService.get_history(conversation, limit=50)
         if not history:
-            return ''
+            return ""
 
         provider = get_provider()
         response = provider.generate(system_prompt=SYSTEM_PROMPT, messages=history, temperature=0.2)
@@ -56,9 +56,9 @@ class QualificationService:
             CRMService.log_activity(
                 lead=lead,
                 activity_type=LeadActivity.ActivityType.AI_ACTION,
-                description='Falha na qualificação: IA não retornou um JSON válido.',
+                description="Falha na qualificação: IA não retornou um JSON válido.",
             )
-            return ''
+            return ""
 
         return QualificationService._apply(lead, data)
 
@@ -66,42 +66,42 @@ class QualificationService:
     def _apply(lead, data):
         """Updates lead fields from AI output and advances stage/escalation as needed.
         Returns an availability_note (see qualify) for the caller to use."""
-        event_type_name = data.get('event_type')
+        event_type_name = data.get("event_type")
         if event_type_name:
             lead.event_type = EventType.objects.filter(
                 venue=lead.venue, name__iexact=event_type_name,
             ).first()
         previous_event_date = lead.event_date
-        if data.get('event_date'):
+        if data.get("event_date"):
             try:
-                lead.event_date = date.fromisoformat(data['event_date'])
+                lead.event_date = date.fromisoformat(data["event_date"])
             except ValueError:
                 pass
-        if data.get('guest_count') is not None:
-            lead.guest_count = data['guest_count']
-        if data.get('estimated_budget') is not None:
-            lead.estimated_budget = data['estimated_budget']
-        if data.get('qualification_score') is not None:
-            lead.qualification_score = data['qualification_score']
-        if data.get('sentiment'):
-            lead.sentiment = data['sentiment']
-        if data.get('summary'):
-            lead.conversation_summary = data['summary']
+        if data.get("guest_count") is not None:
+            lead.guest_count = data["guest_count"]
+        if data.get("estimated_budget") is not None:
+            lead.estimated_budget = data["estimated_budget"]
+        if data.get("qualification_score") is not None:
+            lead.qualification_score = data["qualification_score"]
+        if data.get("sentiment"):
+            lead.sentiment = data["sentiment"]
+        if data.get("summary"):
+            lead.conversation_summary = data["summary"]
         lead.save()
 
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.AI_ACTION,
-            description='IA atualizou a qualificação baseado na conversa.',
+            description="IA atualizou a qualificação baseado na conversa.",
         )
 
-        if data.get('wants_human') and lead.escalated_at is None:
+        if data.get("wants_human") and lead.escalated_at is None:
             lead.escalated_at = timezone.now()
-            lead.save(update_fields=['escalated_at', 'updated_at'])
+            lead.save(update_fields=["escalated_at", "updated_at"])
             CRMService.log_activity(
                 lead=lead,
                 activity_type=LeadActivity.ActivityType.ESCALATION,
-                description='Cliente solicitou falar com uma pessoa da equipe.',
+                description="Cliente solicitou falar com uma pessoa da equipe.",
             )
             try:
                 # Local import: apps.crm.tasks imports apps.crm.services, which
@@ -112,24 +112,24 @@ class QualificationService:
                 CRMService.log_activity(
                     lead=lead,
                     activity_type=LeadActivity.ActivityType.AI_ACTION,
-                    description='Falha ao enfileirar notificação de escalonamento.',
+                    description="Falha ao enfileirar notificação de escalonamento.",
                 )
 
         if lead.stage == Lead.Stage.NEW:
-            score = data.get('qualification_score') or 0
+            score = data.get("qualification_score") or 0
             next_stage = Lead.Stage.QUALIFIED if score >= QUALIFIED_SCORE_THRESHOLD else Lead.Stage.CONTACTED
             CRMService.update_stage(lead=lead, stage=next_stage)
-        elif data.get('is_negotiating') and lead.stage in NEGOTIATION_ELIGIBLE_STAGES:
+        elif data.get("is_negotiating") and lead.stage in NEGOTIATION_ELIGIBLE_STAGES:
             CRMService.update_stage(lead=lead, stage=Lead.Stage.NEGOTIATION)
             CRMService.log_activity(
                 lead=lead,
                 activity_type=LeadActivity.ActivityType.AI_ACTION,
-                description='IA detectou sinais de negociação na conversa.',
+                description="IA detectou sinais de negociação na conversa.",
             )
 
         if lead.event_date and lead.event_date != previous_event_date:
             return QualificationService._availability_note(lead)
-        return ''
+        return ""
 
     @staticmethod
     def _availability_note(lead):
@@ -148,7 +148,7 @@ class QualificationService:
         alternatives = SchedulingService.suggest_alternative_event_dates(
             venue=lead.venue, after=lead.event_date, exclude_lead=lead,
         )
-        dates_text = ', '.join(d.strftime('%d/%m') for d in alternatives)
+        dates_text = ", ".join(d.strftime("%d/%m") for d in alternatives)
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.AI_ACTION,

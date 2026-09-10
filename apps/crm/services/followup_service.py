@@ -61,7 +61,7 @@ class FollowUpService:
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.AI_ACTION,
-            description='Follow-up automático enviado ao cliente.',
+            description="Follow-up automático enviado ao cliente.",
         )
         CRMService.touch_interaction(lead)
         return message
@@ -78,7 +78,7 @@ class FollowUpService:
         for lead in candidates:
             last_inbound = lead.conversation.messages.filter(
                 direction=Message.Direction.INBOUND,
-            ).order_by('-created_at').first()
+            ).order_by("-created_at").first()
             if last_inbound is None or last_inbound.created_at > cutoff:
                 continue
 
@@ -93,7 +93,7 @@ class FollowUpService:
                 lead=lead,
                 activity_type=LeadActivity.ActivityType.AI_ACTION,
                 description=(
-                    f'Marcado como perdido automaticamente: sem resposta do cliente '
-                    f'há mais de {LOST_THRESHOLD.days} dias, apesar de follow-up enviado.'
+                    f"Marcado como perdido automaticamente: sem resposta do cliente "
+                    f"há mais de {LOST_THRESHOLD.days} dias, apesar de follow-up enviado."
                 ),
             )

@@ -6,12 +6,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('conversation', '0001_initial'),
+        ("conversation", "0001_initial"),
     ]
 
     operations = [
         migrations.AddConstraint(
-            model_name='message',
-            constraint=models.UniqueConstraint(condition=models.Q(('external_message_id__gt', '')), fields=('conversation', 'external_message_id'), name='unique_external_message_id_per_conversation'),
+            model_name="message",
+            constraint=models.UniqueConstraint(condition=models.Q(("external_message_id__gt", "")), fields=("conversation", "external_message_id"), name="unique_external_message_id_per_conversation"),
         ),
     ]
