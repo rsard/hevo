@@ -56,7 +56,7 @@ class QualificationService:
             CRMService.log_activity(
                 lead=lead,
                 activity_type=LeadActivity.ActivityType.AI_ACTION,
-                description='Qualification failed: AI did not return valid JSON.',
+                description='Falha na qualificação: IA não retornou um JSON válido.',
             )
             return ''
 

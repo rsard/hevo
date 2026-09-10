@@ -61,7 +61,7 @@ class FollowUpService:
         CRMService.log_activity(
             lead=lead,
             activity_type=LeadActivity.ActivityType.AI_ACTION,
-            description='Sent automated WhatsApp template follow-up.',
+            description='Follow-up automático enviado ao cliente.',
         )
         CRMService.touch_interaction(lead)
         return message
