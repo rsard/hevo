@@ -170,6 +170,9 @@ class CalendarConnection(TimeStampedModel):
     )
     provider = models.CharField(max_length=20, choices=Provider.choices, default=Provider.GOOGLE)
     calendar_id = models.CharField(max_length=255)
+    # Best-effort, shown in Integrations so the venue knows which account is
+    # connected — blank if the userinfo call at connect time failed.
+    account_email = models.EmailField(blank=True)
     access_token = EncryptedTextField()
     refresh_token = EncryptedTextField()
     token_expires_at = models.DateTimeField()

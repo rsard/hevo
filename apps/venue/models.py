@@ -14,6 +14,10 @@ class Venue(TimeStampedModel):
     # once the venue connects their own WhatsApp Business number to Hevo.
     # Needed to subscribe our app to that WABA's webhooks.
     whatsapp_business_account_id = models.CharField(max_length=32, blank=True)
+    # Human-readable number (e.g. "+55 61 99240-3933") for the connected WABA,
+    # fetched from the Graph API at connect time — shown in Integrations.
+    # Independent of whatsapp_number above, which the venue types in by hand.
+    whatsapp_connected_number = models.CharField(max_length=32, blank=True)
     timezone = models.CharField(max_length=64, default='America/Sao_Paulo')
     description = models.TextField(blank=True)
     address = models.CharField(max_length=255, blank=True)

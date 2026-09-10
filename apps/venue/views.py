@@ -13,6 +13,7 @@ from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 from apps.conversation.whatsapp.client import (
     create_message_template,
+    get_phone_number_display,
     get_waba_phone_number_id,
     subscribe_app_to_waba,
 )
@@ -111,7 +112,10 @@ def whatsapp_connect(request):
 
     venue.whatsapp_phone_number_id = phone_number_id
     venue.whatsapp_business_account_id = waba_id
-    venue.save(update_fields=["whatsapp_phone_number_id", "whatsapp_business_account_id"])
+    venue.whatsapp_connected_number = get_phone_number_display(phone_number_id)
+    venue.save(update_fields=[
+        "whatsapp_phone_number_id", "whatsapp_business_account_id", "whatsapp_connected_number",
+    ])
     return JsonResponse({"status": "connected"})
 
 
@@ -125,7 +129,10 @@ def whatsapp_disconnect(request):
     if request.method == "POST":
         venue.whatsapp_phone_number_id = None
         venue.whatsapp_business_account_id = ""
-        venue.save(update_fields=["whatsapp_phone_number_id", "whatsapp_business_account_id"])
+        venue.whatsapp_connected_number = ""
+        venue.save(update_fields=[
+            "whatsapp_phone_number_id", "whatsapp_business_account_id", "whatsapp_connected_number",
+        ])
         messages.success(request, "WhatsApp desconectado.")
     return redirect("crm:integration-settings")
 

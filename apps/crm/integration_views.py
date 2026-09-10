@@ -4,7 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 
-from apps.crm.calendar import build_authorization_url, exchange_code, generate_state
+from apps.crm.calendar import (
+    build_authorization_url,
+    exchange_code,
+    fetch_account_email,
+    generate_state,
+)
 from apps.crm.models import CalendarConnection
 from apps.user.services import get_active_venue
 
@@ -63,6 +68,7 @@ def calendar_callback(request):
         defaults={
             "provider": CalendarConnection.Provider.GOOGLE,
             "calendar_id": "primary",
+            "account_email": fetch_account_email(tokens["access_token"]),
             "access_token": tokens["access_token"],
             "refresh_token": tokens["refresh_token"],
             "token_expires_at": tokens["expires_at"],

@@ -18,6 +18,22 @@ def get_waba_phone_number_id(waba_id):
     return numbers[0]['id'] if numbers else None
 
 
+def get_phone_number_display(phone_number_id):
+    """Best-effort: the human-readable number for a phone_number_id (e.g. "+55
+    61 99240-3933"), shown in Integrations. Returns '' if the call fails —
+    never blocks connecting."""
+    url = f'{GRAPH_API_BASE}/{settings.WHATSAPP_API_VERSION}/{phone_number_id}'
+    headers = {'Authorization': f'Bearer {settings.WHATSAPP_ACCESS_TOKEN}'}
+    try:
+        response = requests.get(
+            url, headers=headers, params={'fields': 'display_phone_number'}, timeout=10,
+        )
+        response.raise_for_status()
+        return response.json().get('display_phone_number', '')
+    except requests.RequestException:
+        return ''
+
+
 def create_message_template(waba_id, *, name, category, language, body_text, body_example=None):
     """Creates a message template on a WABA.
 

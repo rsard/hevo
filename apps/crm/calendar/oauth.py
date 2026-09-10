@@ -9,7 +9,10 @@ from django.utils import timezone
 
 AUTHORIZATION_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
 TOKEN_URL = 'https://oauth2.googleapis.com/token'
-SCOPE = 'https://www.googleapis.com/auth/calendar.events'
+USERINFO_URL = 'https://www.googleapis.com/oauth2/v2/userinfo'
+# email is non-sensitive (no extra verification burden) — just lets Integrations
+# show which Google account is connected, not used for login/identity.
+SCOPE = 'https://www.googleapis.com/auth/calendar.events email'
 
 
 def generate_state():
@@ -56,3 +59,16 @@ def exchange_code(request, code):
         'refresh_token': data['refresh_token'],
         'expires_at': timezone.now() + timedelta(seconds=data['expires_in']),
     }
+
+
+def fetch_account_email(access_token):
+    """Best-effort: which Google account this connection is for, shown in
+    Integrations. Returns '' if the call fails — never blocks connecting."""
+    try:
+        response = requests.get(
+            USERINFO_URL, headers={'Authorization': f'Bearer {access_token}'}, timeout=10,
+        )
+        response.raise_for_status()
+        return response.json().get('email', '')
+    except requests.RequestException:
+        return ''
