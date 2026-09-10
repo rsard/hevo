@@ -200,6 +200,10 @@ select:focus-visible {
     color: var(--danger-color);
 }
 
+.text-link-light {
+    color: var(--color-surface);
+}
+
 .text-link.active {
     font-weight: 700;
     text-decoration: underline;
