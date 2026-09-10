@@ -141,10 +141,7 @@
             <div class="mt-auto p-3 border-top border-secondary">
                 <form method="post" action="{% url "logout" %}">
                     {% csrf_token %}
-                    <button
-                        type="submit"
-                        class="btn btn-link text-decoration-none p-0 sidebar-nav-link">
-                        Sair</button>
+                    <button type="submit" class="text-link text-link-danger">Sair</button>
                 </form>
             </div>
             </div>

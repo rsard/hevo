@@ -20,10 +20,7 @@
             {% endif %}
             <form method="post" action="{% url "crm:calendar-disconnect" %}">
                 {% csrf_token %}
-                <button
-                    type="submit"
-                    class="btn btn-link text-decoration-none p-0 text-link-danger">
-                    Desconectar</button>
+                <button type="submit" class="text-link text-link-danger">Desconectar</button>
             </form>
             {% else %}
             <p class="text-muted">
@@ -48,10 +45,7 @@
             {% endif %}
             <form method="post" action="{% url "venue:whatsapp-disconnect" %}">
                 {% csrf_token %}
-                <button
-                    type="submit"
-                    class="btn btn-link text-decoration-none p-0 text-link-danger">
-                    Desconectar</button>
+                <button type="submit" class="text-link text-link-danger">Desconectar</button>
             </form>
             {% else %}
             <p class="text-muted">

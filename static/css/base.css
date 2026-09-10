@@ -184,6 +184,12 @@ select:focus-visible {
     color: var(--brand-color);
     font-weight: 500;
     font-size: 0.85rem;
+    /* No-ops on <a> (anchors have none of this natively) — lets the class
+       double as a chrome reset when used on a <button> instead. */
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
 }
 
 .text-link:hover {
